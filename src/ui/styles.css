@@ -104,7 +104,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--steel-2);
   border-radius: 6px;
-  border: 2px solid #0b0c0f;
+  border: 2px solid #0d0a06;
 }
 
 h1,
@@ -318,7 +318,7 @@ h3 {
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 50%;
-  background: #26282d;
+  background: #2b2620;
   justify-self: end;
 }
 .res-row[data-trend='up'] .res-lamp {
@@ -778,14 +778,11 @@ h3 {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink);
-  background: linear-gradient(180deg, #23262c 0 50%, #191b20 50% 100%);
+  background: linear-gradient(180deg, #2a2620, #1a1712);
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
-  padding: 0.55rem 1rem;
+  padding: 0.6rem 1rem;
   cursor: pointer;
-}
-.btn::after {
-  content: '';
 }
 .btn:hover:not(:disabled) {
   border-color: var(--ink-faint);
@@ -935,7 +932,6 @@ h3 {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #0d0e11;
 }
 .board-modal-body {
   padding: 1.1rem var(--pad) 1.25rem;
