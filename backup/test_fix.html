@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test de la Correction - Starship Clicker</title>
+    <link rel="stylesheet" href="style_new.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0f23 0%,
+          #1a1a3e 50%,
+          #2d1b69 100%
+        );
+        color: white;
+        margin: 0;
+        padding: 20px;
+      }
+      .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 30px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .test-result {
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 8px;
+        border: 2px solid;
+      }
+      .test-success {
+        border-color: #4caf50;
+        background: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+      }
+      .test-error {
+        border-color: #f44336;
+        background: rgba(244, 67, 54, 0.1);
+        color: #f44336;
+      }
+      .test-info {
+        border-color: #2196f3;
+        background: rgba(33, 150, 243, 0.1);
+        color: #2196f3;
+      }
+      .test-button {
+        background: linear-gradient(135deg, #00f5ff, #0080ff);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px 5px;
+        transition: all 0.3s ease;
+      }
+      .test-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 245, 255, 0.3);
+      }
+      #mothership-test {
+        text-align: center;
+        font-size: 4rem;
+        cursor: pointer;
+        margin: 20px 0;
+        padding: 40px;
+        border: 3px solid #00f5ff;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(0, 245, 255, 0.2) 0%,
+          rgba(0, 100, 255, 0.1) 70%
+        );
+        display: inline-block;
+        transition: all 0.3s ease;
+      }
+      #mothership-test:hover {
+        transform: scale(1.05);
+      }
+      #energy-display {
+        font-size: 24px;
+        margin: 20px 0;
+        text-align: center;
+        color: #ffd700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>🚀 Test de Correction - Starship Clicker</h1>
+      <p>
+        Cette page teste si la méthode
+        <code>showNotification()</code> fonctionne correctement.
+      </p>
+
+      <div class="test-result test-info">
+        <h3>📋 Tests disponibles :</h3>
+        <button class="test-button" onclick="testNotifications()">
+          Tester les notifications
+        </button>
+        <button class="test-button" onclick="testClickMothership()">
+          Tester le clic sur le vaisseau
+        </button>
+        <button class="test-button" onclick="testGameIntegration()">
+          Test d'intégration complète
+        </button>
+      </div>
+
+      <div id="mothership-test">🚀</div>
+      <div id="energy-display">Énergie: <span id="energy-count">0</span></div>
+
+      <div id="test-results"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      let testGame = null;
+      let testResults = [];
+
+      // Initialiser le jeu de test
+      document.addEventListener("DOMContentLoaded", function () {
+        try {
+          testGame = new StarshipClicker();
+          addTestResult("success", "Game initialized successfully!");
+
+          // Ajouter un event listener au vaisseau de test
+          document
+            .getElementById("mothership-test")
+            .addEventListener("click", function (e) {
+              if (testGame) {
+                const oldEnergy = testGame.gameState.resources.energy;
+                testGame.clickMothership(e);
+                const newEnergy = testGame.gameState.resources.energy;
+
+                document.getElementById("energy-count").textContent = newEnergy;
+
+                if (newEnergy > oldEnergy) {
+                  addTestResult(
+                    "success",
+                    `Click successful! Energy increased from ${oldEnergy} to ${newEnergy}`
+                  );
+                } else {
+                  addTestResult(
+                    "error",
+                    `Click failed! Energy did not increase (${oldEnergy} -> ${newEnergy})`
+                  );
+                }
+              }
+            });
+        } catch (error) {
+          addTestResult("error", "Failed to initialize game: " + error.message);
+        }
+      });
+
+      function testNotifications() {
+        try {
+          if (!testGame) {
+            addTestResult("error", "Game not initialized");
+            return;
+          }
+
+          // Test différents types de notifications
+          testGame.showNotification("Test notification SUCCESS", "success");
+          setTimeout(
+            () => testGame.showNotification("Test notification ERROR", "error"),
+            1000
+          );
+          setTimeout(
+            () => testGame.showNotification("Test notification INFO", "info"),
+            2000
+          );
+
+          addTestResult("success", "Notification tests launched successfully!");
+        } catch (error) {
+          addTestResult("error", "Notification test failed: " + error.message);
+        }
+      }
+
+      function testClickMothership() {
+        try {
+          if (!testGame) {
+            addTestResult("error", "Game not initialized");
+            return;
+          }
+
+          const initialEnergy = testGame.gameState.resources.energy;
+
+          // Simuler un clic
+          const fakeEvent = new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+          });
+
+          testGame.clickMothership(fakeEvent);
+
+          const finalEnergy = testGame.gameState.resources.energy;
+
+          if (finalEnergy > initialEnergy) {
+            addTestResult(
+              "success",
+              `Mothership click works! Energy: ${initialEnergy} → ${finalEnergy}`
+            );
+            document.getElementById("energy-count").textContent = finalEnergy;
+          } else {
+            addTestResult(
+              "error",
+              `Mothership click failed! Energy unchanged: ${initialEnergy}`
+            );
+          }
+        } catch (error) {
+          addTestResult(
+            "error",
+            "Mothership click test failed: " + error.message
+          );
+        }
+      }
+
+      function testGameIntegration() {
+        try {
+          if (!testGame) {
+            addTestResult("error", "Game not initialized");
+            return;
+          }
+
+          // Test plusieurs clics
+          const initialEnergy = testGame.gameState.resources.energy;
+
+          for (let i = 0; i < 5; i++) {
+            const fakeEvent = new MouseEvent("click");
+            testGame.clickMothership(fakeEvent);
+          }
+
+          const finalEnergy = testGame.gameState.resources.energy;
+          const energyGained = finalEnergy - initialEnergy;
+
+          if (energyGained >= 5) {
+            addTestResult(
+              "success",
+              `Integration test passed! Gained ${energyGained} energy from 5 clicks`
+            );
+            document.getElementById("energy-count").textContent = finalEnergy;
+
+            // Test d'achat de générateur
+            if (finalEnergy >= 10) {
+              testGame.buyGenerator("solarPanel");
+              addTestResult("success", "Generator purchase test completed!");
+            }
+          } else {
+            addTestResult(
+              "error",
+              `Integration test failed! Expected at least 5 energy, got ${energyGained}`
+            );
+          }
+        } catch (error) {
+          addTestResult("error", "Integration test failed: " + error.message);
+        }
+      }
+
+      function addTestResult(type, message) {
+        const resultDiv = document.createElement("div");
+        resultDiv.className = `test-result test-${type}`;
+        resultDiv.innerHTML = `
+                <strong>${new Date().toLocaleTimeString()}</strong>: ${message}
+            `;
+
+        document.getElementById("test-results").appendChild(resultDiv);
+
+        // Scroll vers le bas
+        resultDiv.scrollIntoView({ behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

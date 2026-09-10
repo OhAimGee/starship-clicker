@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style_new.css" />
+    <link rel="stylesheet" href="quantum-expansion.css" />
+    <script src="script.js" defer></script>
+    <script src="visual-enhancements.js" defer></script>
+    <title>Starship Clicker</title>
+  </head>
+  <body>
+    <div class="game-container">
+      <!-- En-tête du jeu -->
+      <header class="game-header">
+        <h1>🚀 STARSHIP CLICKER 🚀</h1>
+        <div class="resources">
+          <div class="resource" data-resource="energy">
+            <span class="resource-icon">⚡</span>
+            <span class="resource-name">Énergie:</span>
+            <span id="energy-count">0</span>
+          </div>
+          <div class="resource" data-resource="metal">
+            <span class="resource-icon">🛠️</span>
+            <span class="resource-name">Métal:</span>
+            <span id="metal-count">0</span>
+          </div>
+          <div class="resource" data-resource="crystal">
+            <span class="resource-icon">💎</span>
+            <span class="resource-name">Cristaux:</span>
+            <span id="crystal-count">0</span>
+          </div>
+          <div class="resource" data-resource="antimatter">
+            <span class="resource-icon">⚛️</span>
+            <span class="resource-name">Antimatière:</span>
+            <span id="antimatter-count">0</span>
+          </div>
+          <div class="resource" data-resource="influence">
+            <span class="resource-icon">👑</span>
+            <span class="resource-name">Influence:</span>
+            <span id="influence-count">0</span>
+          </div>
+          <div class="resource" data-resource="darkMatter">
+            <span class="resource-icon">🌑</span>
+            <span class="resource-name">Matière Noire:</span>
+            <span id="darkMatter-count">0</span>
+          </div>
+          <div class="resource" data-resource="quantumEnergy">
+            <span class="resource-icon">🔮</span>
+            <span class="resource-name">Énergie Quantique:</span>
+            <span id="quantumEnergy-count">0</span>
+          </div>
+          <div class="resource" data-resource="ascensionPoints">
+            <span class="resource-icon">✨</span>
+            <span class="resource-name">Points d'Ascension:</span>
+            <span id="ascensionPoints-count">0</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Zone de notifications d'événements -->
+      <div
+        id="event-notification"
+        class="event-notification"
+        style="display: none"
+      >
+        <div class="event-content">
+          <div class="event-icon">🌟</div>
+          <div class="event-text">
+            <h4 id="event-title">Événement</h4>
+            <p id="event-description">Description de l'événement</p>
+          </div>
+          <button id="close-event" class="close-event-btn">✖</button>
+        </div>
+      </div>
+
+      <!-- Zone principale de jeu -->
+      <main class="game-main">
+        <!-- Vaisseau mère cliquable -->
+        <div class="mothership-section">
+          <div class="mothership" id="mothership">
+            <div class="mothership-core">
+              <div class="mothership-body">🛸</div>
+              <div class="click-effect" id="click-effect"></div>
+            </div>
+            <div class="mothership-stats">
+              <p>Vaisseau Mère</p>
+              <p>+<span id="energy-per-click">1</span> ⚡ par clic</p>
+              <p>
+                Niveau de Civilisation: <span id="civilization-level">1.0</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglets de navigation -->
+        <div class="tabs-section">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="shop">🏪 Boutique</button>
+            <button class="tab-btn" data-tab="fleet">🚀 Flotte</button>
+            <button class="tab-btn" data-tab="exploration">
+              🌌 Exploration
+            </button>
+            <button class="tab-btn" data-tab="technology">
+              🔬 Technologies
+            </button>
+            <button class="tab-btn" data-tab="ascension">✨ Ascension</button>
+          </div>
+
+          <!-- Contenu des onglets -->
+          <div class="tab-content">
+            <!-- Onglet Boutique -->
+            <div class="tab-panel active" id="shop-panel">
+              <h2>🏪 CENTRE DE COMMANDE</h2>
+
+              <!-- Générateurs automatiques -->
+              <div class="shop-category">
+                <h3>Générateurs Automatiques</h3>
+                <div class="shop-items">
+                  <div class="shop-item" id="solar-panel">
+                    <div class="item-info">
+                      <div class="item-icon">☀️</div>
+                      <div class="item-details">
+                        <h4>Panneaux Solaires</h4>
+                        <p>+1 ⚡/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost"><span class="cost">10</span> ⚡</div>
+                  </div>
+
+                  <div class="shop-item" id="mining-drone">
+                    <div class="item-info">
+                      <div class="item-icon">🤖</div>
+                      <div class="item-details">
+                        <h4>Drone Mineur</h4>
+                        <p>+1 🛠️/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost"><span class="cost">25</span> ⚡</div>
+                  </div>
+
+                  <div class="shop-item" id="crystal-extractor">
+                    <div class="item-info">
+                      <div class="item-icon">💎</div>
+                      <div class="item-details">
+                        <h4>Extracteur de Cristaux</h4>
+                        <p>+1 💎/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost"><span class="cost">50</span> 🛠️</div>
+                  </div>
+
+                  <div class="shop-item" id="fusion-reactor">
+                    <div class="item-info">
+                      <div class="item-icon">⚛️</div>
+                      <div class="item-details">
+                        <h4>Réacteur à Fusion</h4>
+                        <p>+10 ⚡/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost">
+                      <span class="cost">100</span> 💎
+                    </div>
+                  </div>
+
+                  <div class="shop-item" id="antimatter-generator">
+                    <div class="item-info">
+                      <div class="item-icon">⚛️</div>
+                      <div class="item-details">
+                        <h4>Générateur d'Antimatière</h4>
+                        <p>+1 ⚛️/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost">
+                      <span class="cost">500</span> 💎
+                    </div>
+                  </div>
+
+                  <!-- Nouveaux générateurs avancés -->
+                  <div
+                    class="shop-item advanced-generator"
+                    id="quantum-harvester"
+                  >
+                    <div class="item-info">
+                      <div class="item-icon">🌌</div>
+                      <div class="item-details">
+                        <h4>Récolteur Quantique</h4>
+                        <p>+5 ⚛️/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost">
+                      <span class="cost">1000</span> ⚡
+                    </div>
+                  </div>
+
+                  <div class="shop-item advanced-generator" id="stellar-forge">
+                    <div class="item-info">
+                      <div class="item-icon">🔥</div>
+                      <div class="item-details">
+                        <h4>Forge Stellaire</h4>
+                        <p>+50 🛠️/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost">
+                      <span class="cost">2000</span> ⚛️
+                    </div>
+                  </div>
+
+                  <div
+                    class="shop-item advanced-generator"
+                    id="dimensional-rift"
+                  >
+                    <div class="item-info">
+                      <div class="item-icon">🕳️</div>
+                      <div class="item-details">
+                        <h4>Faille Dimensionnelle</h4>
+                        <p>+25 💎/sec</p>
+                        <p>Possédés: <span class="owned">0</span></p>
+                      </div>
+                    </div>
+                    <div class="item-cost">
+                      <span class="cost">5000</span> ⚛️
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Générateurs Ultra-Avancés -->
+              <div class="shop-item ultra-generator" id="dark-matter-collector">
+                <div class="item-info">
+                  <div class="item-icon">🌑</div>
+                  <div class="item-details">
+                    <h4>Collecteur de Matière Noire</h4>
+                    <p>+1 🌑/sec</p>
+                    <p>Possédés: <span class="owned">0</span></p>
+                  </div>
+                </div>
+                <div class="item-cost"><span class="cost">100000</span> ⚛️</div>
+              </div>
+
+              <div class="shop-item ultra-generator" id="quantum-resonator">
+                <div class="item-info">
+                  <div class="item-icon">🔮</div>
+                  <div class="item-details">
+                    <h4>Résonateur Quantique</h4>
+                    <p>+1 🔮/sec</p>
+                    <p>Possédés: <span class="owned">0</span></p>
+                  </div>
+                </div>
+                <div class="item-cost"><span class="cost">10</span> 🌑</div>
+              </div>
+
+              <div class="shop-item ultra-generator" id="void-harvester">
+                <div class="item-info">
+                  <div class="item-icon">⚫</div>
+                  <div class="item-details">
+                    <h4>Récolteur du Vide</h4>
+                    <p>+5 🌑/sec</p>
+                    <p>Possédés: <span class="owned">0</span></p>
+                  </div>
+                </div>
+                <div class="item-cost"><span class="cost">100</span> 🌑</div>
+              </div>
+
+              <div class="shop-item ultra-generator" id="cosmic-furnace">
+                <div class="item-info">
+                  <div class="item-icon">🔥</div>
+                  <div class="item-details">
+                    <h4>Fournaise Cosmique</h4>
+                    <p>+10 🔮/sec</p>
+                    <p>Possédés: <span class="owned">0</span></p>
+                  </div>
+                </div>
+                <div class="item-cost"><span class="cost">50</span> 🔮</div>
+              </div>
+
+              <div class="shop-item ultra-generator" id="reality-engine">
+                <div class="item-info">
+                  <div class="item-icon">🌌</div>
+                  <div class="item-details">
+                    <h4>Moteur de Réalité</h4>
+                    <p>+50 🔮/sec</p>
+                    <p>Possédés: <span class="owned">0</span></p>
+                  </div>
+                </div>
+                <div class="item-cost"><span class="cost">500</span> 🔮</div>
+              </div>
+            </div>
+
+            <!-- Section des Améliorations de Prestige -->
+            <div class="shop-category">
+              <h3>⭐ Améliorations de Prestige</h3>
+              <div class="shop-items">
+                <div
+                  class="shop-item prestige-upgrade"
+                  id="prestige-multiplier"
+                >
+                  <div class="item-info">
+                    <div class="item-icon">⭐</div>
+                    <div class="item-details">
+                      <h4>Multiplicateur de Prestige</h4>
+                      <p>+10% production permanente</p>
+                      <p>Possédés: <span class="owned">0</span></p>
+                    </div>
+                  </div>
+                  <div class="item-cost"><span class="cost">1</span> ✨</div>
+                </div>
+
+                <div class="shop-item prestige-upgrade" id="quantum-core">
+                  <div class="item-info">
+                    <div class="item-icon">🔮</div>
+                    <div class="item-details">
+                      <h4>Cœur Quantique</h4>
+                      <p>+25% production d'énergie quantique</p>
+                      <p>Possédés: <span class="owned">0</span></p>
+                    </div>
+                  </div>
+                  <div class="item-cost">
+                    <span class="cost">5</span> ✨ +
+                    <span class="cost">100</span> 🔮
+                  </div>
+                </div>
+
+                <div
+                  class="shop-item prestige-upgrade"
+                  id="dark-matter-booster"
+                >
+                  <div class="item-info">
+                    <div class="item-icon">🌑</div>
+                    <div class="item-details">
+                      <h4>Amplificateur de Matière Noire</h4>
+                      <p>+50% production de matière noire</p>
+                      <p>Possédés: <span class="owned">0</span></p>
+                    </div>
+                  </div>
+                  <div class="item-cost">
+                    <span class="cost">10</span> ✨ +
+                    <span class="cost">1000</span> 🌑
+                  </div>
+                </div>
+
+                <div class="shop-item prestige-upgrade" id="cosmic-ascension">
+                  <div class="item-info">
+                    <div class="item-icon">🌌</div>
+                    <div class="item-details">
+                      <h4>Ascension Cosmique</h4>
+                      <p>x2 à tous les multiplicateurs</p>
+                      <p>Possédés: <span class="owned">0</span></p>
+                    </div>
+                  </div>
+                  <div class="item-cost">
+                    <span class="cost">25</span> ✨ +
+                    <span class="cost">10000</span> 🔮 +
+                    <span class="cost">10000</span> 🌑
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Améliorations du vaisseau -->
+            <div class="shop-category">
+              <h3>Améliorations du Vaisseau</h3>
+              <div class="shop-items">
+                <div class="shop-item" id="click-upgrade">
+                  <div class="item-info">
+                    <div class="item-icon">👆</div>
+                    <div class="item-details">
+                      <h4>Amélioration des Clics</h4>
+                      <p>+1 ⚡ par clic</p>
+                      <p>Niveau: <span class="level">0</span></p>
+                    </div>
+                  </div>
+                  <div class="item-cost"><span class="cost">15</span> ⚡</div>
+                </div>
+
+                <div class="shop-item" id="auto-clicker">
+                  <div class="item-info">
+                    <div class="item-icon">🎯</div>
+                    <div class="item-details">
+                      <h4>Auto-Clicker</h4>
+                      <p>Clique automatiquement 1x/sec</p>
+                      <p>Possédés: <span class="owned">0</span></p>
+                    </div>
+                  </div>
+                  <div class="item-cost"><span class="cost">200</span> ⚡</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Onglet Flotte -->
+          <div class="tab-panel" id="fleet-panel">
+            <h2>🚀 CHANTIER NAVAL</h2>
+
+            <div class="fleet-stats">
+              <p>
+                Puissance totale de la flotte: <span id="fleet-power">0</span>
+              </p>
+              <p>
+                Coût de maintenance:
+                <span id="fleet-maintenance">0</span> ⚡/sec
+              </p>
+            </div>
+
+            <div class="fleet-ships">
+              <div class="ship-item" id="fleet-fighters">
+                <div class="ship-info">
+                  <div class="ship-icon">✈️</div>
+                  <div class="ship-details">
+                    <h4>Chasseurs</h4>
+                    <p>Attaque: 1 | Maintenance: 1 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span
+                      class="cost-resource affordable"
+                      data-resource="energy"
+                      >150</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource affordable" data-resource="metal"
+                      >75</span
+                    >
+                    🛠️
+                  </div>
+                  <button id="buy-fighter" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+
+              <div class="ship-item" id="fleet-cruisers">
+                <div class="ship-info">
+                  <div class="ship-icon">🚢</div>
+                  <div class="ship-details">
+                    <h4>Croiseurs</h4>
+                    <p>Attaque: 5 | Maintenance: 3 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="energy"
+                      >800</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="metal">400</span>
+                    🛠️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="crystals"
+                      >50</span
+                    >
+                    💎
+                  </div>
+                  <button id="buy-cruiser" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+
+              <div class="ship-item" id="fleet-dreadnoughts">
+                <div class="ship-info">
+                  <div class="ship-icon">🛡️</div>
+                  <div class="ship-details">
+                    <h4>Cuirassés</h4>
+                    <p>Attaque: 25 | Maintenance: 10 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="energy"
+                      >3000</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="metal"
+                      >1500</span
+                    >
+                    🛠️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="crystals"
+                      >200</span
+                    >
+                    💎
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="antimatter"
+                      >10</span
+                    >
+                    ⚛️
+                  </div>
+                  <button id="buy-dreadnought" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+
+              <!-- Nouveaux vaisseaux avancés -->
+              <div class="ship-item advanced-ship" id="fleet-titans">
+                <div class="ship-info">
+                  <div class="ship-icon">🏔️</div>
+                  <div class="ship-details">
+                    <h4>Titans</h4>
+                    <p>Attaque: 100 | Maintenance: 25 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="energy"
+                      >10000</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="metal"
+                      >5000</span
+                    >
+                    🛠️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="crystals"
+                      >1000</span
+                    >
+                    💎
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="antimatter"
+                      >50</span
+                    >
+                    ⚛️
+                  </div>
+                  <button id="buy-titan" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+
+              <div class="ship-item advanced-ship" id="fleet-motherships">
+                <div class="ship-info">
+                  <div class="ship-icon">🌟</div>
+                  <div class="ship-details">
+                    <h4>Vaisseaux-Mères</h4>
+                    <p>Attaque: 500 | Maintenance: 50 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="energy"
+                      >50000</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="metal"
+                      >25000</span
+                    >
+                    🛠️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="crystals"
+                      >5000</span
+                    >
+                    💎
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="antimatter"
+                      >200</span
+                    >
+                    ⚛️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="influence"
+                      >10</span
+                    >
+                    👑
+                  </div>
+                  <button id="buy-mothership" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+
+              <!-- Vaisseaux Légendaires -->
+              <div class="ship-item legendary-ship" id="fleet-world-burners">
+                <div class="ship-info">
+                  <div class="ship-icon">🔥</div>
+                  <div class="ship-details">
+                    <h4>Brûleurs de Mondes</h4>
+                    <p>Attaque: 2500 | Maintenance: 100 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="energy"
+                      >250000</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="metal"
+                      >125000</span
+                    >
+                    🛠️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="crystals"
+                      >25000</span
+                    >
+                    💎
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="antimatter"
+                      >1000</span
+                    >
+                    ⚛️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="darkMatter"
+                      >5</span
+                    >
+                    🌑
+                  </div>
+                  <button id="buy-worldburner" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+
+              <div class="ship-item legendary-ship" id="fleet-void-crusaders">
+                <div class="ship-info">
+                  <div class="ship-icon">⚫</div>
+                  <div class="ship-details">
+                    <h4>Croisés du Vide</h4>
+                    <p>Attaque: 10000 | Maintenance: 200 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="energy"
+                      >1000000</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="metal"
+                      >500000</span
+                    >
+                    🛠️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="crystals"
+                      >100000</span
+                    >
+                    💎
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="antimatter"
+                      >5000</span
+                    >
+                    ⚛️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="darkMatter"
+                      >25</span
+                    >
+                    🌑
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="quantumEnergy"
+                      >1</span
+                    >
+                    🔮
+                  </div>
+                  <button id="buy-voidcrusader" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+
+              <div class="ship-item legendary-ship" id="fleet-reality-shifters">
+                <div class="ship-info">
+                  <div class="ship-icon">🌌</div>
+                  <div class="ship-details">
+                    <h4>Manipulateurs de Réalité</h4>
+                    <p>Attaque: 50000 | Maintenance: 500 ⚡/sec</p>
+                    <p>Possédés: <span class="ship-count">0</span></p>
+                    <p>
+                      Maintenance totale:
+                      <span class="maintenance-cost">0</span> ⚡/sec
+                    </p>
+                  </div>
+                </div>
+                <div class="ship-costs">
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="energy"
+                      >5000000</span
+                    >
+                    ⚡
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="metal"
+                      >2500000</span
+                    >
+                    🛠️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="crystals"
+                      >500000</span
+                    >
+                    💎
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="antimatter"
+                      >25000</span
+                    >
+                    ⚛️
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="darkMatter"
+                      >100</span
+                    >
+                    🌑
+                  </div>
+                  <div class="cost-item">
+                    <span class="cost-resource" data-resource="quantumEnergy"
+                      >10</span
+                    >
+                    🔮
+                  </div>
+                  <button id="buy-realityshifter" class="buy-ship-btn">
+                    Construire
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Onglet Exploration -->
+          <div class="tab-panel" id="exploration-panel">
+            <h2>🌌 CARTE GALACTIQUE</h2>
+
+            <div class="exploration-stats">
+              <p>Systèmes conquis: <span id="conquered-systems">0</span></p>
+              <p>
+                Puissance de flotte: <span id="fleet-power-display">0</span>
+              </p>
+            </div>
+
+            <div class="systems-section">
+              <h3>Systèmes à conquérir</h3>
+              <div id="exploration-systems" class="systems-grid">
+                <!-- Les systèmes seront générés dynamiquement -->
+              </div>
+            </div>
+
+            <div class="conquered-section">
+              <h3>🏆 Systèmes Conquis</h3>
+              <div id="conquered-systems-list" class="conquered-grid">
+                <!-- Les systèmes conquis seront affichés ici -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Onglet Technologies -->
+          <div class="tab-panel" id="technology-panel">
+            <h2>🔬 CENTRE DE RECHERCHE</h2>
+
+            <div class="tech-grid">
+              <div class="tech-item" id="tech-advanced-propulsion">
+                <div class="tech-info">
+                  <div class="tech-icon">🚀</div>
+                  <div class="tech-details">
+                    <h4>Propulsion Avancée</h4>
+                    <p>Réduit le coût des vaisseaux de 20%</p>
+                    <div class="tech-cost">
+                      <span>200 💎 + 5 ⚛️</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="advancedPropulsion">
+                  Rechercher
+                </button>
+              </div>
+
+              <div class="tech-item" id="tech-quantum-computing">
+                <div class="tech-info">
+                  <div class="tech-icon">💻</div>
+                  <div class="tech-details">
+                    <h4>Informatique Quantique</h4>
+                    <p>+50% production générateurs</p>
+                    <div class="tech-cost">
+                      <span>500 💎 + 15 ⚛️</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="quantumComputing">
+                  Rechercher
+                </button>
+              </div>
+
+              <div class="tech-item" id="tech-neural-networks">
+                <div class="tech-info">
+                  <div class="tech-icon">🧠</div>
+                  <div class="tech-details">
+                    <h4>Réseaux de Neurones</h4>
+                    <p>Auto-améliore les générateurs</p>
+                    <div class="tech-cost">
+                      <span>1000 💎 + 50 ⚛️</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="neuralNetworks">
+                  Rechercher
+                </button>
+              </div>
+
+              <div class="tech-item" id="tech-warp-drive">
+                <div class="tech-info">
+                  <div class="tech-icon">🌌</div>
+                  <div class="tech-details">
+                    <h4>Moteur de Distorsion</h4>
+                    <p>Débloque de nouveaux systèmes</p>
+                    <div class="tech-cost">
+                      <span>100 ⚛️ + 10 👑</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="warpDrive">
+                  Rechercher
+                </button>
+              </div>
+
+              <!-- Technologies Ultra-Avancées -->
+              <div class="tech-item" id="tech-dark-matter-physics">
+                <div class="tech-info">
+                  <div class="tech-icon">🌑</div>
+                  <div class="tech-details">
+                    <h4>Physique de la Matière Noire</h4>
+                    <p>x10 production de matière noire</p>
+                    <div class="tech-cost">
+                      <span>100000 ⚛️ + 1000 🌑</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="darkMatterPhysics">
+                  Rechercher
+                </button>
+              </div>
+
+              <div class="tech-item" id="tech-quantum-entanglement">
+                <div class="tech-info">
+                  <div class="tech-icon">🔮</div>
+                  <div class="tech-details">
+                    <h4>Intrication Quantique</h4>
+                    <p>x25 production d'énergie quantique</p>
+                    <div class="tech-cost">
+                      <span>10000 🌑 + 1000 🔮</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="quantumEntanglement">
+                  Rechercher
+                </button>
+              </div>
+
+              <div class="tech-item" id="tech-void-technology">
+                <div class="tech-info">
+                  <div class="tech-icon">⚫</div>
+                  <div class="tech-details">
+                    <h4>Technologie du Vide</h4>
+                    <p>x100 à toute la production</p>
+                    <div class="tech-cost">
+                      <span>100000 🌑 + 50000 🔮</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="voidTechnology">
+                  Rechercher
+                </button>
+              </div>
+
+              <div class="tech-item" id="tech-reality-manipulation">
+                <div class="tech-info">
+                  <div class="tech-icon">🌌</div>
+                  <div class="tech-details">
+                    <h4>Manipulation de la Réalité</h4>
+                    <p>x1000 pouvoir de clic et production</p>
+                    <div class="tech-cost">
+                      <span>1000000 🌑 + 500000 🔮 + 10 ✨</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="realityManipulation">
+                  Rechercher
+                </button>
+              </div>
+
+              <div class="tech-item" id="tech-cosmic-ascension">
+                <div class="tech-info">
+                  <div class="tech-icon">✨</div>
+                  <div class="tech-details">
+                    <h4>Ascension Cosmique Ultime</h4>
+                    <p>Transcende les limites de la réalité</p>
+                    <div class="tech-cost">
+                      <span>10000000 🌑 + 5000000 🔮 + 100 ✨</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="research-tech" data-tech="cosmicAscension">
+                  Rechercher
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Onglet Ascension -->
+          <div class="tab-panel" id="ascension-panel">
+            <h2>✨ TEMPLE DE L'ASCENSION</h2>
+
+            <div class="ascension-stats">
+              <p>
+                Points d'Ascension:
+                <span id="ascension-points-display">0</span> ✨
+              </p>
+              <p>Ascensions totales: <span id="total-ascensions">0</span></p>
+              <p>
+                Bonus permanent: +<span id="permanent-bonus">0</span>%
+                production
+              </p>
+            </div>
+
+            <div class="ascension-requirements">
+              <h3>🌟 Conditions d'Ascension</h3>
+              <p>Nécessite: 1,000,000 🌑 + 500,000 🔮</p>
+              <p>
+                Vous obtiendrez:
+                <span id="potential-ascension-points">0</span> ✨
+              </p>
+              <button id="ascend-btn" class="ascension-btn">🚀 ASCENDRE</button>
+            </div>
+
+            <div class="prestige-upgrades-section">
+              <h3>⭐ Améliorations Permanentes</h3>
+              <div class="prestige-upgrades-grid">
+                <div
+                  class="prestige-upgrade-item"
+                  id="upgrade-prestige-multiplier"
+                >
+                  <div class="upgrade-info">
+                    <div class="upgrade-icon">⭐</div>
+                    <div class="upgrade-details">
+                      <h4>Multiplicateur de Prestige</h4>
+                      <p>+10% production permanente par niveau</p>
+                      <p>Niveau: <span class="upgrade-level">0</span></p>
+                    </div>
+                  </div>
+                  <div class="upgrade-cost">
+                    <span class="cost">1</span> ✨
+                    <button
+                      class="buy-prestige-upgrade"
+                      data-upgrade="prestigeMultiplier"
+                    >
+                      Améliorer
+                    </button>
+                  </div>
+                </div>
+
+                <div class="prestige-upgrade-item" id="upgrade-quantum-core">
+                  <div class="upgrade-info">
+                    <div class="upgrade-icon">🔮</div>
+                    <div class="upgrade-details">
+                      <h4>Cœur Quantique</h4>
+                      <p>+25% production d'énergie quantique par niveau</p>
+                      <p>Niveau: <span class="upgrade-level">0</span></p>
+                    </div>
+                  </div>
+                  <div class="upgrade-cost">
+                    <span class="cost">5</span> ✨ +
+                    <span class="cost">100</span> 🔮
+                    <button
+                      class="buy-prestige-upgrade"
+                      data-upgrade="quantumCore"
+                    >
+                      Améliorer
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  class="prestige-upgrade-item"
+                  id="upgrade-dark-matter-booster"
+                >
+                  <div class="upgrade-info">
+                    <div class="upgrade-icon">🌑</div>
+                    <div class="upgrade-details">
+                      <h4>Amplificateur de Matière Noire</h4>
+                      <p>+50% production de matière noire par niveau</p>
+                      <p>Niveau: <span class="upgrade-level">0</span></p>
+                    </div>
+                  </div>
+                  <div class="upgrade-cost">
+                    <span class="cost">10</span> ✨ +
+                    <span class="cost">1000</span> 🌑
+                    <button
+                      class="buy-prestige-upgrade"
+                      data-upgrade="darkMatterBooster"
+                    >
+                      Améliorer
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  class="prestige-upgrade-item"
+                  id="upgrade-cosmic-ascension"
+                >
+                  <div class="upgrade-info">
+                    <div class="upgrade-icon">🌌</div>
+                    <div class="upgrade-details">
+                      <h4>Ascension Cosmique</h4>
+                      <p>x2 à tous les multiplicateurs par niveau</p>
+                      <p>Niveau: <span class="upgrade-level">0</span></p>
+                    </div>
+                  </div>
+                  <div class="upgrade-cost">
+                    <span class="cost">25</span> ✨ +
+                    <span class="cost">10000</span> 🔮 +
+                    <span class="cost">10000</span> 🌑
+                    <button
+                      class="buy-prestige-upgrade"
+                      data-upgrade="cosmicAscension"
+                    >
+                      Améliorer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="lifetime-stats">
+              <h3>📊 Statistiques d'Ascension</h3>
+              <p>
+                Énergie totale de toutes les vies:
+                <span id="lifetime-energy">0</span>
+              </p>
+              <p>
+                Matière noire totale de toutes les vies:
+                <span id="lifetime-dark-matter">0</span>
+              </p>
+              <p>
+                Énergie quantique totale de toutes les vies:
+                <span id="lifetime-quantum-energy">0</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Statistiques -->
+      <footer class="game-footer">
+        <div class="stats">
+          <p>Énergie totale générée: <span id="total-energy">0</span></p>
+          <p>Énergie par seconde: <span id="energy-per-second">0</span></p>
+          <p>Puissance de flotte: <span id="fleet-power-footer">0</span></p>
+          <p>Systèmes conquis: <span id="conquered-systems-footer">0</span></p>
+          <p>Matière noire: <span id="dark-matter-footer">0</span> 🌑</p>
+          <p>Énergie quantique: <span id="quantum-energy-footer">0</span> 🔮</p>
+          <p>
+            Points d'ascension: <span id="ascension-points-footer">0</span> ✨
+          </p>
+        </div>
+
+        <!-- Zone de contrôle -->
+        <div
+          style="
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+          "
+        >
+          <button
+            id="reset-game-btn"
+            onclick="resetGame()"
+            class="btn btn-danger"
+          >
+            🔄 Recommencer le Jeu
+          </button>
+          <p style="margin-top: 10px; font-size: 0.9rem; color: #ccc">
+            Commandes console : <code>debugAddResources()</code> |
+            <code>resetGame()</code> | <code>runAllTests()</code> |
+            <code>giveTestResources()</code>
+          </p>
+          <button
+            onclick="loadTestScript()"
+            style="
+              margin-top: 10px;
+              padding: 8px 15px;
+              background: #9d4edd;
+              border: none;
+              border-radius: 5px;
+              color: white;
+              cursor: pointer;
+            "
+          >
+            🧪 Lancer Tests Automatiques
+          </button>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

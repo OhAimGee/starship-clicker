@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test FormatNumber Fix</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #1a1a2e;
+        color: #eee;
+      }
+      .test-result {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .success {
+        background: #2d5016;
+        border: 1px solid #4caf50;
+      }
+      .error {
+        background: #5d1616;
+        border: 1px solid #f44336;
+      }
+      .test-container {
+        border: 1px solid #333;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        background: #16213e;
+      }
+      button {
+        background: #0d1b2a;
+        color: #eee;
+        border: 1px solid #415a77;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #415a77;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚀 Test de Correction de l'Erreur FormatNumber</h1>
+
+    <div class="test-container">
+      <h2>Test d'Intégration</h2>
+      <p>
+        Ce test vérifie que la méthode formatNumber est maintenant disponible et
+        que l'erreur TypeError est résolue.
+      </p>
+
+      <button onclick="testFormatNumber()">Tester formatNumber</button>
+      <button onclick="testClickMothership()">Tester Clic Vaisseau-Mère</button>
+      <button onclick="testUpdateDisplay()">Tester updateDisplay</button>
+
+      <div id="test-results"></div>
+    </div>
+
+    <div class="test-container">
+      <h2>Ressources Actuelles</h2>
+      <div id="resource-display">
+        <p>Énergie: <span id="energy">0</span></p>
+        <p>Métal: <span id="metal">0</span></p>
+        <p>Cristaux: <span id="crystals">0</span></p>
+      </div>
+    </div>
+
+    <!-- Vaisseau mère pour test -->
+    <div class="test-container">
+      <h2>Test Interactif</h2>
+      <div
+        id="mothership"
+        style="
+          width: 100px;
+          height: 100px;
+          background: #415a77;
+          border-radius: 50%;
+          cursor: pointer;
+          margin: 20px auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+        "
+      >
+        🚀
+      </div>
+      <p>Cliquez sur le vaisseau-mère ci-dessus pour tester</p>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      let game;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        try {
+          game = new StarshipClicker();
+          game.init();
+          addResult("✅ Jeu initialisé avec succès", "success");
+        } catch (error) {
+          addResult(
+            "❌ Erreur lors de l'initialisation: " + error.message,
+            "error"
+          );
+        }
+      });
+
+      function addResult(message, type) {
+        const resultsDiv = document.getElementById("test-results");
+        const resultDiv = document.createElement("div");
+        resultDiv.className = `test-result ${type}`;
+        resultDiv.textContent = message;
+        resultsDiv.appendChild(resultDiv);
+      }
+
+      function testFormatNumber() {
+        try {
+          if (game && typeof game.formatNumber === "function") {
+            const tests = [
+              { input: 1234, expected: "1.23K" },
+              { input: 1234567, expected: "1.23M" },
+              { input: 1234567890, expected: "1.23B" },
+              { input: 1234567890123, expected: "1.23T" },
+              { input: 42, expected: "42" },
+              { input: 0, expected: "0" },
+              { input: null, expected: "0" },
+              { input: undefined, expected: "0" },
+            ];
+
+            let allPassed = true;
+            tests.forEach((test) => {
+              const result = game.formatNumber(test.input);
+              if (result !== test.expected) {
+                addResult(
+                  `❌ formatNumber(${test.input}) = "${result}", attendu "${test.expected}"`,
+                  "error"
+                );
+                allPassed = false;
+              }
+            });
+
+            if (allPassed) {
+              addResult("✅ Tous les tests formatNumber ont réussi", "success");
+            }
+          } else {
+            addResult("❌ Méthode formatNumber non trouvée", "error");
+          }
+        } catch (error) {
+          addResult(
+            "❌ Erreur lors du test formatNumber: " + error.message,
+            "error"
+          );
+        }
+      }
+
+      function testClickMothership() {
+        try {
+          if (game) {
+            const oldEnergy = game.gameState.resources.energy;
+            game.clickMothership({
+              target: document.getElementById("mothership"),
+            });
+            const newEnergy = game.gameState.resources.energy;
+
+            if (newEnergy > oldEnergy) {
+              addResult(
+                `✅ Clic réussi: énergie ${oldEnergy} → ${newEnergy}`,
+                "success"
+              );
+              updateResourceDisplay();
+            } else {
+              addResult("❌ Le clic n'a pas augmenté l'énergie", "error");
+            }
+          } else {
+            addResult("❌ Jeu non initialisé", "error");
+          }
+        } catch (error) {
+          addResult("❌ Erreur lors du clic: " + error.message, "error");
+        }
+      }
+
+      function testUpdateDisplay() {
+        try {
+          if (game) {
+            game.updateDisplay();
+            addResult("✅ updateDisplay exécuté sans erreur", "success");
+          } else {
+            addResult("❌ Jeu non initialisé", "error");
+          }
+        } catch (error) {
+          addResult(
+            "❌ Erreur lors de updateDisplay: " + error.message,
+            "error"
+          );
+        }
+      }
+
+      function updateResourceDisplay() {
+        if (game) {
+          document.getElementById("energy").textContent = game.formatNumber(
+            game.gameState.resources.energy
+          );
+          document.getElementById("metal").textContent = game.formatNumber(
+            game.gameState.resources.metal
+          );
+          document.getElementById("crystals").textContent = game.formatNumber(
+            game.gameState.resources.crystals
+          );
+        }
+      }
+
+      // Test automatique après chargement
+      setTimeout(() => {
+        testFormatNumber();
+        setTimeout(() => {
+          testUpdateDisplay();
+        }, 500);
+      }, 1000);
+    </script>
+  </body>
+</html>

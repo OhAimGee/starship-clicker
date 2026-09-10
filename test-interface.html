@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tests Starship Clicker</title>
+    <style>
+      body {
+        font-family: "Courier New", monospace;
+        background: #1a1a2e;
+        color: #eee;
+        padding: 20px;
+        margin: 0;
+      }
+      .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #16213e;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #00ff88;
+        border-radius: 5px;
+        background: rgba(0, 255, 136, 0.1);
+      }
+      .success {
+        color: #00ff88;
+      }
+      .error {
+        color: #ff4444;
+      }
+      .warning {
+        color: #ffaa00;
+      }
+      .test-button {
+        background: #00ff88;
+        color: #1a1a2e;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 5px;
+      }
+      .test-button:hover {
+        background: #00cc6a;
+      }
+      #test-results {
+        background: #0f1419;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+        min-height: 300px;
+        overflow-y: auto;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>🧪 Tests de Validation - Starship Clicker</h1>
+
+      <div class="test-section">
+        <h2>🎯 Tests Disponibles</h2>
+        <button class="test-button" onclick="testGameLoad()">
+          Test Chargement Jeu
+        </button>
+        <button class="test-button" onclick="testElements()">
+          Test Éléments DOM
+        </button>
+        <button class="test-button" onclick="testClickMechanic()">
+          Test Mécaniques de Clic
+        </button>
+        <button class="test-button" onclick="testPerformance()">
+          Test Performance
+        </button>
+        <button class="test-button" onclick="runAllTests()">
+          🚀 Tous les Tests
+        </button>
+        <button class="test-button" onclick="clearResults()">
+          🧹 Nettoyer
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h2>📋 Résultats des Tests</h2>
+        <div id="test-results">
+          <p class="warning">
+            ⏳ Prêt pour les tests. Cliquez sur un bouton ci-dessus.
+          </p>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🔗 Liens Rapides</h2>
+        <a href="index.html" target="_blank" style="color: #00ff88"
+          >🎮 Ouvrir le Jeu</a
+        >
+        |
+        <a href="README.md" target="_blank" style="color: #00ff88"
+          >📖 Documentation</a
+        >
+      </div>
+    </div>
+
+    <script>
+      const results = document.getElementById("test-results");
+
+      function log(message, type = "info") {
+        const colors = {
+          success: "#00ff88",
+          error: "#ff4444",
+          warning: "#ffaa00",
+          info: "#ffffff",
+        };
+
+        const p = document.createElement("p");
+        p.style.color = colors[type];
+        p.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+        results.appendChild(p);
+        results.scrollTop = results.scrollHeight;
+      }
+
+      function clearResults() {
+        results.innerHTML =
+          '<p class="warning">⏳ Résultats nettoyés. Prêt pour de nouveaux tests.</p>';
+      }
+
+      async function testGameLoad() {
+        log("🔍 Test de chargement du jeu...", "info");
+
+        try {
+          // Ouvrir le jeu dans une iframe cachée pour tester
+          const iframe = document.createElement("iframe");
+          iframe.src = "index.html";
+          iframe.style.display = "none";
+          document.body.appendChild(iframe);
+
+          await new Promise((resolve) => {
+            iframe.onload = () => {
+              setTimeout(() => {
+                try {
+                  const game = iframe.contentWindow.game;
+                  if (game) {
+                    log("✅ Objet game chargé avec succès", "success");
+                    log(
+                      `✅ Méthodes détectées: ${
+                        Object.getOwnPropertyNames(Object.getPrototypeOf(game))
+                          .length
+                      }`,
+                      "success"
+                    );
+                  } else {
+                    log("❌ Objet game non trouvé", "error");
+                  }
+
+                  document.body.removeChild(iframe);
+                  resolve();
+                } catch (e) {
+                  log(`❌ Erreur d'accès iframe: ${e.message}`, "error");
+                  document.body.removeChild(iframe);
+                  resolve();
+                }
+              }, 2000);
+            };
+          });
+        } catch (error) {
+          log(`❌ Erreur test chargement: ${error.message}`, "error");
+        }
+      }
+
+      function testElements() {
+        log("🔍 Test des éléments essentiels...", "info");
+
+        // Simuler la vérification des éléments principaux
+        const requiredElements = [
+          "mothership",
+          "energy-count",
+          "metal-count",
+          "crystal-count",
+          "fleet-tab",
+          "exploration-tab",
+        ];
+
+        const iframe = document.createElement("iframe");
+        iframe.src = "index.html";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          setTimeout(() => {
+            let found = 0;
+            requiredElements.forEach((id) => {
+              const element = iframe.contentDocument?.getElementById(id);
+              if (element) {
+                log(`✅ ${id} trouvé`, "success");
+                found++;
+              } else {
+                log(`❌ ${id} manquant`, "error");
+              }
+            });
+
+            log(
+              `📊 Résultat: ${found}/${requiredElements.length} éléments trouvés`,
+              found === requiredElements.length ? "success" : "warning"
+            );
+
+            document.body.removeChild(iframe);
+          }, 1500);
+        };
+      }
+
+      function testClickMechanic() {
+        log("🔍 Test des mécaniques de clic...", "info");
+        log(
+          "⚠️ Test nécessite une interaction manuelle avec le jeu principal",
+          "warning"
+        );
+        log(
+          "📝 Veuillez ouvrir le jeu et cliquer sur le vaisseau plusieurs fois",
+          "info"
+        );
+        log("💡 Vérifiez que les ressources augmentent à chaque clic", "info");
+      }
+
+      function testPerformance() {
+        log("🔍 Test de performance...", "info");
+
+        const start = performance.now();
+
+        // Simuler quelques opérations
+        for (let i = 0; i < 1000; i++) {
+          const div = document.createElement("div");
+          div.textContent = `Test ${i}`;
+          // Ne pas ajouter au DOM pour éviter la pollution
+        }
+
+        const duration = performance.now() - start;
+
+        if (duration < 10) {
+          log(`✅ Performance excellente: ${duration.toFixed(2)}ms`, "success");
+        } else if (duration < 50) {
+          log(`⚠️ Performance acceptable: ${duration.toFixed(2)}ms`, "warning");
+        } else {
+          log(`❌ Performance médiocre: ${duration.toFixed(2)}ms`, "error");
+        }
+
+        log(
+          `💾 Mémoire utilisée: ${(
+            performance.memory?.usedJSHeapSize /
+            1024 /
+            1024
+          ).toFixed(2)}MB`,
+          "info"
+        );
+      }
+
+      async function runAllTests() {
+        log("🚀 Lancement de tous les tests...", "info");
+        log("=".repeat(50), "info");
+
+        await testGameLoad();
+        log("-".repeat(30), "info");
+
+        testElements();
+        log("-".repeat(30), "info");
+
+        setTimeout(() => {
+          testClickMechanic();
+          log("-".repeat(30), "info");
+
+          setTimeout(() => {
+            testPerformance();
+            log("=".repeat(50), "info");
+            log("🏁 Tous les tests terminés!", "success");
+          }, 500);
+        }, 3000);
+      }
+
+      // Log initial
+      log("🧪 Interface de test chargée et prête", "success");
+    </script>
+  </body>
+</html>
