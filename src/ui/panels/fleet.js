@@ -1,52 +1,60 @@
-// Onglet Flotte : construction des vaisseaux.
+// Terminal FLOTTE : construction des vaisseaux.
 
 import { el, clear } from '../dom.js';
 import { t } from '../../i18n/index.js';
 import { SHIPS } from '../../data/fleet.js';
-import { resourceIcon } from '../../data/resources.js';
+
 import { canAfford } from '../../game/economy.js';
 import { revealList } from '../reveal.js';
-import { formatNumber, formatCost, lockHint } from '../format.js';
-import { purchaseCard } from './card.js';
+import {
+  formatNumber,
+  formatCost,
+  shortCost,
+  lockHint,
+  timeCode,
+} from '../format.js';
+import { boardRow, sectionHead, setFacts, setLoadBar } from '../board-row.js';
+import { shipIconId } from '../icon-map.js';
 
 export function createFleetPanel(engine) {
   const root = el('section', { class: 'panel' });
-  let cards = new Map();
+  let rows = new Map();
   let statPower;
   let statMaint;
 
   function refresh() {
     clear(root);
-    cards = new Map();
-    statPower = el('strong');
-    statMaint = el('strong');
+    rows = new Map();
+    statPower = el('b');
+    statMaint = el('b');
 
-    const list = el('ul', { class: 'card-grid' });
-    for (const { def, vis } of revealList(engine.state, SHIPS)) {
-      const teased = vis === 'teased';
-      const card = purchaseCard({
-        action: 'buy-ship',
+    const list = el('ul', { class: 'board-list' });
+    revealList(engine.state, SHIPS).forEach(({ def, vis }, i) => {
+      const row = boardRow({
         id: def.id,
-        icon: def.icon,
+        action: 'buy-ship',
+        iconId: shipIconId(def.id),
+        code: timeCode(i * 3),
         name: t(`ship.${def.id}.name`),
         desc: t(`ship.${def.id}.desc`),
-        buttonLabel: t('ui.buttons.build'),
-        teased,
-        lockHint: lockHint(def.unlock),
       });
-      list.append(card.root);
-      cards.set(def.id, { ...card, def, teased });
-    }
+      list.append(row.root);
+      rows.set(def.id, { ...row, def, teased: vis === 'teased' });
+    });
 
     root.append(
       el('h2', { text: t('ui.panels.fleet') }),
-      el('p', { class: 'panel-stats' }, [
-        `${t('ui.stats.fleetPower')} : `,
-        statPower,
-        ` · ${t('ui.labels.maintenanceTotal')} : `,
-        statMaint,
-        ` ${resourceIcon('energy')}${t('ui.labels.perSecondShort')}`,
+      el('ul', { class: 'stat-grid' }, [
+        el('li', {}, [
+          el('span', { text: t('ui.stats.fleetPower') }),
+          statPower,
+        ]),
+        el('li', {}, [
+          el('span', { text: t('ui.labels.maintenanceTotal') }),
+          statMaint,
+        ]),
       ]),
+      sectionHead(t('ui.sections.ships')),
       list
     );
     update();
@@ -55,23 +63,38 @@ export function createFleetPanel(engine) {
   function update() {
     const state = engine.state;
     statPower.textContent = formatNumber(engine.fleetPower);
-    statMaint.textContent = formatNumber(engine.fleetMaintenance);
+    statMaint.textContent = `${formatNumber(engine.fleetMaintenance)} NRG/s`;
 
-    for (const [id, card] of cards) {
-      const { def, refs, teased } = card;
+    for (const [id, row] of rows) {
+      const { def, refs, teased } = row;
       const count = state.ships[id]?.count ?? 0;
-      refs.meta.textContent =
-        `${t('ui.labels.owned', { n: count })} · ` +
-        `${t('ui.labels.attack')} ${formatNumber(def.attack)} · ` +
-        `${t('ui.labels.maintenance')} ${formatNumber(def.maintenance)}${t('ui.labels.perSecondShort')}`;
-      if (teased) continue;
       const cost = engine.shipCost(id);
-      const affordable = canAfford(state, cost);
-      refs.cost.textContent = `${t('ui.labels.cost')} : ${formatCost(cost)}`;
-      refs.button.disabled = !affordable;
-      card.root.classList.toggle('affordable', affordable);
+      const afford = canAfford(state, cost);
+
+      const atk = `${t('ui.labels.attack')} ${formatNumber(def.attack)}`;
+      refs.sub.textContent = count ? `×${formatNumber(count)}  ·  ${atk}` : atk;
+      refs.count.textContent = '';
+      setLoadBar(refs.loadBar, count);
+      refs.cost.textContent = shortCost(cost);
+
+      setFacts(refs.drawerFacts, [
+        [t('ui.labels.attack'), formatNumber(def.attack)],
+        [t('ui.labels.maintenance'), `${formatNumber(def.maintenance)} NRG/s`],
+        [t('ui.labels.cost'), formatCost(cost)],
+      ]);
+
+      row.root.dataset.state = teased ? 'locked' : afford ? 'afford' : 'cant';
+      refs.main.disabled = teased || !afford;
+      refs.drawerLock.hidden = !teased;
+      if (teased) refs.drawerLock.textContent = lockHint(def.unlock);
     }
   }
 
-  return { root, refresh, update, key: 'fleet' };
+  return {
+    root,
+    refresh,
+    update,
+    key: 'fleet',
+    rowToggle: (id) => rows.get(id)?.toggle(),
+  };
 }

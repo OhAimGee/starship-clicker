@@ -4,6 +4,7 @@
 // L'ancien monolithe `src/legacy/` a été retiré : tout passe désormais par
 // `src/game/` (moteur) et `src/ui/` (interface).
 
+import './ui/fonts.css';
 import './ui/styles.css';
 import { CONFIG } from './data/config.js';
 import { loadState } from './game/save.js';
@@ -41,4 +42,13 @@ if (status === 'recovered') {
 
 if (import.meta.env.DEV) {
   window.__starship = { engine, state: () => engine.state };
+}
+
+// PWA : enregistrer le service worker en production (jeu installable, hors-ligne).
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {
+      /* pas de SW : le jeu fonctionne quand même */
+    });
+  });
 }

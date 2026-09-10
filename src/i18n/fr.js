@@ -6,9 +6,13 @@ export const fr = {
   ui: {
     title: 'Starship Clicker',
     tagline: 'Bâtissez une civilisation spatiale, un clic à la fois.',
-    mothership: 'Vaisseau Mère',
+    mothership: 'Vaisseau mère — lancer une charge d’énergie',
     perClick: '+{n} ⚡ par clic',
     civLevel: 'Niveau de civilisation',
+    a11y: {
+      resources: 'Panneau des ressources',
+      terminals: 'Terminaux',
+    },
     tabs: {
       shop: 'Boutique',
       fleet: 'Flotte',
@@ -26,10 +30,15 @@ export const fr = {
     sections: {
       generators: 'Générateurs',
       clickUpgrades: 'Améliorations du vaisseau',
+      ships: 'Vaisseaux',
+      research: 'Recherches',
       availableSystems: 'Systèmes à conquérir',
       conqueredSystems: 'Systèmes conquis',
       prestigeUpgrades: 'Améliorations permanentes',
       ascensionStats: 'Statistiques',
+    },
+    cols: {
+      cost: 'Coût',
     },
     stats: {
       totalEnergy: 'Énergie totale produite',
@@ -40,6 +49,7 @@ export const fr = {
       ascensions: 'Ascensions',
       lifetimeEnergy: 'Énergie de toutes les vies',
       permanentBonus: 'Bonus de production permanent',
+      owned: 'Possédés',
     },
     buttons: {
       buy: 'Acheter',
@@ -48,9 +58,12 @@ export const fr = {
       researched: 'Recherchée',
       explore: 'Explorer',
       improve: 'Améliorer',
-      ascend: 'Ascendre',
+      ascend: 'Ascendre — tout terminer',
       reset: 'Recommencer la partie',
       resume: 'Reprendre',
+      launch: 'Lancer',
+      details: 'Détails',
+      cancel: 'Annuler',
     },
     labels: {
       owned: 'Possédés : {n}',
@@ -71,9 +84,10 @@ export const fr = {
       passiveIncome: 'Revenu passif',
     },
     ascension: {
+      marquee: 'Tous services terminés',
       intro:
         "L'Ascension réinitialise votre progression mais accorde des points " +
-        "d'ascension (✨) et des bonus permanents.",
+        "d'ascension (AP) et des bonus permanents.",
       requirement: 'Nécessite {amount} {resource}',
       willGain: 'Vous obtiendrez {n} ✨',
       permanentBonus: 'Bonus permanent : +{n}% de production',
@@ -86,6 +100,7 @@ export const fr = {
       minutes: '{n} min',
     },
     reset: {
+      title: 'Réinitialiser',
       confirm:
         'Recommencer une partie neuve ? Toute progression sera perdue ' +
         '(sans effet sur les autres sauvegardes du navigateur).',

@@ -1,64 +1,79 @@
-// Onglet Technologies : recherche (achat unique).
+// Terminal TECHNOLOGIES : recherche (achat unique).
 
 import { el, clear } from '../dom.js';
 import { t } from '../../i18n/index.js';
 import { TECHNOLOGIES } from '../../data/technologies.js';
 import { canAfford, isUnlocked } from '../../game/economy.js';
-import { formatCost, lockHint } from '../format.js';
-import { purchaseCard } from './card.js';
+import { formatCost, shortCost, timeCode } from '../format.js';
+import { boardRow, sectionHead, setFacts } from '../board-row.js';
+import { techIconId } from '../icon-map.js';
 
 export function createTechnologyPanel(engine) {
   const root = el('section', { class: 'panel' });
-  let cards = new Map();
+  let rows = new Map();
 
   function refresh() {
     clear(root);
-    cards = new Map();
+    rows = new Map();
     const state = engine.state;
-    const list = el('ul', { class: 'card-grid' });
+    const list = el('ul', { class: 'board-list' });
 
-    for (const def of TECHNOLOGIES) {
-      const researched = state.technologies[def.id]?.unlocked;
-      if (!researched && !isUnlocked(state, def.unlock)) continue;
-
-      const card = purchaseCard({
-        action: 'research',
+    TECHNOLOGIES.forEach((def, i) => {
+      const done = state.technologies[def.id]?.unlocked;
+      if (!done && !isUnlocked(state, def.unlock)) return;
+      const row = boardRow({
         id: def.id,
-        icon: def.icon,
+        action: 'research',
+        iconId: techIconId(def.id),
+        code: timeCode(i * 2),
         name: t(`tech.${def.id}.name`),
         desc: t(`tech.${def.id}.desc`),
-        buttonLabel: researched
-          ? t('ui.buttons.researched')
-          : t('ui.buttons.research'),
-        teased: false,
-        lockHint: lockHint(def.unlock),
       });
-      list.append(card.root);
-      cards.set(def.id, { ...card, def });
-    }
+      list.append(row.root);
+      rows.set(def.id, { ...row, def });
+    });
 
-    root.append(el('h2', { text: t('ui.panels.technology') }), list);
+    root.append(
+      el('h2', { text: t('ui.panels.technology') }),
+      sectionHead(t('ui.sections.research')),
+      list
+    );
     update();
   }
 
   function update() {
     const state = engine.state;
-    for (const [id, card] of cards) {
-      const { def, refs } = card;
-      if (state.technologies[id]?.unlocked) {
+    for (const [id, row] of rows) {
+      const { def, refs } = row;
+      const done = state.technologies[id]?.unlocked;
+      const afford = canAfford(state, def.cost);
+
+      setFacts(refs.drawerFacts, [
+        [t('ui.labels.cost'), done ? '—' : formatCost(def.cost)],
+      ]);
+
+      if (done) {
+        row.root.dataset.state = 'done';
+        refs.main.disabled = true;
+        refs.sub.textContent = t('ui.buttons.researched');
+        refs.count.textContent = '';
         refs.cost.textContent = '';
-        refs.meta.textContent = '';
-        refs.button.disabled = true;
-        refs.button.textContent = t('ui.buttons.researched');
-        card.root.classList.add('researched');
+        refs.drawerLock.hidden = true;
         continue;
       }
-      const affordable = canAfford(state, def.cost);
-      refs.cost.textContent = `${t('ui.labels.cost')} : ${formatCost(def.cost)}`;
-      refs.button.disabled = !affordable;
-      card.root.classList.toggle('affordable', affordable);
+      row.root.dataset.state = afford ? 'afford' : 'cant';
+      refs.main.disabled = !afford;
+      refs.sub.textContent = t(`tech.${id}.desc`);
+      refs.cost.textContent = shortCost(def.cost);
+      refs.drawerLock.hidden = true;
     }
   }
 
-  return { root, refresh, update, key: 'technology' };
+  return {
+    root,
+    refresh,
+    update,
+    key: 'technology',
+    rowToggle: (id) => rows.get(id)?.toggle(),
+  };
 }

@@ -8,7 +8,6 @@
 export const SHIPS = [
   {
     id: 'fighters',
-    icon: '🛩️',
     cost: { energy: 200, metal: 100 },
     attack: 2,
     maintenance: 1,
@@ -16,7 +15,6 @@ export const SHIPS = [
   },
   {
     id: 'cruisers',
-    icon: '🚀',
     cost: { energy: 1000, metal: 500, crystals: 60 },
     attack: 6,
     maintenance: 3,
@@ -25,7 +23,6 @@ export const SHIPS = [
   },
   {
     id: 'dreadnoughts',
-    icon: '🛰️',
     cost: { energy: 4000, metal: 2000, crystals: 250, antimatter: 12 },
     attack: 25,
     maintenance: 10,
@@ -34,7 +31,6 @@ export const SHIPS = [
   },
   {
     id: 'titans',
-    icon: '⚔️',
     cost: { energy: 15000, metal: 7500, crystals: 1200, antimatter: 60 },
     attack: 110,
     maintenance: 25,
@@ -43,7 +39,6 @@ export const SHIPS = [
   },
   {
     id: 'motherships',
-    icon: '🛸',
     cost: {
       energy: 60000,
       metal: 30000,
@@ -58,7 +53,6 @@ export const SHIPS = [
   },
   {
     id: 'worldBurners',
-    icon: '☄️',
     cost: {
       energy: 300000,
       metal: 150000,
@@ -73,7 +67,6 @@ export const SHIPS = [
   },
   {
     id: 'voidCrusaders',
-    icon: '🌠',
     cost: {
       energy: 1_200_000,
       metal: 600_000,
@@ -89,7 +82,6 @@ export const SHIPS = [
   },
   {
     id: 'realityShifters',
-    icon: '🌌',
     cost: {
       energy: 6_000_000,
       metal: 3_000_000,

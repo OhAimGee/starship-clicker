@@ -1,32 +1,59 @@
-// Helpers de présentation partagés par les panneaux.
+// Helpers de présentation.
+//
+// Monde « tableau des départs » : les icônes sont des pictogrammes SVG (voir
+// icons.js), pas des glyphes inline. Les helpers de chaîne utilisent donc les
+// codes courts des ressources (NRG, MTL…), et les panneaux composent
+// icône + nombre en DOM quand ils le peuvent.
 
 import { formatNumber } from '../game/format.js';
-import { resourceIcon } from '../data/resources.js';
+import { resourceCode } from '../data/resources.js';
 import { t } from '../i18n/index.js';
 
 export { formatNumber };
 
-/** « 1.20K ⚡  +  50 💎 » à partir d'une map { resource: montant }. */
-export function formatCost(costMap) {
-  return Object.entries(costMap)
-    .map(([res, amount]) => `${formatNumber(amount)} ${resourceIcon(res)}`)
-    .join('  +  ');
+const THIN = ' '; // fine insécable — séparateur de milliers « panneau »
+
+/** Grands nombres pour le panneau : chiffres groupés en dessous d'1 M,
+ *  abrégé au-delà (les runs de chiffres perdent leur charme et leur place). */
+export function formatBoard(value) {
+  const n = Math.floor(Number(value) || 0);
+  if (n < 1_000_000) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, THIN);
+  }
+  return formatNumber(n);
 }
 
-/** Liste lisible des ressources manquantes (pour les notifications). */
+/** « 1.20K NRG · 50 CRY » à partir d'une map { resource: montant }. */
+export function formatCost(costMap) {
+  return Object.entries(costMap)
+    .map(
+      ([res, amount]) => `${formatNumber(amount)}${THIN}${resourceCode(res)}`
+    )
+    .join('  ·  ');
+}
+
+/** Coût condensé pour une ligne : ressource dominante + « +N ». */
+export function shortCost(costMap) {
+  const entries = Object.entries(costMap).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) return '';
+  const [res, amount] = entries[0];
+  const extra = entries.length - 1;
+  return `${formatNumber(amount)}${THIN}${resourceCode(res)}${extra ? ` +${extra}` : ''}`;
+}
+
+/** Liste lisible des ressources manquantes (annonces). */
 export function formatResourceList(map) {
   return Object.entries(map)
     .map(
-      ([res, amount]) =>
-        `${formatNumber(amount)} ${resourceIcon(res)} ${t(`resource.${res}`)}`
+      ([res, amount]) => `${formatNumber(amount)}${THIN}${resourceCode(res)}`
     )
     .join(', ');
 }
 
-/** « +2.5 ⚡/s » pour un taux de production. */
+/** « +2.5 NRG/s » pour un taux de production. */
 export function formatRate(amount, resource) {
   const sign = amount >= 0 ? '+' : '';
-  return `${sign}${formatNumber(amount)} ${resourceIcon(resource)}${t('ui.labels.perSecondShort')}`;
+  return `${sign}${formatNumber(amount)}${THIN}${resourceCode(resource)}${t('ui.labels.perSecondShort')}`;
 }
 
 /** Indice de déblocage lisible pour un `unlock` de données. */
@@ -39,7 +66,7 @@ export function lockHint(unlock) {
   }
   return t('ui.labels.unlockHint', {
     amount: formatNumber(unlock.total),
-    resource: `${resourceIcon(unlock.resource)} ${t(`resource.${unlock.resource}`)}`,
+    resource: `${resourceCode(unlock.resource)} ${t(`resource.${unlock.resource}`)}`,
   });
 }
 
@@ -49,4 +76,12 @@ export function formatDuration(seconds) {
   if (h > 0)
     return `${t('ui.offline.hours', { n: h })} ${t('ui.offline.minutes', { n: m })}`;
   return t('ui.offline.minutes', { n: Math.max(1, m) });
+}
+
+/** Code horaire décoratif dérivé de l'index d'une ligne (ambiance « panneau »). */
+export function timeCode(index) {
+  const base = 6 * 60 + index * 7; // départ à 06:00, +7 min par ligne
+  const h = String(Math.floor(base / 60) % 24).padStart(2, '0');
+  const m = String(base % 60).padStart(2, '0');
+  return `${h}:${m}`;
 }

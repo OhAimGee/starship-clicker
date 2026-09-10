@@ -4,9 +4,13 @@ export const en = {
   ui: {
     title: 'Starship Clicker',
     tagline: 'Build a spacefaring civilisation, one click at a time.',
-    mothership: 'Mothership',
+    mothership: 'Mothership — launch a charge of energy',
     perClick: '+{n} ⚡ per click',
     civLevel: 'Civilisation level',
+    a11y: {
+      resources: 'Resource board',
+      terminals: 'Terminals',
+    },
     tabs: {
       shop: 'Shop',
       fleet: 'Fleet',
@@ -24,10 +28,15 @@ export const en = {
     sections: {
       generators: 'Generators',
       clickUpgrades: 'Ship Upgrades',
+      ships: 'Ships',
+      research: 'Research',
       availableSystems: 'Systems to conquer',
       conqueredSystems: 'Conquered systems',
       prestigeUpgrades: 'Permanent upgrades',
       ascensionStats: 'Statistics',
+    },
+    cols: {
+      cost: 'Fare',
     },
     stats: {
       totalEnergy: 'Total energy produced',
@@ -38,6 +47,7 @@ export const en = {
       ascensions: 'Ascensions',
       lifetimeEnergy: 'Lifetime energy',
       permanentBonus: 'Permanent production bonus',
+      owned: 'Owned',
     },
     buttons: {
       buy: 'Buy',
@@ -46,9 +56,12 @@ export const en = {
       researched: 'Researched',
       explore: 'Explore',
       improve: 'Upgrade',
-      ascend: 'Ascend',
+      ascend: 'Ascend — terminate all',
       reset: 'Restart game',
       resume: 'Resume',
+      launch: 'Launch',
+      details: 'Details',
+      cancel: 'Cancel',
     },
     labels: {
       owned: 'Owned: {n}',
@@ -69,8 +82,9 @@ export const en = {
       passiveIncome: 'Passive income',
     },
     ascension: {
+      marquee: 'All services terminated',
       intro:
-        'Ascension resets your progress but grants ascension points (✨) and ' +
+        'Ascension resets your progress but grants ascension points (AP) and ' +
         'permanent bonuses.',
       requirement: 'Requires {amount} {resource}',
       willGain: 'You will gain {n} ✨',
@@ -84,6 +98,7 @@ export const en = {
       minutes: '{n}m',
     },
     reset: {
+      title: 'Reset',
       confirm:
         'Start a fresh game? All progress will be lost (other browser saves ' +
         'are unaffected).',

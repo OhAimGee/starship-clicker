@@ -1,69 +1,70 @@
-// Modales : rapport hors-ligne + confirmation.
+// Modales — panneau « service » plein cadre (en-tête acier, corps noir mat).
 
 import { el } from './dom.js';
 import { t } from '../i18n/index.js';
 import { formatNumber, formatDuration } from './format.js';
-import { resourceIcon } from '../data/resources.js';
+import { resourceCode } from '../data/resources.js';
 
-function overlay(content) {
-  const box = el('div', {
-    class: 'modal',
+function openPanel(headline, body) {
+  const panel = el('div', {
+    class: 'board-modal',
     role: 'dialog',
     'aria-modal': 'true',
+    'aria-label': headline,
   });
-  box.append(content);
-  const root = el('div', { class: 'modal-overlay' }, [box]);
-  const close = () => root.remove();
-  root.addEventListener('click', (e) => {
-    if (e.target === root) close();
-  });
-  root.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-  });
-  document.body.append(root);
-  return { root, close };
+  panel.append(
+    el('div', { class: 'board-modal-head steel', text: headline }),
+    el('div', { class: 'board-modal-body' }, body)
+  );
+  const scrim = el('div', { class: 'board-modal-scrim' }, [panel]);
+  const close = () => scrim.remove();
+  scrim.addEventListener('click', (e) => e.target === scrim && close());
+  scrim.addEventListener('keydown', (e) => e.key === 'Escape' && close());
+  document.body.append(scrim);
+  return { scrim, close };
 }
 
 export function showOfflineReport({ cappedSeconds, gains }) {
   const list = el(
     'p',
-    { class: 'modal-gains' },
+    { class: 'board-modal-gains' },
     Object.entries(gains)
       .filter(([, v]) => v > 0)
-      .map(([res, amount]) => `${resourceIcon(res)} +${formatNumber(amount)}`)
-      .join('   ')
+      .map(([res, amt]) => `${resourceCode(res)} +${formatNumber(amt)}`)
+      .join('  ')
   );
   const btn = el('button', {
-    class: 'btn btn-primary',
+    class: 'btn btn-go btn-block',
     type: 'button',
     text: t('ui.buttons.resume'),
   });
-  const content = el('div', {}, [
-    el('h2', { text: t('ui.offline.title') }),
+  const { close } = openPanel(t('ui.offline.title'), [
     el('p', {
       text: t('ui.offline.body', { duration: formatDuration(cappedSeconds) }),
     }),
-    el('p', { class: 'modal-label', text: t('ui.offline.gains') }),
+    el('p', { class: 'foot-note', text: t('ui.offline.gains') }),
     list,
     btn,
   ]);
-  const { close } = overlay(content);
   btn.addEventListener('click', close);
   btn.focus();
 }
 
 export function confirmDialog(message, onConfirm) {
   const yes = el('button', {
-    class: 'btn btn-danger',
+    class: 'btn btn-danger btn-block',
     type: 'button',
     text: t('ui.buttons.reset'),
   });
-  const no = el('button', { class: 'btn', type: 'button', text: '✕' });
-  const content = el('div', {}, [
+  const no = el('button', {
+    class: 'btn btn-block',
+    type: 'button',
+    text: t('ui.buttons.cancel'),
+  });
+  const { close } = openPanel(t('ui.reset.title'), [
     el('p', { text: message }),
-    el('div', { class: 'modal-actions' }, [no, yes]),
+    el('div', { class: 'board-modal-actions' }, [no, yes]),
   ]);
-  const { close } = overlay(content);
   no.addEventListener('click', close);
   yes.addEventListener('click', () => {
     close();

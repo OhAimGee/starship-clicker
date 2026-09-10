@@ -3,7 +3,7 @@ export {
   RESOURCES,
   RESOURCE_IDS,
   RESOURCE_BY_ID,
-  resourceIcon,
+  resourceCode,
 } from './resources.js';
 export { GENERATORS, GENERATOR_IDS, GENERATOR_BY_ID } from './generators.js';
 export { SHIPS, SHIP_IDS, SHIP_BY_ID } from './fleet.js';

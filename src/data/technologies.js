@@ -17,70 +17,60 @@
 export const TECHNOLOGIES = [
   {
     id: 'advancedPropulsion',
-    icon: '🚀',
     cost: { crystals: 500, antimatter: 10 },
     effects: [{ type: 'shipCost', mult: 0.85 }],
     unlock: { resource: 'antimatter', total: 5 },
   },
   {
     id: 'quantumComputing',
-    icon: '💻',
     cost: { crystals: 1500, antimatter: 30 },
     effects: [{ type: 'generatorProduction', mult: 1.5 }],
     unlock: { resource: 'antimatter', total: 15 },
   },
   {
     id: 'neuralNetworks',
-    icon: '🧠',
     cost: { crystals: 4000, antimatter: 80 },
     effects: [{ type: 'autoBuyGenerators' }],
     unlock: { resource: 'antimatter', total: 40 },
   },
   {
     id: 'warpDrive',
-    icon: '🌌',
     cost: { antimatter: 150, influence: 15 },
     effects: [{ type: 'unlockAdvancedSystems' }],
     unlock: { resource: 'influence', total: 10 },
   },
   {
     id: 'energyEfficiency',
-    icon: '🔋',
     cost: { energy: 80_000, crystals: 800 },
     effects: [{ type: 'fleetMaintenance', mult: 0.7 }],
     unlock: { resource: 'antimatter', total: 15 },
   },
   {
     id: 'hyperSpace',
-    icon: '🌠',
     cost: { antimatter: 400, influence: 40 },
     effects: [{ type: 'explorationIncome', mult: 2 }],
     unlock: { resource: 'influence', total: 25 },
   },
   {
     id: 'nanotechnology',
-    icon: '🔬',
     cost: { crystals: 6000, antimatter: 200 },
     effects: [{ type: 'generatorProduction', mult: 1.3 }],
     unlock: { resource: 'antimatter', total: 120 },
   },
   {
     id: 'artificialIntelligence',
-    icon: '🤖',
     cost: { antimatter: 800, influence: 80 },
     effects: [{ type: 'generatorProduction', mult: 1.25 }],
     unlock: { resource: 'influence', total: 50 },
   },
   {
     id: 'darkMatterPhysics',
-    icon: '🌑',
     cost: { antimatter: 5000, influence: 200 },
     effects: [{ type: 'resourceProduction', resource: 'darkMatter', mult: 2 }],
     unlock: { resource: 'antimatter', total: 2000 },
   },
   {
     id: 'quantumEntanglement',
-    icon: '🔮',
     cost: { darkMatter: 20, quantumEnergy: 2 },
     effects: [
       { type: 'resourceProduction', resource: 'quantumEnergy', mult: 2 },
@@ -89,14 +79,12 @@ export const TECHNOLOGIES = [
   },
   {
     id: 'voidTechnology',
-    icon: '⚫',
     cost: { darkMatter: 80, quantumEnergy: 8 },
     effects: [{ type: 'generatorProduction', mult: 3 }],
     unlock: { resource: 'quantumEnergy', total: 5 },
   },
   {
     id: 'realityManipulation',
-    icon: '✨',
     cost: { quantumEnergy: 40, ascensionPoints: 2 },
     effects: [
       { type: 'generatorProduction', mult: 5 },

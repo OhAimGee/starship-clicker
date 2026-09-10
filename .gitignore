@@ -4,3 +4,7 @@ dist/
 *.log
 .vite/
 backup/
+.impeccable/review/
+.impeccable/build/
+_*.mjs
+/dist

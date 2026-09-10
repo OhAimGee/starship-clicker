@@ -1,23 +1,46 @@
-// Retour visuel du clic. Remplace l'ancien visual-enhancements.js (qui injectait
-// des <style> au runtime, ajoutait 15 particules DOM permanentes et posait des
-// styles inline au survol). Ici : un effet léger, désactivé si l'utilisateur
-// préfère moins d'animations.
+// Retour tactile du contrôle LANCER.
+//
+// Held (maintien) : le contrôle passe en cadence auto — c'est le contrôle
+// maître (raise « un contrôle continu pilote la surface »). Respecte
+// prefers-reduced-motion.
 
-const reduced =
+const REDUCED =
   typeof matchMedia === 'function' &&
   matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export function clickBurst(host, event, amount) {
-  if (reduced || !host) return;
-  const rect = host.getBoundingClientRect();
-  const x = (event?.clientX ?? rect.left + rect.width / 2) - rect.left;
-  const y = (event?.clientY ?? rect.top + rect.height / 2) - rect.top;
+/**
+ * Câble le maintien du bouton LANCER sur un déclencheur répété.
+ * @param {HTMLElement} button
+ * @param {() => void} fire  action à répéter tant que maintenu
+ * @param {{ intervalMs?: number, delayMs?: number }} [opts]
+ */
+export function bindHold(
+  button,
+  fire,
+  { intervalMs = 220, delayMs = 320 } = {}
+) {
+  let holdTimer = null;
+  let repeat = null;
 
-  const float = document.createElement('span');
-  float.className = 'click-float';
-  float.textContent = `+${amount}`;
-  float.style.left = `${x}px`;
-  float.style.top = `${y}px`;
-  host.append(float);
-  float.addEventListener('animationend', () => float.remove());
+  const stop = () => {
+    clearTimeout(holdTimer);
+    clearInterval(repeat);
+    holdTimer = repeat = null;
+    button.classList.remove('is-holding');
+  };
+
+  const start = () => {
+    if (holdTimer || repeat) return;
+    holdTimer = setTimeout(() => {
+      button.classList.add('is-holding');
+      repeat = setInterval(fire, intervalMs);
+    }, delayMs);
+  };
+
+  button.addEventListener('pointerdown', start);
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel', 'blur']) {
+    button.addEventListener(ev, stop);
+  }
 }
+
+export { REDUCED as reducedMotion };

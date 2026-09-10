@@ -144,11 +144,7 @@ export class Engine {
     const event = tickEvents(s, seconds * 1000);
     if (event) {
       this._emit('event', event);
-      this._notify(
-        `event.${event.id}`,
-        { gains: event.grant, icon: event.icon },
-        'success'
-      );
+      this._notify(`event.${event.id}`, { gains: event.grant }, 'success');
     }
 
     // Niveau de civilisation

@@ -3,7 +3,7 @@
 
 import { t } from '../i18n/index.js';
 import { CONFIG } from '../data/config.js';
-import { resourceIcon } from '../data/resources.js';
+import { resourceCode } from '../data/resources.js';
 import { formatNumber, formatResourceList } from './format.js';
 
 const NAME_NS = {
@@ -21,9 +21,9 @@ export function notifyText({ key, params = {} }, engine) {
   if (key.startsWith('event.')) {
     const id = key.slice('event.'.length);
     const list = Object.entries(params.gains ?? {})
-      .map(([res, amt]) => `${resourceIcon(res)} +${formatNumber(amt)}`)
+      .map(([res, amt]) => `+${formatNumber(amt)} ${resourceCode(res)}`)
       .join(', ');
-    return `${params.icon ?? ''} ${t('notify.eventGain', { name: t(`event.${id}`), list })}`.trim();
+    return t('notify.eventGain', { name: t(`event.${id}`), list });
   }
 
   if (NAME_NS[key]) {
@@ -46,7 +46,7 @@ export function notifyText({ key, params = {} }, engine) {
   if (key === 'notify.cannotAscend') {
     return t(key, {
       amount: formatNumber(CONFIG.ascension.quantumCost),
-      resource: `${resourceIcon('quantumEnergy')} ${t('resource.quantumEnergy')}`,
+      resource: `${resourceCode('quantumEnergy')} ${t('resource.quantumEnergy')}`,
     });
   }
 

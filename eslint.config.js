@@ -9,6 +9,7 @@ export default [
       '.claude/**',
       'public/**',
       'docs/**',
+      '_*.mjs',
     ],
   },
   js.configs.recommended,

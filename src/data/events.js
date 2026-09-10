@@ -8,31 +8,26 @@
 export const RANDOM_EVENTS = [
   {
     id: 'solarStorm',
-    icon: '🌞',
     weight: 3,
     grant: (s) => ({ energy: Math.max(50, s.resources.energy * 0.4) }),
   },
   {
     id: 'archaeologicalFind',
-    icon: '🏺',
     weight: 3,
     grant: (s) => ({ crystals: Math.floor(s.civilizationLevel * 120 + 50) }),
   },
   {
     id: 'quantumAnomaly',
-    icon: '🌀',
     weight: 2,
     grant: (s) => ({ antimatter: Math.floor(s.civilizationLevel * 8 + 5) }),
   },
   {
     id: 'diplomaticContact',
-    icon: '🤝',
     weight: 2,
     grant: (s) => ({ influence: Math.floor(s.civilizationLevel * 4 + 3) }),
   },
   {
     id: 'darkMatterVortex',
-    icon: '🕳️',
     weight: 1,
     requires: (s) => s.technologies.darkMatterPhysics?.unlocked,
     grant: (s) => ({

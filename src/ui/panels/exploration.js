@@ -1,117 +1,116 @@
-// Onglet Exploration : conquête de systèmes stellaires.
+// Terminal CARTES : conquête de systèmes (destinations du tableau).
 
 import { el, clear } from '../dom.js';
 import { t } from '../../i18n/index.js';
-import { resourceIcon } from '../../data/resources.js';
-import { formatNumber } from '../format.js';
+import { resourceCode } from '../../data/resources.js';
+import { formatNumber, timeCode } from '../format.js';
+import { boardRow, sectionHead, setFacts } from '../board-row.js';
+import { systemIconId } from '../icon-map.js';
 
-function systemCard(system, index, canConquer) {
-  const rewards = Object.entries(system.rewards)
-    .map(([res, amount]) => `${resourceIcon(res)} ${formatNumber(amount)}`)
-    .join('  ');
-  return el(
-    'li',
-    { class: `card system${system.advanced ? ' system-advanced' : ''}` },
-    [
-      el('div', { class: 'card-head' }, [
-        el('h4', { class: 'card-name', text: system.name }),
-        el('span', {
-          class: 'card-tag',
-          text: t(`systemArchetype.${system.archetype}`),
-        }),
-      ]),
-      el('p', {
-        class: 'card-meta',
-        text: `${t('ui.labels.defense')} : ${formatNumber(system.defenseRating)}`,
-      }),
-      el('p', {
-        class: 'card-cost',
-        text: `${t('ui.labels.rewards')} : ${rewards}`,
-      }),
-      el('button', {
-        class: 'btn btn-buy',
-        type: 'button',
-        dataset: { action: 'explore', id: String(index) },
-        text: t('ui.buttons.explore'),
-        disabled: !canConquer,
-      }),
-    ]
-  );
-}
+const rewardLine = (rewards, factor = 1) =>
+  Object.entries(rewards)
+    .map(([res, amt]) => `${formatNumber(amt * factor)} ${resourceCode(res)}`)
+    .join('  ·  ');
 
 export function createExplorationPanel(engine) {
   const root = el('section', { class: 'panel' });
-  let fleetStat;
-  let available;
+  let rows = [];
   let signature = '';
+  let statPower;
 
-  function currentSignature() {
+  const sig = () => {
     const e = engine.state.exploration;
     return `${e.available.map((s) => s.name).join(',')}|${e.conquered.length}`;
-  }
+  };
 
   function refresh() {
     clear(root);
+    rows = [];
+    statPower = el('b');
     const state = engine.state;
-    const power = engine.fleetPower;
-    fleetStat = el('strong');
-    available = el('ul', { class: 'card-grid' });
-    const conquered = el('ul', { class: 'conquered-grid' });
 
+    const list = el('ul', { class: 'board-list' });
     state.exploration.available.forEach((system, index) => {
-      available.append(
-        systemCard(system, index, power >= system.defenseRating)
-      );
+      const row = boardRow({
+        id: String(index),
+        action: 'explore',
+        iconId: systemIconId(),
+        code: timeCode(index * 5),
+        name: system.name,
+        desc: `${t(`systemArchetype.${system.archetype}`)}`,
+      });
+      row.refs.main.classList.toggle('is-advanced', !!system.advanced);
+      setFacts(row.refs.drawerFacts, [
+        [t('ui.labels.defense'), formatNumber(system.defenseRating)],
+        [t('ui.labels.rewards'), rewardLine(system.rewards)],
+        [t('ui.labels.passiveIncome'), `${rewardLine(system.rewards, 0.1)} /s`],
+      ]);
+      list.append(row.root);
+      rows.push({ ...row, system, index });
     });
 
+    const arrivals = el('ul', { class: 'board-list arrivals' });
     if (state.exploration.conquered.length === 0) {
-      conquered.append(el('li', { class: 'muted', text: '—' }));
+      arrivals.append(el('li', { class: 'row-empty', text: '—' }));
     }
     for (const system of state.exploration.conquered) {
-      const income = Object.entries(system.rewards)
-        .map(
-          ([res, amount]) =>
-            `${resourceIcon(res)} +${formatNumber(amount * 0.1)}${t('ui.labels.perSecondShort')}`
-        )
-        .join('  ');
-      conquered.append(
-        el('li', { class: 'card conquered' }, [
-          el('h4', { class: 'card-name', text: system.name }),
-          el('p', {
-            class: 'card-meta',
-            text: `${t('ui.labels.passiveIncome')} : ${income}`,
-          }),
+      arrivals.append(
+        el('li', { class: 'board-row', dataset: { state: 'done' } }, [
+          el('div', { class: 'board-row-line' }, [
+            el('div', { class: 'board-row-main is-static' }, [
+              el('span', { class: 'row-code', text: '•' }),
+              el('span', { class: 'row-label' }, [
+                el('span', { class: 'row-name', text: system.name }),
+                el('span', {
+                  class: 'row-sub',
+                  text: `${t('ui.labels.passiveIncome')} : ${rewardLine(system.rewards, 0.1)} /s`,
+                }),
+              ]),
+            ]),
+          ]),
         ])
       );
     }
 
     root.append(
       el('h2', { text: t('ui.panels.exploration') }),
-      el('p', { class: 'panel-stats' }, [
-        `${t('ui.stats.fleetPower')} : `,
-        fleetStat,
+      el('ul', { class: 'stat-grid' }, [
+        el('li', {}, [
+          el('span', { text: t('ui.stats.fleetPower') }),
+          statPower,
+        ]),
       ]),
-      el('h3', { text: t('ui.sections.availableSystems') }),
-      available,
-      el('h3', { text: t('ui.sections.conqueredSystems') }),
-      conquered
+      sectionHead(t('ui.sections.availableSystems')),
+      list,
+      sectionHead(t('ui.sections.conqueredSystems'), ''),
+      arrivals
     );
-    signature = currentSignature();
+    signature = sig();
     update();
   }
 
   function update() {
-    if (currentSignature() !== signature) {
-      refresh();
-      return;
-    }
+    if (sig() !== signature) return refresh();
     const power = engine.fleetPower;
-    fleetStat.textContent = formatNumber(power);
-    engine.state.exploration.available.forEach((system, index) => {
-      const btn = available.children[index]?.querySelector('button');
-      if (btn) btn.disabled = power < system.defenseRating;
-    });
+    statPower.textContent = formatNumber(power);
+    for (const { root: rowEl, refs, system } of rows) {
+      const can = power >= system.defenseRating;
+      refs.main.disabled = !can;
+      refs.sub.textContent = `${t(`systemArchetype.${system.archetype}`)} · ${t('ui.labels.defense')} ${formatNumber(system.defenseRating)}`;
+      refs.cost.textContent = can
+        ? t('ui.buttons.explore')
+        : t('ui.labels.fleetPowerNeeded', {
+            n: formatNumber(system.defenseRating),
+          });
+      rowEl.dataset.state = can ? 'afford' : 'cant';
+    }
   }
 
-  return { root, refresh, update, key: 'exploration' };
+  return {
+    root,
+    refresh,
+    update,
+    key: 'exploration',
+    rowToggle: (id) => rows[Number(id)]?.toggle(),
+  };
 }

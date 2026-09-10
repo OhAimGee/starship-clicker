@@ -37,5 +37,5 @@ export function tickEvents(state, dtMs, rng = Math.random) {
     state.totalProduced[res] = (state.totalProduced[res] ?? 0) + amount;
   }
   ev.lastAt = Date.now();
-  return { id: event.id, icon: event.icon, grant };
+  return { id: event.id, grant };
 }

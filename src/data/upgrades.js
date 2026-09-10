@@ -9,7 +9,6 @@
 export const CLICK_UPGRADES = [
   {
     id: 'clickPower',
-    icon: '👆',
     baseCost: 50,
     costGrowth: 2.4,
     // +flat au pouvoir de clic de base par niveau
@@ -17,7 +16,6 @@ export const CLICK_UPGRADES = [
   },
   {
     id: 'autoClicker',
-    icon: '🎯',
     baseCost: 500,
     costGrowth: 1.6,
     // chaque exemplaire clique une fois par seconde
@@ -27,28 +25,24 @@ export const CLICK_UPGRADES = [
 export const PRESTIGE_UPGRADES = [
   {
     id: 'prestigeProduction',
-    icon: '⭐',
     baseCost: 1,
     costGrowth: 2,
     effect: { type: 'productionMultiplier', perLevel: 0.1 }, // +10 %/niv
   },
   {
     id: 'prestigeClick',
-    icon: '💥',
     baseCost: 1,
     costGrowth: 2,
     effect: { type: 'clickMultiplier', perLevel: 0.25 }, // +25 %/niv
   },
   {
     id: 'fleetCommand',
-    icon: '🎖️',
     baseCost: 2,
     costGrowth: 2.2,
     effect: { type: 'fleetMultiplier', perLevel: 0.2 }, // +20 %/niv
   },
   {
     id: 'quantumAffinity',
-    icon: '🔮',
     baseCost: 3,
     costGrowth: 2.5,
     // +50 %/niv sur la production de matière noire ET d'énergie quantique

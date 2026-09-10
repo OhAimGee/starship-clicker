@@ -1,25 +1,27 @@
-// File d'attente de notifications transitoires (toasts).
+// Annonces transitoires — bandeaux qui glissent au-dessus du sélecteur de
+// terminaux (l'équivalent « haut-parleur de gare » des toasts).
 
 import { el } from './dom.js';
+import { icon } from './icons.js';
 
-const MAX_VISIBLE = 4;
-const LIFETIME_MS = 4500;
+const MAX = 3;
+const LIFE_MS = 4200;
 
 export function createNotifier(container) {
   function push(message, level = 'info') {
-    const toast = el('div', {
-      class: `toast toast-${level}`,
-      role: 'status',
-      text: message,
-    });
-    container.append(toast);
-    while (container.children.length > MAX_VISIBLE) {
+    const ICON = { success: 'check', error: 'lock', info: 'bolt' };
+    const strip = el(
+      'div',
+      { class: `announce announce-${level}`, role: 'status' },
+      [icon(ICON[level] ?? 'bolt', 'announce-icon'), message]
+    );
+    container.append(strip);
+    while (container.children.length > MAX)
       container.firstElementChild.remove();
-    }
     setTimeout(() => {
-      toast.classList.add('toast-leaving');
-      setTimeout(() => toast.remove(), 300);
-    }, LIFETIME_MS);
+      strip.classList.add('is-leaving');
+      setTimeout(() => strip.remove(), 280);
+    }, LIFE_MS);
   }
   return { push };
 }

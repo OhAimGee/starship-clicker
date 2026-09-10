@@ -1,0 +1,23 @@
+{
+  "name": "Starship Clicker",
+  "short_name": "Starship",
+  "description": "Jeu incrémental de civilisation spatiale — un tableau des départs pour votre flotte.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c0f",
+  "theme_color": "#14161a",
+  "lang": "fr",
+  "categories": ["games"],
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
