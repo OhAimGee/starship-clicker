@@ -20,8 +20,8 @@
   --steel-3: #26221c;
 
   --ink: #f4f0e4; /* peinture blanche, légèrement chaude */
-  --ink-dim: #a6a291;
-  --ink-faint: #726d60;
+  --ink-dim: #aca894;
+  --ink-faint: #8d887a; /* >= 4.5:1 sur le fond noir mat (petits textes) */
 
   /* Bruit anisotrope (brossage du métal) et grain fin (peinture des palettes).
      Textures réellement générées, pas de faux biseau CSS. */
