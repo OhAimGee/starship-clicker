@@ -6,5 +6,6 @@
 // et `src/ui`.
 import './legacy/style_new.css';
 import './legacy/quantum-expansion.css';
+import './legacy/phase1.css';
 import './legacy/game.js';
 import './legacy/visual-enhancements.js';

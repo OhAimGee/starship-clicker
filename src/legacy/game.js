@@ -1,317 +1,78 @@
 // Starship Clicker Game - Version Complete
+//
+// NOTE (refonte Phase 1) : ce fichier reste le monolithe d'origine, mais les
+// pièces critiques (état initial, sauvegarde, progression hors-ligne, format)
+// sont maintenant fournies par des modules testés sous `src/game/`. La
+// décomposition complète est l'objet de la Phase 2.
+import { createInitialState } from "../game/initial-state.js";
+import { loadState, createThrottledSaver, clearSave } from "../game/save.js";
+import { computeOfflineGains, applyOfflineGains } from "../game/offline.js";
+import { formatNumber as formatNumberImpl } from "../game/format.js";
+
+const DEBUG =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.DEV) ||
+  false;
+const log = (...args) => {
+  // eslint-disable-next-line no-console
+  if (DEBUG) console.log(...args);
+};
 
 class StarshipClicker {
   constructor() {
-    // Etat initial du jeu
-    this.gameState = {
-      resources: {
-        energy: 0,
-        metal: 0,
-        crystals: 0,
-        antimatter: 0,
-        influence: 0,
-        darkMatter: 0,
-        quantumEnergy: 0,
-        ascensionPoints: 0,
-      },
-      clickPower: 1,
-      totalEnergyGenerated: 0,
-      civilizationLevel: 1,
-      explorationProgress: 0, // Generateurs automatiques
-      generators: {
-        solarPanel: { count: 0, cost: 10, production: 1, resource: "energy" },
-        miningDrone: { count: 0, cost: 25, production: 1, resource: "metal" },
-        crystalExtractor: {
-          count: 0,
-          cost: 50,
-          production: 1,
-          resource: "crystals",
-          costResource: "metal",
-        },
-        fusionReactor: {
-          count: 0,
-          cost: 100,
-          production: 10,
-          resource: "energy",
-          costResource: "crystals",
-        },
-        antimatterGenerator: {
-          count: 0,
-          cost: 500,
-          production: 1,
-          resource: "antimatter",
-          costResource: "crystals",
-        },
-        quantumHarvester: {
-          count: 0,
-          cost: 1000,
-          production: 5,
-          resource: "antimatter",
-          costResource: "energy",
-        },
-        stellarForge: {
-          count: 0,
-          cost: 2000,
-          production: 50,
-          resource: "metal",
-          costResource: "antimatter",
-        },
-        dimensionalRift: {
-          count: 0,
-          cost: 5000,
-          production: 25,
-          resource: "crystals",
-          costResource: "antimatter",
-        },
-        // Générateurs ultra-avancés
-        darkMatterCollector: {
-          count: 0,
-          cost: 25000,
-          production: 1,
-          resource: "darkMatter",
-          costResource: "antimatter",
-        },
-        quantumResonator: {
-          count: 0,
-          cost: 100000,
-          production: 5,
-          resource: "quantumEnergy",
-          costResource: "darkMatter",
-        },
-        voidHarvester: {
-          count: 0,
-          cost: 500000,
-          production: 100,
-          resource: "energy",
-          costResource: "quantumEnergy",
-        },
-        cosmicFurnace: {
-          count: 0,
-          cost: 1000000,
-          production: 200,
-          resource: "metal",
-          costResource: "quantumEnergy",
-        },
-        realityEngine: {
-          count: 0,
-          cost: 5000000,
-          production: 500,
-          resource: "crystals",
-          costResource: "quantumEnergy",
-        },
-      },
-
-      // Ameliorations
-      upgrades: {
-        clickUpgrade: { level: 0, cost: 15, multiplier: 1.5 },
-        autoClicker: { count: 0, cost: 200, multiplier: 2 },
-        // Nouvelles améliorations permanentes
-        prestigeMultiplier: { level: 0, cost: 1000, multiplier: 2.0 },
-        quantumCore: { level: 0, cost: 50000, multiplier: 1.5 },
-        darkMatterBooster: { level: 0, cost: 250000, multiplier: 3.0 },
-        cosmicAscension: { level: 0, cost: 1000000, multiplier: 5.0 },
-      }, // Flotte spatiale
-      fleet: {
-        fighters: {
-          count: 0,
-          cost: { energy: 150, metal: 75 },
-          attack: 1,
-          maintenance: 1,
-        },
-        cruisers: {
-          count: 0,
-          cost: { energy: 800, metal: 400, crystals: 50 },
-          attack: 5,
-          maintenance: 3,
-        },
-        dreadnoughts: {
-          count: 0,
-          cost: { energy: 3000, metal: 1500, crystals: 200, antimatter: 10 },
-          attack: 25,
-          maintenance: 10,
-        },
-        titans: {
-          count: 0,
-          cost: { energy: 10000, metal: 5000, crystals: 1000, antimatter: 50 },
-          attack: 100,
-          maintenance: 25,
-        },
-        motherships: {
-          count: 0,
-          cost: {
-            energy: 50000,
-            metal: 25000,
-            crystals: 5000,
-            antimatter: 200,
-            influence: 10,
-          },
-          attack: 500,
-          maintenance: 50,
-        },
-        // Vaisseaux légendaires
-        worldBurners: {
-          count: 0,
-          cost: {
-            energy: 250000,
-            metal: 125000,
-            crystals: 25000,
-            antimatter: 1000,
-            darkMatter: 5,
-          },
-          attack: 2500,
-          maintenance: 100,
-        },
-        voidCrusaders: {
-          count: 0,
-          cost: {
-            energy: 1000000,
-            metal: 500000,
-            crystals: 100000,
-            antimatter: 5000,
-            darkMatter: 25,
-            quantumEnergy: 1,
-          },
-          attack: 10000,
-          maintenance: 200,
-        },
-        realityShifters: {
-          count: 0,
-          cost: {
-            energy: 5000000,
-            metal: 2500000,
-            crystals: 500000,
-            antimatter: 25000,
-            darkMatter: 100,
-            quantumEnergy: 10,
-          },
-          attack: 50000,
-          maintenance: 500,
-        },
-      },
-
-      // Systemes conquis
-      conqueredSystems: [],
-      availableSystems: [], // Technologies
-      technologies: {
-        advancedPropulsion: {
-          unlocked: false,
-          cost: { crystals: 200, antimatter: 5 },
-          effect: "Reduit le cout des vaisseaux de 20%",
-        },
-        quantumComputing: {
-          unlocked: false,
-          cost: { crystals: 500, antimatter: 15 },
-          effect: "Augmente la production de tous les generateurs de 50%",
-        },
-        neuralNetworks: {
-          unlocked: false,
-          cost: { crystals: 1000, antimatter: 50 },
-          effect: "Auto-ameliore les generateurs",
-        },
-        warpDrive: {
-          unlocked: false,
-          cost: { antimatter: 100, influence: 10 },
-          effect: "Debloque l'exploration de nouveaux systemes",
-        },
-        energyEfficiency: {
-          unlocked: false,
-          cost: { energy: 50000, crystals: 300 },
-          effect: "Reduit la maintenance de la flotte de 30%",
-        },
-        hyperSpace: {
-          unlocked: false,
-          cost: { antimatter: 200, influence: 25 },
-          effect: "Double les recompenses d'exploration",
-        },
-        nanotechnology: {
-          unlocked: false,
-          cost: { crystals: 2000, antimatter: 150 },
-          effect: "Les generateurs se reparent automatiquement",
-        },
-        artificialIntelligence: {
-          unlocked: false,
-          cost: { antimatter: 500, influence: 50 },
-          effect: "Optimise automatiquement la production",
-        },
-        // Technologies ultra-avancées
-        darkMatterPhysics: {
-          unlocked: false,
-          cost: { antimatter: 2500, darkMatter: 1 },
-          effect: "Debloque la manipulation de la matiere noire",
-        },
-        quantumEntanglement: {
-          unlocked: false,
-          cost: { darkMatter: 10, quantumEnergy: 1 },
-          effect: "Production instantanee pour tous les generateurs",
-        },
-        voidTechnology: {
-          unlocked: false,
-          cost: { darkMatter: 50, quantumEnergy: 5 },
-          effect: "Acces aux technologies du vide cosmique",
-        },
-        realityManipulation: {
-          unlocked: false,
-          cost: { quantumEnergy: 25, ascensionPoints: 1 },
-          effect: "Controle de la realite - bonus x10 a tout",
-        },
-        cosmicAscension: {
-          unlocked: false,
-          cost: { quantumEnergy: 100, ascensionPoints: 5 },
-          effect: "Transcendance cosmique - prestige ameliore",
-        },
-      },
-
-      // Système de prestige
-      prestige: {
-        totalAscensions: 0,
-        permanentBonuses: {
-          clickMultiplier: 1,
-          productionMultiplier: 1,
-          fleetPowerMultiplier: 1,
-        },
-        lifetimeResources: {
-          energy: 0,
-          metal: 0,
-          crystals: 0,
-          antimatter: 0,
-          influence: 0,
-        },
-      },
-
-      // Système d'événements aléatoires
-      eventSystem: {
-        lastEventTime: 0,
-        eventCooldown: 60000, // 1 minute entre les événements
-        activeEvent: null,
-      },
-    };
-
-    // N'initialiser que quand le DOM est prêt
-    console.log("🚀 StarshipClicker constructor called");
+    this.gameState = createInitialState();
+    this._saver = createThrottledSaver(() => this.gameState, {
+      minIntervalMs: 10000,
+    });
+    log("🚀 StarshipClicker constructor called");
   }
 
   init() {
+    // L'ordre importe : charger AVANT de câbler l'affichage et la boucle, pour
+    // que la progression hors-ligne soit calculée sur l'état sauvegardé.
+    this.loadGame();
     this.bindEvents();
-    this.generateSystems();
+    if (
+      !this.gameState.availableSystems ||
+      this.gameState.availableSystems.length === 0
+    ) {
+      this.generateSystems();
+    }
     this.updateDisplay();
     this.startGameLoop();
-    this.loadGame();
+    this._installLifecycleSave();
 
-    // Message de bienvenue
-    setTimeout(() => {
-      this.showNotification(
-        "Bienvenue dans Starship Clicker ! Cliquez sur le vaisseau pour commencer !",
-        "info"
-      );
-    }, 1000);
+    if (this._pendingOfflineReport) {
+      this.showOfflineReport(this._pendingOfflineReport);
+      this._pendingOfflineReport = null;
+    }
+
+    // Message de bienvenue (seulement pour une nouvelle partie)
+    if (this._isFreshGame) {
+      setTimeout(() => {
+        this.showNotification(
+          "Bienvenue dans Starship Clicker ! Cliquez sur le vaisseau pour commencer !",
+          "info"
+        );
+      }, 1000);
+    }
+  }
+
+  _installLifecycleSave() {
+    const flushNow = () => this._saver.flushNow();
+    window.addEventListener("beforeunload", flushNow);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") flushNow();
+    });
   }
   bindEvents() {
-    console.log("🔗 Binding events...");
+    log("🔗 Binding events...");
 
     // Clic sur le vaisseau mère avec vérification robuste
     const mothership = document.getElementById("mothership");
     if (mothership) {
-      console.log("✅ Mothership element found, binding click event");
+      log("✅ Mothership element found, binding click event");
 
       // Supprimer tout event listener existant pour éviter les doublons
       const newMothership = mothership.cloneNode(true);
@@ -319,14 +80,14 @@ class StarshipClicker {
 
       // Ajouter l'event listener à l'élément cloné
       newMothership.addEventListener("click", (e) => {
-        console.log("🚀 Mothership clicked!");
+        log("🚀 Mothership clicked!");
         this.clickMothership(e);
       });
     } else {
       console.error("❌ Mothership element NOT found!");
       // Réessayer après un court délai
       setTimeout(() => {
-        console.log("🔄 Retrying to find mothership element...");
+        log("🔄 Retrying to find mothership element...");
         this.bindEvents();
       }, 500);
       return;
@@ -407,9 +168,32 @@ class StarshipClicker {
         this.researchTechnology(techType);
       });
     });
+
+    // --- Ascension / prestige (refonte Phase 1 : n'était câblé nulle part) ---
+    const ascendBtn = document.getElementById("ascend-btn");
+    if (ascendBtn) ascendBtn.addEventListener("click", () => this.ascend());
+
+    // Boutons "Améliorer" de l'onglet Ascension
+    document.querySelectorAll(".buy-prestige-upgrade").forEach((btn) => {
+      btn.addEventListener("click", () =>
+        this.buyPrestigeUpgrade(btn.dataset.upgrade)
+      );
+    });
+
+    // Cartes d'améliorations de prestige dans l'onglet Boutique
+    [
+      ["prestige-multiplier", "prestigeMultiplier"],
+      ["quantum-core", "quantumCore"],
+      ["dark-matter-booster", "darkMatterBooster"],
+      ["cosmic-ascension", "cosmicAscension"],
+    ].forEach(([id, type]) => {
+      const el = document.getElementById(id);
+      if (el)
+        el.addEventListener("click", () => this.buyPrestigeUpgrade(type));
+    });
   }
   clickMothership(e) {
-    console.log("⚡ clickMothership called");
+    log("⚡ clickMothership called");
 
     // Calculer la puissance de clic avec les bonus de prestige
     const clickPower = Math.floor(
@@ -417,14 +201,14 @@ class StarshipClicker {
         this.gameState.prestige.permanentBonuses.clickMultiplier
     );
 
-    console.log(`💪 Click power: ${clickPower}`);
+    log(`💪 Click power: ${clickPower}`);
 
     // Ajouter energie
     const oldEnergy = this.gameState.resources.energy;
     this.gameState.resources.energy += clickPower;
     this.gameState.totalEnergyGenerated += clickPower;
 
-    console.log(`🔋 Energy: ${oldEnergy} → ${this.gameState.resources.energy}`);
+    log(`🔋 Energy: ${oldEnergy} → ${this.gameState.resources.energy}`);
 
     // Effet visuel
     this.createClickEffect(e);
@@ -456,14 +240,14 @@ class StarshipClicker {
   buyGenerator(generatorType) {
     const generator = this.gameState.generators[generatorType];
     if (!generator) {
-      console.log("Générateur non trouvé:", generatorType);
+      log("Générateur non trouvé:", generatorType);
       return;
     }
 
     const costResource = generator.costResource || "energy";
     const cost = generator.cost;
 
-    console.log(
+    log(
       `Achat ${generatorType}: Besoin de ${cost} ${costResource}, Disponible: ${this.gameState.resources[costResource]}`
     );
     if (this.gameState.resources[costResource] >= cost) {
@@ -709,7 +493,7 @@ class StarshipClicker {
       });
     }
 
-    console.log("Systèmes générés:", this.gameState.availableSystems);
+    log("Systèmes générés:", this.gameState.availableSystems);
   }
   generateNewSystems() {
     const advancedSystemNames = [
@@ -979,21 +763,22 @@ class StarshipClicker {
             amount * 0.1 * explorationMultiplier
           );
         }
-      }); // Calcul du niveau de civilisation basé sur les ressources totales
-      const totalResources = Object.values(this.gameState.resources).reduce(
-        (sum, val) => sum + val,
-        0
-      );
+      });
+
+      // Niveau de civilisation : basé sur l'énergie totale produite sur la vie
+      // (métrique de progression homogène), au lieu de la somme d'unités
+      // hétérogènes (énergie + métal + antimatière + …) qui n'avait pas de sens.
       this.gameState.civilizationLevel = Math.max(
         1,
-        Math.log10(totalResources + 1)
+        Math.log10(this.gameState.totalEnergyGenerated + 10)
       );
 
       // Vérifier les événements aléatoires
       this.checkRandomEvents();
 
       this.updateDisplay();
-      this.saveGame();
+      // Écriture réelle de la sauvegarde, au plus une fois toutes les ~10 s.
+      this._saver.flush();
     }, 1000);
   }
 
@@ -1088,7 +873,80 @@ class StarshipClicker {
     this.updateFleetDisplay();
     this.updateExplorationDisplay();
     this.updateTechnologyDisplay();
+    this.updateAscensionDisplay();
   }
+
+  // Refonte Phase 1 : l'onglet Ascension et les compteurs "footer" n'étaient
+  // jamais rafraîchis.
+  updateAscensionDisplay() {
+    const set = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
+    const r = this.gameState.resources;
+    const p = this.gameState.prestige;
+
+    set(
+      "ascension-points-display",
+      this.formatNumber(r.ascensionPoints)
+    );
+    set("total-ascensions", p.totalAscensions);
+    set(
+      "permanent-bonus",
+      Math.round((p.permanentBonuses.productionMultiplier - 1) * 100)
+    );
+    set("potential-ascension-points", this.potentialAscensionPoints());
+
+    // Stats "de toutes les vies"
+    set(
+      "lifetime-energy",
+      this.formatNumber(
+        p.lifetimeResources.energy + this.gameState.totalEnergyGenerated
+      )
+    );
+    set("lifetime-dark-matter", this.formatNumber(r.darkMatter));
+    set("lifetime-quantum-energy", this.formatNumber(r.quantumEnergy));
+
+    // Compteurs du pied de page
+    set("dark-matter-footer", this.formatNumber(r.darkMatter));
+    set("quantum-energy-footer", this.formatNumber(r.quantumEnergy));
+    set("ascension-points-footer", this.formatNumber(r.ascensionPoints));
+
+    // Bouton Ascendre
+    const ascendBtn = document.getElementById("ascend-btn");
+    if (ascendBtn) ascendBtn.disabled = !this.canAscend();
+
+    // Cartes d'améliorations de prestige (onglet Boutique ET onglet Ascension)
+    const prestigeCosts = {
+      prestigeMultiplier: "ascensionPoints",
+      quantumCore: "quantumEnergy",
+      darkMatterBooster: "darkMatter",
+      cosmicAscension: "quantumEnergy",
+    };
+    Object.entries(prestigeCosts).forEach(([type, costResource]) => {
+      const upgrade = this.gameState.upgrades[type];
+      if (!upgrade) return;
+      const canAfford = this.gameState.resources[costResource] >= upgrade.cost;
+      const kebab = type.replace(/([A-Z])/g, "-$1").toLowerCase();
+      ["", "upgrade-"].forEach((prefix) => {
+        const el = document.getElementById(prefix + kebab);
+        if (!el) return;
+        const levelEl = el.querySelector(".upgrade-level, .level, .owned");
+        if (levelEl) levelEl.textContent = upgrade.level;
+        const costEl = el.querySelector(".cost");
+        if (costEl) costEl.textContent = this.formatNumber(upgrade.cost);
+        el.classList.toggle("affordable", canAfford);
+        el.classList.toggle("unaffordable", !canAfford);
+        const btn = el.querySelector("button");
+        if (btn) btn.disabled = !canAfford;
+      });
+    });
+  }
+
+  potentialAscensionPoints() {
+    return Math.floor(this.gameState.resources.quantumEnergy / 1000);
+  }
+
   updateShopDisplay() {
     // Generateurs
     Object.entries(this.gameState.generators).forEach(([key, generator]) => {
@@ -1209,7 +1067,7 @@ class StarshipClicker {
       this.gameState.availableSystems.forEach((system, index) => {
         // Validation et correction des systèmes corrompus
         if (!system.defenseRating || typeof system.defenseRating !== "number") {
-          console.log("Système corrompu détecté, correction:", system);
+          log("Système corrompu détecté, correction:", system);
           system.defenseRating = (index + 1) * 10; // Valeur par défaut
         }
         if (!system.rewards) {
@@ -1416,22 +1274,33 @@ class StarshipClicker {
   }
 
   // Système de prestige
+  //
+  // Condition : 1000 🔮 d'énergie quantique (donne floor(quantumEnergy / 1000)
+  // points d'ascension). Le texte de l'onglet Ascension a été aligné sur cette
+  // règle (il annonçait auparavant "1 000 000 🌑 + 500 000 🔮").
+  static ASCENSION_COST_QUANTUM = 1000;
+
   canAscend() {
-    return this.gameState.resources.quantumEnergy >= 1000;
+    return (
+      this.gameState.resources.quantumEnergy >=
+      StarshipClicker.ASCENSION_COST_QUANTUM
+    );
   }
 
   ascend() {
     if (!this.canAscend()) {
       this.showNotification(
-        "Quantité d'énergie quantique insuffisante pour l'ascension !",
+        "Énergie quantique insuffisante : il faut 1000 🔮 pour ascendre.",
         "error"
       );
       return;
     }
 
-    const ascensionPoints = Math.floor(
-      this.gameState.resources.quantumEnergy / 1000
-    );
+    const ascensionPoints = this.potentialAscensionPoints();
+
+    // Mémoriser la production de cette vie avant la remise à zéro
+    this.gameState.prestige.lifetimeResources.energy +=
+      this.gameState.totalEnergyGenerated;
 
     // Calculer les bonus permanents
     this.gameState.prestige.totalAscensions++;
@@ -1551,88 +1420,96 @@ class StarshipClicker {
     return symbols[resource] || "";
   }
 
+  // Refonte Phase 1 : la sauvegarde passe par `src/game/save.js` (schéma
+  // versionné, migration, archivage des sauvegardes corrompues, écriture
+  // regroupée). `saveGame()` ne fait plus qu'enregistrer une intention ; la
+  // boucle de jeu et les événements de cycle de vie déclenchent l'écriture.
   saveGame() {
-    localStorage.setItem("starshipClickerSave", JSON.stringify(this.gameState));
+    this._saver.request();
   }
+
   loadGame() {
-    const savedGame = localStorage.getItem("starshipClickerSave");
-    if (savedGame) {
-      try {
-        const loadedState = JSON.parse(savedGame);
+    const { state, status } = loadState();
+    const savedAtBefore = status === "loaded" ? state.savedAt : null;
+    this.gameState = state;
+    this._isFreshGame = status !== "loaded";
 
-        // Fusionner de manière plus profonde pour éviter les erreurs
-        this.gameState = this.deepMerge(this.gameState, loadedState);
-
-        // Vérification et correction des systèmes après chargement
+    // Réparer d'éventuels systèmes corrompus issus d'anciennes sauvegardes
+    if (Array.isArray(this.gameState.availableSystems)) {
+      this.gameState.availableSystems.forEach((system, index) => {
+        const s = system || {};
         if (
-          !this.gameState.availableSystems ||
-          this.gameState.availableSystems.length === 0
+          typeof s.defenseRating !== "number" ||
+          Number.isNaN(s.defenseRating)
         ) {
-          console.log("Aucun système disponible trouvé, régénération...");
-          this.generateSystems();
-        } else {
-          // Vérifier que tous les systèmes ont une défense valide
-          let hasCorruptedSystems = false;
-          this.gameState.availableSystems.forEach((system, index) => {
-            if (
-              !system.defenseRating ||
-              typeof system.defenseRating !== "number" ||
-              isNaN(system.defenseRating)
-            ) {
-              console.log(
-                "Système corrompu détecté lors du chargement:",
-                system
-              );
-              system.defenseRating = (index + 1) * 10;
-              hasCorruptedSystems = true;
-            }
-            if (!system.rewards) {
-              system.rewards = {
-                energy: (index + 1) * 50,
-                metal: (index + 1) * 25,
-                crystals: (index + 1) * 10,
-                influence: index + 1,
-              };
-              hasCorruptedSystems = true;
-            }
-          });
-
-          if (hasCorruptedSystems) {
-            console.log("Systèmes corrompus corrigés");
-            this.saveGame(); // Sauvegarder les corrections
-          }
+          s.defenseRating = (index + 1) * 10;
         }
+        if (!s.rewards) {
+          s.rewards = {
+            energy: (index + 1) * 50,
+            metal: (index + 1) * 25,
+            crystals: (index + 1) * 10,
+            influence: index + 1,
+          };
+        }
+        this.gameState.availableSystems[index] = s;
+      });
+    }
 
-        this.updateDisplay();
-        console.log("Sauvegarde chargée avec succès");
-      } catch (e) {
-        console.log("Erreur lors du chargement de la sauvegarde:", e);
-        // En cas d'erreur, supprimer la sauvegarde corrompue et regénérer
-        localStorage.removeItem("starshipClickerSave");
-        this.generateSystems();
-        this.showNotification(
-          "Sauvegarde corrompue supprimée, nouveau jeu démarré",
-          "error"
+    if (status === "recovered") {
+      this.showNotification(
+        "Sauvegarde illisible archivée (clé starshipClickerSave.bak). Nouvelle partie.",
+        "error"
+      );
+    }
+
+    // Progression hors-ligne
+    if (savedAtBefore) {
+      const elapsed = Date.now() - savedAtBefore;
+      if (elapsed > 60000) {
+        const { cappedSeconds, gains } = computeOfflineGains(
+          this.gameState,
+          elapsed
         );
+        if (Object.keys(gains).length > 0) {
+          applyOfflineGains(this.gameState, gains);
+          this._pendingOfflineReport = { cappedSeconds, gains };
+        }
       }
     }
+    log("Sauvegarde chargée:", status);
   }
 
-  // Méthode pour fusionner profondément les objets
-  deepMerge(target, source) {
-    const result = { ...target };
-    for (const key in source) {
-      if (
-        source[key] &&
-        typeof source[key] === "object" &&
-        !Array.isArray(source[key])
-      ) {
-        result[key] = this.deepMerge(target[key] || {}, source[key]);
-      } else {
-        result[key] = source[key];
-      }
-    }
-    return result;
+  showOfflineReport({ cappedSeconds, gains }) {
+    const hours = Math.floor(cappedSeconds / 3600);
+    const minutes = Math.floor((cappedSeconds % 3600) / 60);
+    const duration =
+      hours > 0 ? `${hours} h ${minutes} min` : `${minutes} min`;
+    const lines = Object.entries(gains)
+      .map(
+        ([res, amount]) =>
+          `${this.getResourceSymbol(res)} +${this.formatNumber(amount)}`
+      )
+      .join("   ");
+
+    const overlay = document.createElement("div");
+    overlay.className = "offline-report-overlay";
+    overlay.innerHTML = `
+      <div class="offline-report" role="dialog" aria-modal="true"
+           aria-labelledby="offline-report-title">
+        <h2 id="offline-report-title">Bon retour, Commandant</h2>
+        <p>Votre civilisation a prospéré pendant votre absence
+           (${duration}) :</p>
+        <p class="offline-report-gains">${lines}</p>
+        <button type="button" class="offline-report-close">Reprendre</button>
+      </div>`;
+    const close = () => overlay.remove();
+    overlay.querySelector(".offline-report-close").addEventListener("click", close);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+    document.body.appendChild(overlay);
+    overlay.querySelector(".offline-report-close").focus();
   }
   // Fonction de débogage pour ajouter des ressources
   debugAddResources() {
@@ -1653,289 +1530,9 @@ class StarshipClicker {
         "Êtes-vous sûr de vouloir recommencer le jeu ? Toute progression sera perdue !"
       )
     ) {
-      // Supprimer la sauvegarde
-      localStorage.removeItem("starshipClickerSave"); // Réinitialiser l'état du jeu
-      this.gameState = {
-        resources: {
-          energy: 0,
-          metal: 0,
-          crystals: 0,
-          antimatter: 0,
-          influence: 0,
-          darkMatter: 0,
-          quantumEnergy: 0,
-          ascensionPoints: 0,
-        },
-        clickPower: 1,
-        totalEnergyGenerated: 0,
-        civilizationLevel: 1,
-        explorationProgress: 0,
-        generators: {
-          solarPanel: { count: 0, cost: 10, production: 1, resource: "energy" },
-          miningDrone: { count: 0, cost: 25, production: 1, resource: "metal" },
-          crystalExtractor: {
-            count: 0,
-            cost: 50,
-            production: 1,
-            resource: "crystals",
-            costResource: "metal",
-          },
-          fusionReactor: {
-            count: 0,
-            cost: 100,
-            production: 10,
-            resource: "energy",
-            costResource: "crystals",
-          },
-          antimatterGenerator: {
-            count: 0,
-            cost: 500,
-            production: 1,
-            resource: "antimatter",
-            costResource: "crystals",
-          },
-          quantumHarvester: {
-            count: 0,
-            cost: 1000,
-            production: 5,
-            resource: "antimatter",
-            costResource: "energy",
-          },
-          stellarForge: {
-            count: 0,
-            cost: 2000,
-            production: 50,
-            resource: "metal",
-            costResource: "antimatter",
-          },
-          dimensionalRift: {
-            count: 0,
-            cost: 5000,
-            production: 25,
-            resource: "crystals",
-            costResource: "antimatter",
-          },
-          // Générateurs ultra-avancés
-          darkMatterCollector: {
-            count: 0,
-            cost: 25000,
-            production: 1,
-            resource: "darkMatter",
-            costResource: "antimatter",
-          },
-          quantumResonator: {
-            count: 0,
-            cost: 100000,
-            production: 5,
-            resource: "quantumEnergy",
-            costResource: "darkMatter",
-          },
-          voidHarvester: {
-            count: 0,
-            cost: 500000,
-            production: 100,
-            resource: "energy",
-            costResource: "quantumEnergy",
-          },
-          cosmicFurnace: {
-            count: 0,
-            cost: 1000000,
-            production: 200,
-            resource: "metal",
-            costResource: "quantumEnergy",
-          },
-          realityEngine: {
-            count: 0,
-            cost: 5000000,
-            production: 1000,
-            resource: "crystals",
-            costResource: "quantumEnergy",
-          },
-        },
-        upgrades: {
-          clickUpgrade: { level: 0, cost: 15, multiplier: 1.5 },
-          autoClicker: { count: 0, cost: 200, multiplier: 2 },
-          // Améliorations de prestige
-          prestigeMultiplier: { level: 0, cost: 10, multiplier: 2.0 },
-          quantumCore: { level: 0, cost: 100, multiplier: 1.5 },
-          darkMatterBooster: { level: 0, cost: 50, multiplier: 3.0 },
-          cosmicAscension: { level: 0, cost: 500, multiplier: 10.0 },
-        },
-        fleet: {
-          fighters: {
-            count: 0,
-            cost: { energy: 150, metal: 75 },
-            attack: 1,
-            maintenance: 1,
-          },
-          cruisers: {
-            count: 0,
-            cost: { energy: 800, metal: 400, crystals: 50 },
-            attack: 5,
-            maintenance: 3,
-          },
-          dreadnoughts: {
-            count: 0,
-            cost: { energy: 3000, metal: 1500, crystals: 200, antimatter: 10 },
-            attack: 25,
-            maintenance: 10,
-          },
-          titans: {
-            count: 0,
-            cost: {
-              energy: 10000,
-              metal: 5000,
-              crystals: 1000,
-              antimatter: 50,
-            },
-            attack: 100,
-            maintenance: 25,
-          },
-          motherships: {
-            count: 0,
-            cost: {
-              energy: 50000,
-              metal: 25000,
-              crystals: 5000,
-              antimatter: 200,
-              influence: 10,
-            },
-            attack: 500,
-            maintenance: 50,
-          },
-          // Vaisseaux légendaires
-          worldBurners: {
-            count: 0,
-            cost: {
-              energy: 250000,
-              metal: 125000,
-              crystals: 25000,
-              antimatter: 1000,
-              darkMatter: 5,
-            },
-            attack: 2500,
-            maintenance: 100,
-          },
-          voidCrusaders: {
-            count: 0,
-            cost: {
-              energy: 1000000,
-              metal: 500000,
-              crystals: 100000,
-              antimatter: 5000,
-              darkMatter: 25,
-              quantumEnergy: 1,
-            },
-            attack: 10000,
-            maintenance: 200,
-          },
-          realityShifters: {
-            count: 0,
-            cost: {
-              energy: 5000000,
-              metal: 2500000,
-              crystals: 500000,
-              antimatter: 25000,
-              darkMatter: 100,
-              quantumEnergy: 10,
-            },
-            attack: 50000,
-            maintenance: 500,
-          },
-        },
-        conqueredSystems: [],
-        availableSystems: [],
-        // Système d'événements aléatoires
-        eventSystem: {
-          lastEventTime: 0,
-          eventCooldown: 60000, // 1 minute entre les événements
-          activeEvent: null,
-        },
-        // Système de prestige
-        prestige: {
-          totalAscensions: 0,
-          permanentBonuses: {
-            clickMultiplier: 1,
-            productionMultiplier: 1,
-            fleetPowerMultiplier: 1,
-          },
-          lifetimeResources: {
-            energy: 0,
-            metal: 0,
-            crystals: 0,
-            antimatter: 0,
-            influence: 0,
-          },
-        },
-        technologies: {
-          advancedPropulsion: {
-            unlocked: false,
-            cost: { crystals: 200, antimatter: 5 },
-            effect: "Reduit le cout des vaisseaux de 20%",
-          },
-          quantumComputing: {
-            unlocked: false,
-            cost: { crystals: 500, antimatter: 15 },
-            effect: "Augmente la production de tous les generateurs de 50%",
-          },
-          neuralNetworks: {
-            unlocked: false,
-            cost: { crystals: 1000, antimatter: 50 },
-            effect: "Auto-ameliore les generateurs",
-          },
-          warpDrive: {
-            unlocked: false,
-            cost: { antimatter: 100, influence: 10 },
-            effect: "Debloque l'exploration de nouveaux systemes",
-          },
-          energyEfficiency: {
-            unlocked: false,
-            cost: { energy: 50000, crystals: 300 },
-            effect: "Reduit la maintenance de la flotte de 30%",
-          },
-          hyperSpace: {
-            unlocked: false,
-            cost: { antimatter: 200, influence: 25 },
-            effect: "Double les recompenses d'exploration",
-          },
-          nanotechnology: {
-            unlocked: false,
-            cost: { crystals: 2000, antimatter: 150 },
-            effect: "Les generateurs se reparent automatiquement",
-          },
-          artificialIntelligence: {
-            unlocked: false,
-            cost: { antimatter: 500, influence: 50 },
-            effect: "Optimise automatiquement la production",
-          },
-          // Technologies ultra-avancées
-          darkMatterPhysics: {
-            unlocked: false,
-            cost: { antimatter: 2500, darkMatter: 1 },
-            effect: "Debloque la manipulation de la matiere noire",
-          },
-          quantumEntanglement: {
-            unlocked: false,
-            cost: { darkMatter: 10, quantumEnergy: 1 },
-            effect: "Production instantanee pour tous les generateurs",
-          },
-          voidTechnology: {
-            unlocked: false,
-            cost: { darkMatter: 50, quantumEnergy: 5 },
-            effect: "Acces aux technologies du vide cosmique",
-          },
-          realityManipulation: {
-            unlocked: false,
-            cost: { quantumEnergy: 25, ascensionPoints: 1 },
-            effect: "Controle de la realite - bonus x10 a tout",
-          },
-          cosmicAscension: {
-            unlocked: false,
-            cost: { quantumEnergy: 100, ascensionPoints: 5 },
-            effect: "Transcendance cosmique - prestige ameliore",
-          },
-        },
-      };
+      clearSave();
+      this.gameState = createInitialState();
+      this._isFreshGame = true;
 
       // Régénérer les systèmes
       this.generateSystems();
@@ -1995,28 +1592,9 @@ class StarshipClicker {
     }
   }
 
-  // Méthode de formatage des nombres
+  // Formatage délégué à `src/game/format.js` (0 -> "0", suffixes au-delà de "T").
   formatNumber(number) {
-    if (number === null || number === undefined || isNaN(number)) {
-      return "0";
-    }
-
-    const num = Number(number);
-
-    // Pour les très grands nombres, utiliser la notation scientifique abrégée
-    if (num >= 1e12) {
-      return (num / 1e12).toFixed(2) + "T";
-    } else if (num >= 1e9) {
-      return (num / 1e9).toFixed(2) + "B";
-    } else if (num >= 1e6) {
-      return (num / 1e6).toFixed(2) + "M";
-    } else if (num >= 1e3) {
-      return (num / 1e3).toFixed(2) + "K";
-    } else if (num >= 1) {
-      return Math.floor(num).toString();
-    } else {
-      return num.toFixed(2);
-    }
+    return formatNumberImpl(number);
   }
 
   // Méthode pour afficher les notifications
@@ -2043,49 +1621,23 @@ class StarshipClicker {
 }
 
 // Initialisation du jeu
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🌟 DOM Content Loaded - Initializing game...");
+function bootstrap() {
+  const game = new StarshipClicker();
+  window.game = game;
+  game.init();
+  game.showTab("shop");
 
-  window.game = new StarshipClicker();
-
-  // Attendre un court délai puis initialiser
-  setTimeout(() => {
-    console.log("🎮 Calling init() method...");
-    game.init();
-
-    // Initialiser avec l'onglet boutique actif
-    game.showTab("shop");
-
-    console.log("✅ Game fully initialized");
-  }, 100);
-
-  // Fonction de débogage accessible globalement
-  window.debugAddResources = () => game.debugAddResources();
-
-  // Fonction de reset accessible globalement
+  // Reset accessible pour le bouton "Recommencer" du pied de page.
   window.resetGame = () => game.resetGame();
 
-  // Fonction pour charger le script de test
-  window.loadTestScript = () => {
-    const script = document.createElement("script");
-    script.src = "test-features.js";
-    script.onload = () => {
-      console.log("🧪 Script de test chargé !");
-      console.log("🚀 Lancement des tests automatiques...");
-      setTimeout(() => {
-        if (typeof runAllTests === "function") {
-          runAllTests();
-        }
-      }, 500);
-    };
-    script.onerror = () => {
-      console.error("❌ Erreur lors du chargement du script de test");
-    };
-    document.head.appendChild(script);
-  };
+  if (DEBUG) {
+    window.debugAddResources = () => game.debugAddResources();
+    log("Debug : window.game, debugAddResources(), resetGame()");
+  }
+}
 
-  // Informations de débogage
-  console.log("Jeu initialisé. Commandes disponibles:");
-  console.log("- debugAddResources() : Ajouter des ressources");
-  console.log("- resetGame() : Réinitialiser le jeu");
-});
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootstrap);
+} else {
+  bootstrap();
+}
