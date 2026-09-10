@@ -1,11 +1,32 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialState, SCHEMA_VERSION } from './initial-state.js';
+import { GENERATOR_IDS } from '../data/generators.js';
+import { SHIP_IDS } from '../data/fleet.js';
+import { TECH_IDS } from '../data/technologies.js';
+import { RESOURCE_IDS } from '../data/resources.js';
 
 describe('createInitialState', () => {
-  it('produit un état taggé avec la version de schéma', () => {
+  it('produit un état taggé v2 avec horodatages', () => {
     const s = createInitialState();
     expect(s.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(s.schemaVersion).toBe(2);
     expect(typeof s.savedAt).toBe('number');
+    expect(typeof s.createdAt).toBe('number');
+  });
+
+  it('ne stocke que des compteurs (les définitions restent dans les données)', () => {
+    const s = createInitialState();
+    expect(s.generators.solarPanel).toEqual({ count: 0 });
+    expect(s.ships.fighters).toEqual({ count: 0 });
+    expect(s.technologies.advancedPropulsion).toEqual({ unlocked: false });
+  });
+
+  it('couvre toutes les entités des données', () => {
+    const s = createInitialState();
+    expect(Object.keys(s.resources).sort()).toEqual([...RESOURCE_IDS].sort());
+    expect(Object.keys(s.generators).sort()).toEqual([...GENERATOR_IDS].sort());
+    expect(Object.keys(s.ships).sort()).toEqual([...SHIP_IDS].sort());
+    expect(Object.keys(s.technologies).sort()).toEqual([...TECH_IDS].sort());
   });
 
   it('ne partage aucune référence entre deux instances', () => {
@@ -13,24 +34,9 @@ describe('createInitialState', () => {
     const b = createInitialState();
     a.resources.energy = 999;
     a.generators.solarPanel.count = 5;
-    a.fleet.fighters.cost.energy = 1;
+    a.prestige.upgrades.prestigeProduction.level = 3;
     expect(b.resources.energy).toBe(0);
     expect(b.generators.solarPanel.count).toBe(0);
-    expect(b.fleet.fighters.cost.energy).toBe(150);
-  });
-
-  it('contient toutes les ressources, générateurs, technos et vaisseaux attendus', () => {
-    const s = createInitialState();
-    expect(Object.keys(s.resources)).toHaveLength(8);
-    expect(Object.keys(s.generators)).toHaveLength(13);
-    expect(Object.keys(s.fleet)).toHaveLength(8);
-    expect(Object.keys(s.technologies)).toHaveLength(13);
-    expect(Object.keys(s.upgrades)).toHaveLength(6);
-  });
-
-  it('démarre avec un pouvoir de clic de 1 et aucune ressource', () => {
-    const s = createInitialState();
-    expect(s.clickPower).toBe(1);
-    expect(Object.values(s.resources).every((v) => v === 0)).toBe(true);
+    expect(b.prestige.upgrades.prestigeProduction.level).toBe(0);
   });
 });
