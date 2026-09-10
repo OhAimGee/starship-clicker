@@ -17,7 +17,7 @@ refonte dans `.claude/plans/`.
 | Phase | Contenu                                                     | État |
 | ----- | ----------------------------------------------------------- | ---- |
 | 0     | Socle : git, Vite, lint, CI, nettoyage                      | ✅   |
-| 1     | Réparer la boucle de jeu (prestige, progression hors-ligne) | ⏳   |
+| 1     | Réparer la boucle de jeu (prestige, progression hors-ligne) | ✅   |
 | 2     | Architecture modulaire pilotée par les données + i18n       | ⏳   |
 | 3     | Refonte visuelle (nouveau design system)                    | ⏳   |
 | 4     | Finition, équilibrage, déploiement                          | ⏳   |
