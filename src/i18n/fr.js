@@ -9,6 +9,8 @@ export const fr = {
     mothership: 'Vaisseau mère — lancer une charge d’énergie',
     perClick: '+{n} ⚡ par clic',
     civLevel: 'Niveau de civilisation',
+    civShort: 'Civ.',
+    producedShort: 'Énergie produite',
     a11y: {
       resources: 'Panneau des ressources',
       terminals: 'Terminaux',

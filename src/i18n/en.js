@@ -7,6 +7,8 @@ export const en = {
     mothership: 'Mothership — launch a charge of energy',
     perClick: '+{n} ⚡ per click',
     civLevel: 'Civilisation level',
+    civShort: 'Civ.',
+    producedShort: 'Energy produced',
     a11y: {
       resources: 'Resource board',
       terminals: 'Terminals',

@@ -52,10 +52,13 @@ export function mountApp(host, engine, { offlineReport } = {}) {
   langSelect.addEventListener('change', () => setLang(langSelect.value));
 
   const header = el('header', { class: 'board-header steel' }, [
-    el('div', { class: 'board-header-top' }, [wordmark, langSelect]),
-    el('div', { class: 'readouts' }, [
-      el('div', { class: 'readout' }, [totalLabel, totalValue]),
-      el('div', { class: 'readout readout-civ' }, [civLabel, civValue]),
+    el('div', { class: 'board-header-top' }, [
+      wordmark,
+      el('div', { class: 'readouts' }, [
+        el('div', { class: 'readout' }, [totalLabel, totalValue]),
+        el('div', { class: 'readout readout-civ' }, [civLabel, civValue]),
+      ]),
+      langSelect,
     ]),
   ]);
 
@@ -161,8 +164,8 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     document.documentElement.lang = getLang();
     document.title = t('ui.title');
     wordmark.innerHTML = `${iconMarkup('fleet')}<span>${t('ui.title')}</span>`;
-    civLabel.textContent = t('ui.civLevel');
-    totalLabel.textContent = t('ui.stats.totalEnergy');
+    civLabel.textContent = t('ui.civShort');
+    totalLabel.textContent = t('ui.producedShort');
     launchLabel.textContent = t('ui.buttons.launch');
     launch.setAttribute('aria-label', t('ui.mothership'));
     for (const [key, btn] of tabButtons) {
