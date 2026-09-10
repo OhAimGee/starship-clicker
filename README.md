@@ -11,15 +11,15 @@ GitHub Pages.
 
 ## Statut
 
-Refonte en cours (2026). Voir `PRODUCT.md` pour la vision produit et le plan de
-refonte dans `.claude/plans/`.
+Refonte 2026. Vision produit : `PRODUCT.md` · système visuel : `DESIGN.md` ·
+plan : `.claude/plans/`.
 
 | Phase | Contenu                                                     | État |
 | ----- | ----------------------------------------------------------- | ---- |
 | 0     | Socle : git, Vite, lint, CI, nettoyage                      | ✅   |
 | 1     | Réparer la boucle de jeu (prestige, progression hors-ligne) | ✅   |
 | 2     | Architecture modulaire pilotée par les données + i18n       | ✅   |
-| 3     | Refonte visuelle (nouveau design system)                    | ⏳   |
+| 3     | Refonte visuelle — « tableau des départs à palettes »       | ✅   |
 | 4     | Finition, équilibrage, déploiement                          | ⏳   |
 
 ## Développement
@@ -40,12 +40,17 @@ Node 20+ requis.
 ```
 index.html            coquille HTML (point d'entrée Vite)
 src/
-  main.js             bootstrap
-  legacy/             code d'origine, remplacé progressivement (non liné, non testé)
-public/               assets copiés tels quels
+  main.js             bootstrap : charge la sauvegarde, calcule le hors-ligne, monte l'UI
+  data/               définitions du jeu (ressources, générateurs, flotte, technos, systèmes, événements, config)
+  game/               moteur pur + orchestrateur (economy, engine, save, offline, prestige, exploration, events)
+  i18n/               t(key), fr + en (parité de clés testée)
+  ui/                 interface data-driven (app, panels, flap, icons, board-row, styles)
+public/               favicon, manifeste PWA, service worker, icônes
 docs/archive/         anciens rapports de développement
 .github/workflows/    déploiement GitHub Pages
 ```
+
+76 tests (`npm test`), lint (`npm run lint`).
 
 ## Sauvegarde
 
