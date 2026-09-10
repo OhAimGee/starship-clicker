@@ -1,0 +1,28 @@
+{
+  "name": "starship-clicker",
+  "private": true,
+  "version": "3.0.0-dev",
+  "type": "module",
+  "description": "Jeu incrémental de civilisation spatiale (refonte 2026).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
+    "jsdom": "^25.0.0",
+    "prettier": "^3.3.0",
+    "vite": "^6.0.0",
+    "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "break_infinity.js": "^2.0.0"
+  }
+}
