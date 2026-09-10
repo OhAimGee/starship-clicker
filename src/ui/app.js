@@ -32,10 +32,12 @@ export function mountApp(host, engine, { offlineReport } = {}) {
 
   const resources = createResourcesBoard(engine);
 
-  // — En-tête acier —
+  // — En-tête acier : deux relevés à l'échelle d'affichage (l'ancre de la page) —
   const wordmark = el('div', { class: 'wordmark' });
-  const civValue = el('span', { class: 'civ-value' });
-  const civLabel = el('span', { class: 'civ-label' });
+  const totalLabel = el('span', { class: 'readout-label' });
+  const totalValue = el('span', { class: 'readout-value' });
+  const civLabel = el('span', { class: 'readout-label' });
+  const civValue = el('span', { class: 'readout-value civ-value' });
   const langSelect = el(
     'select',
     { class: 'lang-select', 'aria-label': t('ui.language') },
@@ -50,9 +52,11 @@ export function mountApp(host, engine, { offlineReport } = {}) {
   langSelect.addEventListener('change', () => setLang(langSelect.value));
 
   const header = el('header', { class: 'board-header steel' }, [
-    wordmark,
-    el('div', { class: 'civ' }, [civLabel, civValue]),
-    langSelect,
+    el('div', { class: 'board-header-top' }, [wordmark, langSelect]),
+    el('div', { class: 'readouts' }, [
+      el('div', { class: 'readout' }, [totalLabel, totalValue]),
+      el('div', { class: 'readout readout-civ' }, [civLabel, civValue]),
+    ]),
   ]);
 
   // — Contrôle LANCER —
@@ -158,6 +162,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     document.title = t('ui.title');
     wordmark.innerHTML = `${iconMarkup('fleet')}<span>${t('ui.title')}</span>`;
     civLabel.textContent = t('ui.civLevel');
+    totalLabel.textContent = t('ui.stats.totalEnergy');
     launchLabel.textContent = t('ui.buttons.launch');
     launch.setAttribute('aria-label', t('ui.mothership'));
     for (const [key, btn] of tabButtons) {
@@ -176,6 +181,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     resources.update();
     launchFlap.set(formatNumber(engine.clickPower));
     civValue.textContent = engine.state.civilizationLevel.toFixed(1);
+    totalValue.textContent = formatBoard(engine.state.totalProduced.energy);
 
     const rates = engine.netRates();
     const perSec = Object.entries(rates)
@@ -190,12 +196,9 @@ export function mountApp(host, engine, { offlineReport } = {}) {
       footStats.append(
         el('div', {}, [el('span', { text: label }), el('b', { text: value })])
       );
-    stat(
-      t('ui.stats.totalEnergy'),
-      formatBoard(engine.state.totalProduced.energy)
-    );
     stat(t('ui.stats.perSecond'), perSec || '—');
     stat(t('ui.stats.fleetPower'), formatNumber(engine.fleetPower));
+    stat(t('ui.stats.totalClicks'), formatNumber(engine.state.totalClicks));
     stat(
       t('ui.stats.conquered'),
       formatNumber(engine.state.exploration.conquered.length)

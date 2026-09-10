@@ -11,13 +11,16 @@ const PATHS = {
   energy: '<path d="M13 2 4 14h6l-2 8 12-13h-6z"/>',
   metal: '<path d="M4 16 7.5 9h9L20 16zM3.5 16h17v2.5h-17z"/>',
   crystals: '<path d="M12 2.5 21 10l-9 11.5L3 10z"/>',
+  // atome : gros noyau + trois électrons sur une orbite en losange
   antimatter:
-    '<circle cx="12" cy="12" r="2.6"/><path d="M12 4.2c5 0 9 3.5 9 7.8s-4 7.8-9 7.8-9-3.5-9-7.8 4-7.8 9-7.8zm0 2.4c-3.6 0-6.6 2.4-6.6 5.4S8.4 19.6 12 19.6s6.6-2.4 6.6-5.4S15.6 6.6 12 6.6z" fill-rule="evenodd"/>',
+    '<circle cx="12" cy="12" r="3.4"/><circle cx="12" cy="3.4" r="1.9"/><circle cx="12" cy="20.6" r="1.9"/><circle cx="3.4" cy="12" r="1.9"/><circle cx="20.6" cy="12" r="1.9"/>',
   influence: '<path d="M3.5 8.5 8 12.5l4-6.5 4 6.5 4.5-4v10.5H3.5z"/>',
+  // matière noire : disque plein entamé par un vide (croissant), pas un anneau
   darkMatter:
-    '<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 4.6a4.4 4.4 0 1 1 0 8.8 4.4 4.4 0 0 1 0-8.8z" fill-rule="evenodd"/>',
+    '<path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3zm2 4.2a6.4 6.4 0 1 1 0 9.6 8 8 0 0 0 0-9.6z" fill-rule="evenodd"/>',
+  // énergie quantique : cellule (carré arrondi) + noyau + coins marqués
   quantumEnergy:
-    '<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 2.4a6.6 6.6 0 1 1 0 13.2 6.6 6.6 0 0 1 0-13.2z" fill-rule="evenodd"/><circle cx="12" cy="12" r="2.4"/>',
+    '<path d="M6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11A2.5 2.5 0 0 1 6.5 4zm0 2.2a.3.3 0 0 0-.3.3v2.3h2.3V6.2zm11 0h-2.3v2.6h2.6V6.5a.3.3 0 0 0-.3-.3zm-11 11.6h2.3v-2.6H6.2v2.3c0 .17.13.3.3.3zm11 0a.3.3 0 0 0 .3-.3v-2.3h-2.6v2.6z" fill-rule="evenodd"/><circle cx="12" cy="12" r="2.7"/>',
   ascensionPoints:
     '<path d="m12 1.5 2.2 7 7-2.3-4.6 5.8 5.4 4.5-7 .3-1.4 7.4L12 21l-3-6.2-7 .3 5.4-4.5-4.6-5.8 7 2.3z"/>',
 

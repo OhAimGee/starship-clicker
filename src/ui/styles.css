@@ -11,17 +11,22 @@
 :root {
   color-scheme: dark;
 
-  /* — Matière — */
-  --face: #14161a; /* face de palette, noir mat tiède */
-  --face-raised: #1b1e24;
-  --face-hinge: rgba(0, 0, 0, 0.55); /* la charnière au milieu d'une palette */
-  --steel-1: #43474e; /* cadre acier brossé */
-  --steel-2: #34383e;
-  --steel-3: #23262b;
+  /* — Matière — (noir mat tiède, pas d'ardoise bleu-noir) */
+  --face: #1a1713; /* face de palette */
+  --face-raised: #241f18;
+  --face-hinge: rgba(0, 0, 0, 0.58); /* la charnière au milieu d'une palette */
+  --steel-1: #48453f; /* cadre acier brossé (gris tiède) */
+  --steel-2: #37342d;
+  --steel-3: #26221c;
 
-  --ink: #f2efe6; /* peinture blanche, légèrement chaude */
-  --ink-dim: #a4a196;
-  --ink-faint: #6f6d64;
+  --ink: #f4f0e4; /* peinture blanche, légèrement chaude */
+  --ink-dim: #a6a291;
+  --ink-faint: #726d60;
+
+  /* Bruit anisotrope (brossage du métal) et grain fin (peinture des palettes).
+     Textures réellement générées, pas de faux biseau CSS. */
+  --brushed: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62 0.011' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23b)' opacity='0.32'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E");
 
   --lamp: #ffb020; /* ambre : inabordable / déficit */
   --lamp-soft: rgba(255, 176, 32, 0.14);
@@ -33,12 +38,13 @@
   --rule: rgba(242, 239, 230, 0.13);
   --rule-strong: rgba(242, 239, 230, 0.24);
 
-  /* — Type — */
+  /* — Type — une seule famille, comme un vrai panneau de gare.
+     Barlow Condensed : grotesque condensée de la signalétique routière. */
   --face-display: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
-  --face-text: 'Barlow Semi Condensed', system-ui, sans-serif;
+  --face-text: var(--face-display);
 
-  --fs-label: 0.72rem; /* codes horaires, en-têtes de colonne */
-  --fs-body: 0.95rem;
+  --fs-label: 0.78rem; /* codes horaires, en-têtes de colonne */
+  --fs-body: 1rem;
   --fs-row: 1.1rem; /* figures des lignes */
   --fs-flap: 1.35rem; /* figures ressources (qui tournent) */
   --fs-civ: clamp(2.4rem, 11vw, 4.25rem); /* NIVEAU DE CIVILISATION — l'ancre */
@@ -63,15 +69,18 @@
 }
 
 html {
-  background: #0c0d10;
+  background: #0f0c08;
 }
 
 body {
   font-family: var(--face-text);
   font-size: var(--fs-body);
-  line-height: 1.5;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
   color: var(--ink);
-  background: linear-gradient(180deg, #101216, #0b0c0f 60%), #0b0c0f;
+  background:
+    var(--grain), linear-gradient(180deg, #14110c, #0d0a06 60%), #0d0a06;
+  background-blend-mode: overlay, normal, normal;
   -webkit-font-smoothing: antialiased;
   font-variant-numeric: tabular-nums;
 }
@@ -108,25 +117,38 @@ h3 {
   text-transform: uppercase;
 }
 
-/* Matière acier brossé : gradient FIN répété = brossage du métal, pas déco. */
+/* Cadre acier brossé : bruit anisotrope réel + léger bombé du métal. */
 .steel {
   background:
-    repeating-linear-gradient(
-      90deg,
-      var(--steel-1) 0 2px,
-      var(--steel-2) 2px 3px
-    ),
-    linear-gradient(180deg, var(--steel-1), var(--steel-3));
+    var(--brushed),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--steel-1) 88%, #fff),
+      var(--steel-1) 30%,
+      var(--steel-3)
+    );
+  background-size:
+    140px 140px,
+    auto;
+  background-blend-mode: soft-light, normal;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.45);
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.5);
   color: var(--ink);
 }
-/* Lettres peintes en blanc sur le cadre. */
+/* Lettres peintes en blanc sur le cadre acier. */
 .board-header .wordmark,
-.board-header .civ-value,
 .board-modal-head {
   color: var(--ink);
+  text-shadow: var(--paint-shadow);
+}
+/* Le même traitement « lettre peinte » sur tous les titres et intitulés
+   affichés sur du noir mat (cohérence, pas seulement l'en-tête). */
+.panel > h2,
+.section-head,
+.row-name,
+.ascend-marquee,
+.launch-label {
   text-shadow: var(--paint-shadow);
 }
 
@@ -144,12 +166,14 @@ h3 {
   position: sticky;
   top: 0;
   z-index: 20;
+  padding: 0.6rem var(--pad) 0.7rem;
+  border-bottom: 2px solid var(--steel-3);
+}
+.board-header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--gap);
-  padding: 0.65rem var(--pad);
-  border-bottom: 2px solid var(--steel-3);
 }
 .wordmark {
   display: flex;
@@ -157,36 +181,52 @@ h3 {
   gap: 0.5rem;
   font-family: var(--face-display);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .wordmark svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   fill: var(--ink);
   flex-shrink: 0;
   filter: drop-shadow(var(--paint-shadow));
 }
-.civ {
+
+/* Deux relevés à l'échelle d'affichage — l'ancre de la page. */
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.4rem 1.75rem;
+  margin-top: 0.5rem;
+}
+.readout {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  line-height: 0.85;
-  flex: 1;
+  line-height: 0.82;
 }
-.civ-label {
+.readout-label {
   font-family: var(--face-display);
   font-size: var(--fs-label);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--ink-dim);
 }
-.civ-value {
+.readout-value {
   font-family: var(--face-display);
   font-weight: 700;
-  font-size: var(--fs-civ);
+  font-size: clamp(1.7rem, 8vw, 2.7rem);
   font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  text-shadow: var(--paint-shadow);
+}
+.readout-civ {
+  margin-left: auto;
+  text-align: right;
+}
+.readout-civ .readout-value {
+  font-size: clamp(2rem, 10vw, 3.4rem);
 }
 
 .lang-select {
@@ -199,7 +239,6 @@ h3 {
   border-radius: var(--radius);
   padding: 0.35rem 0.5rem;
   cursor: pointer;
-  align-self: flex-start;
 }
 .lang-select option {
   color: var(--ink);
@@ -283,19 +322,26 @@ h3 {
   place-items: center;
   min-width: 0.68em;
   padding: 0.05em 0.03em;
-  background: linear-gradient(180deg, #23262d 0 50%, #131519 50% 100%);
+  background:
+    var(--grain), linear-gradient(180deg, #2a2620 0 50%, #131010 50% 100%);
+  background-size:
+    46px 46px,
+    auto;
+  background-blend-mode: overlay, normal;
   color: var(--ink);
   border-radius: 1.5px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
   overflow: hidden;
 }
 .flap::after {
   content: '';
   position: absolute;
   inset-inline: 0;
-  top: calc(50% - 0.5px);
-  height: 1px;
-  background: var(--face-hinge);
+  top: calc(50% - 1px);
+  height: 2px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.35));
   z-index: 2;
 }
 .flap.is-flipping {
@@ -333,7 +379,7 @@ h3 {
   padding: 0 var(--pad) var(--gap);
 }
 .launch {
-  --lift: 0;
+  --press: 0;
   position: relative;
   width: 100%;
   padding: 1.15rem 1.25rem;
@@ -341,17 +387,26 @@ h3 {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: linear-gradient(180deg, #262a31 0 50%, #16181d 50% 100%);
+  background:
+    var(--grain), linear-gradient(180deg, #2c2820 0 50%, #17140f 50% 100%);
+  background-size:
+    64px 64px,
+    auto;
+  background-blend-mode: overlay, normal;
   color: var(--ink);
   border: 0;
   border-radius: 0 0 var(--radius) var(--radius);
+  /* Lèvre usinée : biseau haut clair, retombée sombre, aucun bloc à blur nul. */
   box-shadow:
-    inset 0 0 0 1px var(--rule-strong),
-    0 5px 0 var(--steel-3),
-    0 7px 14px rgba(0, 0, 0, 0.45);
+    inset 0 2px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 10px 22px rgba(0, 0, 0, 0.5);
   cursor: pointer;
-  transform: translateY(var(--lift));
-  transition: transform 60ms ease;
+  transform: translateY(var(--press));
+  transition:
+    transform 70ms ease,
+    box-shadow 70ms ease;
   font-family: var(--face-display);
   text-transform: uppercase;
 }
@@ -359,16 +414,16 @@ h3 {
   content: '';
   position: absolute;
   inset-inline: 0;
-  top: calc(50% - 0.5px);
-  height: 1px;
-  background: var(--face-hinge);
+  top: calc(50% - 1px);
+  height: 2px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.25));
 }
 .launch:active {
-  --lift: 4px;
+  --press: 2px;
   box-shadow:
-    inset 0 0 0 1px var(--rule-strong),
-    0 2px 0 var(--steel-3),
-    0 3px 10px rgba(0, 0, 0, 0.5);
+    inset 0 2px 5px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 4px 10px rgba(0, 0, 0, 0.45);
 }
 .launch-label {
   font-weight: 700;
@@ -388,8 +443,12 @@ h3 {
 .launch.is-holding {
   box-shadow:
     inset 0 0 0 1px var(--lamp),
-    0 6px 0 var(--steel-3),
-    0 0 20px var(--lamp-soft);
+    inset 0 2px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.5),
+    0 0 24px var(--lamp-soft);
+}
+.launch.is-holding .launch-label {
+  color: var(--lamp);
 }
 
 /* ── Sélecteur de terminaux ──────────────────────────────────────────────── */

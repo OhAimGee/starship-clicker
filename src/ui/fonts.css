@@ -1,15 +1,12 @@
-/* Faces auto-hébergées (via @fontsource, empaquetées par Vite).
+/* Face auto-hébergée (via @fontsource, empaquetée par Vite).
    Barlow Condensed — grotesque condensée dérivée de la signalétique
-   californienne : la voix « lettres peintes sur palette ».
-   On ne charge que les sous-ensembles utiles (latin + latin étendu pour les
-   accents français). */
+   californienne. Une seule famille : la voix « lettres peintes sur palette ».
+   On ne charge que latin + latin étendu (accents français). */
+@import '@fontsource/barlow-condensed/latin-400.css';
 @import '@fontsource/barlow-condensed/latin-500.css';
 @import '@fontsource/barlow-condensed/latin-600.css';
 @import '@fontsource/barlow-condensed/latin-700.css';
+@import '@fontsource/barlow-condensed/latin-ext-400.css';
 @import '@fontsource/barlow-condensed/latin-ext-500.css';
 @import '@fontsource/barlow-condensed/latin-ext-600.css';
 @import '@fontsource/barlow-condensed/latin-ext-700.css';
-@import '@fontsource/barlow-semi-condensed/latin-400.css';
-@import '@fontsource/barlow-semi-condensed/latin-500.css';
-@import '@fontsource/barlow-semi-condensed/latin-ext-400.css';
-@import '@fontsource/barlow-semi-condensed/latin-ext-500.css';
