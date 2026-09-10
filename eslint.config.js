@@ -6,7 +6,6 @@ export default [
     ignores: [
       'dist/**',
       'node_modules/**',
-      'src/legacy/**',
       '.claude/**',
       'public/**',
       'docs/**',

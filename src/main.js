@@ -1,11 +1,44 @@
-// Point d'entrée de l'application (bootstrap Vite).
+// Point d'entrée. Charge la sauvegarde, calcule la progression hors-ligne,
+// monte l'interface.
 //
-// Phase 0 : on se contente de recharger le jeu historique tel quel via Vite,
-// pour valider le socle de build sans changer le comportement. Les phases
-// suivantes remplacent progressivement `./legacy/*` par les modules `src/game`
-// et `src/ui`.
-import './legacy/style_new.css';
-import './legacy/quantum-expansion.css';
-import './legacy/phase1.css';
-import './legacy/game.js';
-import './legacy/visual-enhancements.js';
+// L'ancien monolithe `src/legacy/` a été retiré : tout passe désormais par
+// `src/game/` (moteur) et `src/ui/` (interface).
+
+import './ui/styles.css';
+import { CONFIG } from './data/config.js';
+import { loadState } from './game/save.js';
+import { Engine } from './game/engine.js';
+import { computeOfflineGains, applyOfflineGains } from './game/offline.js';
+import { initLang } from './i18n/index.js';
+import { t } from './i18n/index.js';
+import { mountApp } from './ui/app.js';
+
+const { state, status } = loadState();
+initLang(state.lang);
+
+const engine = new Engine(state);
+
+// Progression hors-ligne
+let offlineReport = null;
+if (status === 'loaded' && state.savedAt) {
+  const elapsed = Date.now() - state.savedAt;
+  if (elapsed >= CONFIG.offlineMinMs) {
+    const gains = computeOfflineGains(engine.state, elapsed);
+    if (Object.keys(gains.gains).length > 0) {
+      applyOfflineGains(engine.state, gains.gains);
+      offlineReport = gains;
+    }
+  }
+}
+
+const app = mountApp(document.getElementById('app'), engine, { offlineReport });
+
+if (status === 'recovered') {
+  app.notify(t('notify.saveRecovered'), 'error');
+} else if (status === 'fresh') {
+  app.notify(t('notify.welcome'), 'info');
+}
+
+if (import.meta.env.DEV) {
+  window.__starship = { engine, state: () => engine.state };
+}
