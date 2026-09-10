@@ -242,7 +242,8 @@ h3 {
     flex: 0 1 auto;
     order: 0;
     margin-top: 0;
-    gap: 2rem;
+    margin-left: auto; /* le niveau de civ ancre à droite (FIRST VIEWPORT) */
+    gap: 2.5rem;
   }
   .board-header-top > .wordmark {
     flex: 0 0 auto;
