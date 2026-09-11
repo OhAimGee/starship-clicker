@@ -49,10 +49,10 @@ export function ascend(state) {
   state.clickUpgrades.autoClicker.count = 0;
   state.civilizationLevel = 1;
 
-  state.exploration.conquered = [];
+  state.run.exploration.conquered = [];
   // Les technos sont conservées : les systèmes avancés restent débloqués si
   // warpDrive a déjà été recherché.
-  state.exploration.advancedUnlocked = !!state.technologies.warpDrive?.unlocked;
+  state.run.exploration.advancedUnlocked = !!state.technologies.warpDrive?.unlocked;
   regenerateSystems(state);
 
   state.events = { lastAt: 0, accumMs: 0 };

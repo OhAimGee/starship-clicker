@@ -54,7 +54,7 @@ export function regenerateSystems(state) {
       )
     );
   }
-  if (state.exploration.advancedUnlocked) {
+  if (state.run.exploration.advancedUnlocked) {
     for (let i = 0; i < EXPLORATION.advancedCount; i++) {
       list.push(
         buildSystem(
@@ -69,24 +69,24 @@ export function regenerateSystems(state) {
     }
   }
   // Retirer ceux déjà conquis (comparaison par nom).
-  const conquered = new Set(state.exploration.conquered.map((s) => s.name));
-  state.exploration.available = list.filter((s) => !conquered.has(s.name));
+  const conquered = new Set(state.run.exploration.conquered.map((s) => s.name));
+  state.run.exploration.available = list.filter((s) => !conquered.has(s.name));
 }
 
 /** Débloque les systèmes avancés (tech warpDrive) et régénère la liste. */
 export function unlockAdvancedSystems(state) {
-  if (state.exploration.advancedUnlocked) return false;
-  state.exploration.advancedUnlocked = true;
+  if (state.run.exploration.advancedUnlocked) return false;
+  state.run.exploration.advancedUnlocked = true;
   regenerateSystems(state);
   return true;
 }
 
 /**
- * Tente de conquérir `state.exploration.available[index]`.
+ * Tente de conquérir `state.run.exploration.available[index]`.
  * @returns {{ ok: boolean, system?: object, required?: number }}
  */
 export function conquer(state, index) {
-  const system = state.exploration.available[index];
+  const system = state.run.exploration.available[index];
   if (!system) return { ok: false };
 
   const power = fleetPower(state);
@@ -94,7 +94,7 @@ export function conquer(state, index) {
     return { ok: false, system, required: system.defenseRating };
   }
 
-  state.exploration.available.splice(index, 1);
-  state.exploration.conquered.push(system);
+  state.run.exploration.available.splice(index, 1);
+  state.run.exploration.conquered.push(system);
   return { ok: true, system };
 }

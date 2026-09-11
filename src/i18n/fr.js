@@ -329,6 +329,8 @@ export const fr = {
     unlocked: 'Nouveau : {name}',
     saveRecovered:
       'Sauvegarde illisible archivée (starshipClickerSave.bak). Nouvelle partie.',
+    saveReset:
+      'Le jeu a changé en profondeur (factions, exploration par nœuds). Ton ancienne sauvegarde est archivée, nouvelle partie !',
     eventGain: '{name} : {list}',
   },
 };

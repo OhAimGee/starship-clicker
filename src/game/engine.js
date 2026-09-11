@@ -41,7 +41,7 @@ export class Engine {
     this.state = state ?? createInitialState();
     this._listeners = new Map();
     this._leftoverMs = 0;
-    if (this.state.exploration.available.length === 0) {
+    if (this.state.run.exploration.available.length === 0) {
       regenerateSystems(this.state);
     }
     this._seen = this._currentUnlockSet();
@@ -134,9 +134,9 @@ export class Engine {
     // Systèmes avancés (tech warpDrive) — cas d'un chargement où le flag manque
     if (
       techMultipliers(s).unlockAdvancedSystems &&
-      !s.exploration.advancedUnlocked
+      !s.run.exploration.advancedUnlocked
     ) {
-      s.exploration.advancedUnlocked = true;
+      s.run.exploration.advancedUnlocked = true;
       regenerateSystems(s);
     }
 
@@ -269,7 +269,7 @@ export class Engine {
     // Effets immédiats
     for (const e of def.effects) {
       if (e.type === 'unlockAdvancedSystems') {
-        this.state.exploration.advancedUnlocked = true;
+        this.state.run.exploration.advancedUnlocked = true;
         regenerateSystems(this.state);
       }
     }

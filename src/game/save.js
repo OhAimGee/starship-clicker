@@ -9,117 +9,22 @@
 //  - écriture regroupée (throttle) au lieu d'un write localStorage à chaque clic.
 
 import { createInitialState, SCHEMA_VERSION } from './initial-state.js';
-import { GENERATOR_BY_ID } from '../data/generators.js';
-import { RESOURCE_IDS } from '../data/resources.js';
 
 export const STORAGE_KEY = 'starshipClickerSave';
 export const BACKUP_KEY = 'starshipClickerSave.bak';
-
-// Correspondance des ids d'améliorations de prestige v1 -> v2 (effets proches).
-const PRESTIGE_UPGRADE_MAP_V1 = {
-  prestigeMultiplier: 'prestigeProduction',
-  quantumCore: 'quantumAffinity',
-};
+export const ARCHIVE_KEY = 'starshipClickerSave.archived.v2';
 
 /**
- * v1 = schéma monolithique d'avant la refonte. On récupère ce qui a du sens
- * (compteurs, technos, ascensions) ; les coûts et la production sont recalculés
- * depuis les données. L'économie ayant été rééquilibrée, la progression peut
- * légèrement bouger, mais la sauvegarde n'est jamais perdue.
+ * v1/v2 = schémas d'avant la refonte rogue-like (pas de factions, pas de
+ * run/méta). La v3 change trop de choses (sélection de faction, arbres de
+ * compétences, carte à nœuds) pour une conversion fidèle ; on repart d'un
+ * état neuf. L'ancienne sauvegarde brute est archivée par `loadState()`
+ * (voir `ARCHIVE_KEY`) avant d'appeler cette fonction, donc rien n'est perdu
+ * silencieusement.
  */
-function migrateV1toV2(old) {
+function migrateToV3(old) {
   const s = createInitialState();
-
-  if (old.resources && typeof old.resources === 'object') {
-    for (const res of RESOURCE_IDS) {
-      if (typeof old.resources[res] === 'number') {
-        s.resources[res] = old.resources[res];
-        // On considère avoir « produit » au moins ce qu'on possède, pour ne pas
-        // re-verrouiller des paliers déjà atteints.
-        s.totalProduced[res] = old.resources[res];
-      }
-    }
-  }
-
-  if (typeof old.clickPower === 'number') s.clickPowerBase = old.clickPower;
-  if (typeof old.totalEnergyGenerated === 'number') {
-    s.totalProduced.energy = Math.max(
-      s.totalProduced.energy,
-      old.totalEnergyGenerated
-    );
-  }
-
-  if (old.generators) {
-    for (const [id, g] of Object.entries(old.generators)) {
-      if (s.generators[id] && typeof g?.count === 'number') {
-        s.generators[id].count = g.count;
-        // Débloque la ressource produite proportionnellement au parc installé.
-        const def = GENERATOR_BY_ID[id];
-        if (def && g.count > 0) {
-          s.totalProduced[def.resource] = Math.max(
-            s.totalProduced[def.resource] ?? 0,
-            g.count * def.baseCost
-          );
-        }
-      }
-    }
-  }
-
-  if (old.fleet) {
-    for (const [id, f] of Object.entries(old.fleet)) {
-      if (s.ships[id] && typeof f?.count === 'number')
-        s.ships[id].count = f.count;
-    }
-  }
-
-  if (old.upgrades) {
-    if (typeof old.upgrades.clickUpgrade?.level === 'number') {
-      s.clickUpgrades.clickPower.level = old.upgrades.clickUpgrade.level;
-    }
-    if (typeof old.upgrades.autoClicker?.count === 'number') {
-      s.clickUpgrades.autoClicker.count = old.upgrades.autoClicker.count;
-    }
-    for (const [oldId, newId] of Object.entries(PRESTIGE_UPGRADE_MAP_V1)) {
-      const level = old.upgrades[oldId]?.level;
-      if (typeof level === 'number' && s.prestige.upgrades[newId]) {
-        s.prestige.upgrades[newId].level = level;
-      }
-    }
-  }
-
-  if (old.technologies) {
-    for (const [id, t] of Object.entries(old.technologies)) {
-      if (s.technologies[id] && t?.unlocked) s.technologies[id].unlocked = true;
-    }
-  }
-
-  if (old.prestige) {
-    if (typeof old.prestige.totalAscensions === 'number') {
-      s.prestige.ascensions = old.prestige.totalAscensions;
-    }
-    if (typeof old.prestige.lifetimeResources?.energy === 'number') {
-      s.prestige.lifetime.energy = old.prestige.lifetimeResources.energy;
-    }
-  }
-
-  if (Array.isArray(old.conqueredSystems)) {
-    s.exploration.conquered = old.conqueredSystems
-      .filter(
-        (sys) => sys && sys.rewards && typeof sys.defenseRating === 'number'
-      )
-      .map((sys) => ({
-        name: sys.name ?? 'Système',
-        archetype: 'legacy',
-        advanced: !!sys.isAdvanced,
-        defenseRating: sys.defenseRating,
-        rewards: sys.rewards,
-      }));
-  }
-  s.exploration.advancedUnlocked = !!s.technologies.warpDrive?.unlocked;
-
   if (typeof old.createdAt === 'number') s.createdAt = old.createdAt;
-  s.savedAt = typeof old.savedAt === 'number' ? old.savedAt : Date.now();
-
   return s;
 }
 
@@ -155,8 +60,8 @@ export function migrate(save) {
   const version = Number(save.schemaVersion) || 1; // absent => schéma d'origine
 
   let out = save;
-  if (version < 2) {
-    out = migrateV1toV2(save);
+  if (version < 3) {
+    out = migrateToV3(save);
   }
 
   out.schemaVersion = SCHEMA_VERSION;
@@ -188,10 +93,22 @@ export function loadState(storage = safeStorage()) {
     return { state: fresh, status: 'recovered' };
   }
 
+  const version = Number(parsed.schemaVersion) || 1;
+  if (version < 3) {
+    // Refonte rogue-like : pas de conversion fidèle possible (voir
+    // `migrateToV3`). On archive la sauvegarde brute avant de la remplacer,
+    // pour ne jamais la perdre silencieusement.
+    try {
+      storage.setItem(ARCHIVE_KEY, raw);
+    } catch {
+      /* stockage indisponible */
+    }
+  }
+
   const migrated = migrate(parsed);
   const state = mergeIntoShape(fresh, migrated);
   state.schemaVersion = SCHEMA_VERSION;
-  return { state, status: 'loaded' };
+  return { state, status: version < 3 ? 'reset' : 'loaded' };
 }
 
 /** @returns {boolean} succès de l'écriture. */

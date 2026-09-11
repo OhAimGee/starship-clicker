@@ -37,4 +37,15 @@ export const CONFIG = {
   conqueredIncomeFraction: 0.1, // fraction des récompenses versée /s par système conquis
   maintenanceAttritionRate: 0.05, // part de flotte perdue /s en cas de déficit d'énergie
   neuralNetBuyThreshold: 10, // n'auto-achète que si on a 10x le coût (tech neuralNetworks)
+
+  // Run (rogue-like) : carte à nœuds, objectif, progression de faction
+  run: {
+    // rangées intérieures de la carte à nœuds ; la dernière rangée n'a
+    // toujours qu'1 nœud (type `finalNodeType`, la conquête du système).
+    map: { rows: [2, 3, 3, 2], finalNodeType: 'conquest' },
+    baseSystems: 5, // nb de systèmes-objectif au niveau de faction 0
+    systemsPerLevel: 1, // systèmes supplémentaires par niveau de faction
+    defenseGrowthPerLevel: 0.12, // multiplicateur de défense par niveau de faction
+    skillPointToApBonus: 0.5, // PA bonus par point de compétence de run à l'ascension
+  },
 };

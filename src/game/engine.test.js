@@ -51,7 +51,7 @@ describe('Engine — achats', () => {
     const e = new Engine(s);
     expect(e.research('warpDrive')).toBe(true);
     expect(e.state.technologies.warpDrive.unlocked).toBe(true);
-    expect(e.state.exploration.advancedUnlocked).toBe(true);
+    expect(e.state.run.exploration.advancedUnlocked).toBe(true);
   });
 });
 
@@ -117,7 +117,7 @@ describe('Engine — reset', () => {
     e.reset();
     expect(e.state.resources.energy).toBe(0);
     expect(e.state.generators.solarPanel.count).toBe(0);
-    expect(e.state.exploration.available.length).toBeGreaterThan(0);
+    expect(e.state.run.exploration.available.length).toBeGreaterThan(0);
   });
 });
 

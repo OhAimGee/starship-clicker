@@ -19,7 +19,7 @@ export function createExplorationPanel(engine) {
   let statPower;
 
   const sig = () => {
-    const e = engine.state.exploration;
+    const e = engine.state.run.exploration;
     return `${e.available.map((s) => s.name).join(',')}|${e.conquered.length}`;
   };
 
@@ -30,7 +30,7 @@ export function createExplorationPanel(engine) {
     const state = engine.state;
 
     const list = el('ul', { class: 'board-list' });
-    state.exploration.available.forEach((system, index) => {
+    state.run.exploration.available.forEach((system, index) => {
       const row = boardRow({
         id: String(index),
         action: 'explore',
@@ -50,10 +50,10 @@ export function createExplorationPanel(engine) {
     });
 
     const arrivals = el('ul', { class: 'board-list arrivals' });
-    if (state.exploration.conquered.length === 0) {
+    if (state.run.exploration.conquered.length === 0) {
       arrivals.append(el('li', { class: 'row-empty', text: '—' }));
     }
-    for (const system of state.exploration.conquered) {
+    for (const system of state.run.exploration.conquered) {
       arrivals.append(
         el('li', { class: 'board-row', dataset: { state: 'done' } }, [
           el('div', { class: 'board-row-line' }, [

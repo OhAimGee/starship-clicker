@@ -5,6 +5,7 @@ import { SHIPS } from './fleet.js';
 import { TECHNOLOGIES, TECH_IDS } from './technologies.js';
 import { PRESTIGE_UPGRADES, CLICK_UPGRADES } from './upgrades.js';
 import { RANDOM_EVENTS } from './events.js';
+import { FACTIONS } from './factions.js';
 
 const isResource = (id) => RESOURCE_IDS.includes(id);
 const KNOWN_EFFECTS = new Set([
@@ -17,6 +18,28 @@ const KNOWN_EFFECTS = new Set([
   'autoBuyGenerators',
   'unlockAdvancedSystems',
 ]);
+// Types d'effet « à niveaux », gérés par economy.js#applyLeveledEffect —
+// partagés par PRESTIGE_UPGRADES (arbre commun) et les arbres de faction.
+const KNOWN_LEVELED_EFFECTS = new Set([
+  'productionMultiplier',
+  'clickMultiplier',
+  'fleetMultiplier',
+  'resourceProductionMultiplier',
+  'shipCost',
+  'fleetMaintenance',
+]);
+
+function assertLeveledEffect(effect, label) {
+  expect(KNOWN_LEVELED_EFFECTS.has(effect.type), `${label}: effet ${effect.type}`).toBe(
+    true
+  );
+  expect(effect.perLevel, label).toBeGreaterThan(0);
+  if (effect.resources) {
+    for (const res of effect.resources) {
+      expect(isResource(res), `${label}: ressource ${res}`).toBe(true);
+    }
+  }
+}
 
 function assertUnlock(unlock) {
   if (!unlock) return;
@@ -37,6 +60,7 @@ describe('cohérence des identifiants', () => {
       PRESTIGE_UPGRADES,
       CLICK_UPGRADES,
       RANDOM_EVENTS,
+      FACTIONS,
     ]) {
       const ids = list.map((x) => x.id);
       expect(new Set(ids).size).toBe(ids.length);
@@ -129,6 +153,26 @@ describe('technologies', () => {
         if (e.resource) expect(isResource(e.resource)).toBe(true);
       }
       assertUnlock(t.unlock);
+    }
+  });
+});
+
+describe('factions', () => {
+  it('bonus de départ et compétences valides ; arbres sans doublon', () => {
+    for (const f of FACTIONS) {
+      expect(f.startBonuses.length).toBeGreaterThan(0);
+      for (const bonus of f.startBonuses) {
+        assertLeveledEffect(bonus, `${f.id} (bonus de départ)`);
+      }
+
+      const skillIds = f.skillTree.map((s) => s.id);
+      expect(new Set(skillIds).size, f.id).toBe(skillIds.length);
+
+      for (const skill of f.skillTree) {
+        expect(skill.baseCost, `${f.id}.${skill.id}`).toBeGreaterThan(0);
+        expect(skill.costGrowth, `${f.id}.${skill.id}`).toBeGreaterThan(1);
+        assertLeveledEffect(skill.effect, `${f.id}.${skill.id}`);
+      }
     }
   });
 });

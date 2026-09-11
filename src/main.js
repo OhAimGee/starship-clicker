@@ -36,6 +36,8 @@ const app = mountApp(document.getElementById('app'), engine, { offlineReport });
 
 if (status === 'recovered') {
   app.notify(t('notify.saveRecovered'), 'error');
+} else if (status === 'reset') {
+  app.notify(t('notify.saveReset'), 'info');
 } else if (status === 'fresh') {
   app.notify(t('notify.welcome'), 'info');
 }

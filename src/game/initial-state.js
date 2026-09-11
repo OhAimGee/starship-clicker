@@ -7,10 +7,12 @@ import { GENERATOR_IDS } from '../data/generators.js';
 import { SHIP_IDS } from '../data/fleet.js';
 import { TECH_IDS } from '../data/technologies.js';
 import { CLICK_UPGRADES, PRESTIGE_UPGRADES } from '../data/upgrades.js';
+import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
 
 // v1 = schéma monolithique d'avant la refonte (généré par l'ancien script.js).
 // v2 = schéma piloté par les données.
-export const SCHEMA_VERSION = 2;
+// v3 = refonte rogue-like (factions, run/méta, carte à nœuds).
+export const SCHEMA_VERSION = 3;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -46,12 +48,33 @@ export function createInitialState() {
         PRESTIGE_UPGRADES.map((u) => [u.id, { level: 0 }])
       ),
       lifetime: { energy: 0 }, // énergie produite sur toutes les vies
+      // Progression méta par faction : survit à ascend() (contrairement à
+      // `run`, remis à zéro à chaque nouvelle run).
+      factions: Object.fromEntries(
+        FACTION_IDS.map((id) => [
+          id,
+          {
+            level: 0,
+            skills: Object.fromEntries(
+              FACTION_BY_ID[id].skillTree.map((s) => [s.id, { level: 0 }])
+            ),
+          },
+        ])
+      ),
     },
 
-    exploration: {
-      available: [],
-      conquered: [],
-      advancedUnlocked: false,
+    // État de la run en cours — vidé/reconstruit à chaque `selectFaction()`
+    // et à chaque `ascend()`.
+    run: {
+      factionId: null,
+      objective: null,
+      buffs: [], // effets temporaires accumulés cette run (nœuds bonus/conquête)
+      skillPoints: 0, // points de compétence de run (nœuds "skillPoint")
+      exploration: {
+        available: [],
+        conquered: [],
+        advancedUnlocked: false,
+      },
     },
 
     events: { lastAt: 0, accumMs: 0 },

@@ -5,6 +5,7 @@ import {
   migrate,
   STORAGE_KEY,
   BACKUP_KEY,
+  ARCHIVE_KEY,
 } from './save.js';
 import { createInitialState, SCHEMA_VERSION } from './initial-state.js';
 
@@ -24,7 +25,7 @@ describe('loadState', () => {
     expect(state.resources.energy).toBe(0);
   });
 
-  it('charge une sauvegarde v2 valide et ignore les clés inconnues', () => {
+  it('charge une sauvegarde courante valide et ignore les clés inconnues', () => {
     const saved = createInitialState();
     saved.resources.energy = 1234;
     saved.generators.solarPanel.count = 3;
@@ -39,8 +40,11 @@ describe('loadState', () => {
     expect(state.schemaVersion).toBe(SCHEMA_VERSION);
   });
 
-  it('répare les clés manquantes d’une sauvegarde v2 partielle', () => {
-    const partial = { schemaVersion: 2, resources: { energy: 50 } };
+  it('répare les clés manquantes d’une sauvegarde courante partielle', () => {
+    const partial = {
+      schemaVersion: SCHEMA_VERSION,
+      resources: { energy: 50 },
+    };
     const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(partial) });
     const { state } = loadState(storage);
     expect(state.resources.energy).toBe(50);
@@ -59,78 +63,43 @@ describe('loadState', () => {
   });
 });
 
-describe('migration v1 -> v2', () => {
-  const v1 = {
-    // pas de schemaVersion (schéma d'origine)
-    resources: {
-      energy: 5000,
-      metal: 800,
-      crystals: 300,
-      antimatter: 40,
-      influence: 5,
-      darkMatter: 0,
-      quantumEnergy: 0,
-      ascensionPoints: 2,
-    },
-    clickPower: 8,
-    totalEnergyGenerated: 120000,
-    generators: {
-      solarPanel: { count: 25, cost: 999, production: 1, resource: 'energy' },
-      miningDrone: { count: 10, cost: 99, production: 1, resource: 'metal' },
-    },
-    upgrades: {
-      clickUpgrade: { level: 4, cost: 1, multiplier: 1.5 },
-      autoClicker: { count: 2, cost: 1, multiplier: 2 },
-      prestigeMultiplier: { level: 3, cost: 1, multiplier: 2 },
-    },
-    fleet: { fighters: { count: 6, cost: {}, attack: 1, maintenance: 1 } },
-    technologies: {
-      quantumComputing: { unlocked: true },
-      warpDrive: { unlocked: true },
-    },
-    prestige: {
-      totalAscensions: 1,
-      permanentBonuses: {},
-      lifetimeResources: { energy: 90000 },
-    },
-    conqueredSystems: [
-      { name: 'Véga', defenseRating: 30, rewards: { energy: 100, metal: 50 } },
-    ],
+describe('reset propre vers v3 (refonte rogue-like)', () => {
+  // Sauvegarde d'avant la refonte rogue-like (v1 ou v2) : aucune conversion
+  // fidèle n'est tentée, on repart d'un état neuf, mais rien n'est perdu
+  // silencieusement (archivage sous ARCHIVE_KEY).
+  const old = {
+    schemaVersion: 2,
+    resources: { energy: 5000, metal: 800, ascensionPoints: 2 },
+    generators: { solarPanel: { count: 25 } },
+    prestige: { ascensions: 1 },
+    createdAt: 1700000000000,
   };
 
-  it('reporte compteurs, technos, ascensions et flotte', () => {
-    const s = migrate(structuredClone(v1));
-    expect(s.schemaVersion).toBe(2);
-    expect(s.resources.energy).toBe(5000);
-    expect(s.resources.ascensionPoints).toBe(2);
-    expect(s.clickPowerBase).toBe(8);
-    expect(s.generators.solarPanel.count).toBe(25);
-    expect(s.ships.fighters.count).toBe(6);
-    expect(s.clickUpgrades.clickPower.level).toBe(4);
-    expect(s.clickUpgrades.autoClicker.count).toBe(2);
-    expect(s.technologies.quantumComputing.unlocked).toBe(true);
-    expect(s.technologies.warpDrive.unlocked).toBe(true);
-    expect(s.prestige.ascensions).toBe(1);
-    expect(s.prestige.lifetime.energy).toBe(90000);
-    expect(s.prestige.upgrades.prestigeProduction.level).toBe(3);
-    expect(s.exploration.conquered).toHaveLength(1);
-    expect(s.exploration.advancedUnlocked).toBe(true);
+  it('migrate() ignore le contenu et repart d’un état neuf', () => {
+    const s = migrate(structuredClone(old));
+    expect(s.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(s.resources.energy).toBe(0);
+    expect(s.generators.solarPanel.count).toBe(0);
+    expect(s.prestige.ascensions).toBe(0);
+    expect(s.createdAt).toBe(1700000000000);
   });
 
-  it('ne re-verrouille pas des paliers déjà atteints', () => {
-    const s = migrate(structuredClone(v1));
-    // le joueur possédait 40 antimatière -> les technos gated sur l'antimatière
-    // basique doivent rester accessibles
-    expect(s.totalProduced.antimatter).toBeGreaterThanOrEqual(40);
-    expect(s.totalProduced.crystals).toBeGreaterThanOrEqual(300);
-  });
-
-  it('charge une vraie sauvegarde v1 depuis le storage', () => {
-    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(v1) });
+  it('loadState() archive le JSON brut sous ARCHIVE_KEY et renvoie status "reset"', () => {
+    const raw = JSON.stringify(old);
+    const storage = memoryStorage({ [STORAGE_KEY]: raw });
     const { state, status } = loadState(storage);
-    expect(status).toBe('loaded');
-    expect(state.schemaVersion).toBe(2);
-    expect(state.generators.solarPanel.count).toBe(25);
+    expect(status).toBe('reset');
+    expect(state.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(state.resources.energy).toBe(0);
+    expect(storage.getItem(ARCHIVE_KEY)).toBe(raw);
+  });
+
+  it('une sauvegarde sans schemaVersion (v1 d’origine) est traitée pareil', () => {
+    const storage = memoryStorage({
+      [STORAGE_KEY]: JSON.stringify({ resources: { energy: 1 } }),
+    });
+    const { status } = loadState(storage);
+    expect(status).toBe('reset');
   });
 });
 

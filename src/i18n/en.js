@@ -320,6 +320,8 @@ export const en = {
     unlocked: 'New: {name}',
     saveRecovered:
       'Unreadable save archived (starshipClickerSave.bak). New game.',
+    saveReset:
+      'The game changed significantly (factions, node-based exploration). Your old save was archived — new game!',
     eventGain: '{name}: {list}',
   },
 };

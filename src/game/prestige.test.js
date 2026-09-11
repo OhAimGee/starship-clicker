@@ -15,8 +15,8 @@ function advancedState() {
   s.technologies.quantumComputing.unlocked = true;
   s.technologies.warpDrive.unlocked = true;
   s.totalProduced.energy = 5e6;
-  s.exploration.advancedUnlocked = true;
-  s.exploration.conquered = [
+  s.run.exploration.advancedUnlocked = true;
+  s.run.exploration.conquered = [
     { name: 'X', archetype: 'a', rewards: { energy: 1 }, defenseRating: 1 },
   ];
   return s;
@@ -54,7 +54,7 @@ describe('ascend', () => {
     expect(s.totalProduced.energy).toBe(0);
     expect(s.clickPowerBase).toBe(1);
     expect(s.clickUpgrades.clickPower.level).toBe(0);
-    expect(s.exploration.conquered).toHaveLength(0);
+    expect(s.run.exploration.conquered).toHaveLength(0);
   });
 
   it('conserve technos, améliorations de prestige et lifetime', () => {
@@ -65,7 +65,7 @@ describe('ascend', () => {
     expect(s.prestige.upgrades.prestigeProduction.level).toBe(5);
     expect(s.prestige.lifetime.energy).toBe(5e6);
     // warpDrive conservé -> systèmes avancés toujours débloqués
-    expect(s.exploration.advancedUnlocked).toBe(true);
+    expect(s.run.exploration.advancedUnlocked).toBe(true);
   });
 
   it('accorde un capital de redémarrage proportionnel aux ascensions', () => {

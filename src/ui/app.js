@@ -207,7 +207,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     stat(t('ui.stats.totalClicks'), formatNumber(engine.state.totalClicks));
     stat(
       t('ui.stats.conquered'),
-      formatNumber(engine.state.exploration.conquered.length)
+      formatNumber(engine.state.run.exploration.conquered.length)
     );
 
     panels[activeKey].update();

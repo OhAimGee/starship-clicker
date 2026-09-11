@@ -13,6 +13,7 @@ import {
   PRESTIGE_UPGRADES,
   PRESTIGE_UPGRADE_BY_ID,
 } from '../data/upgrades.js';
+import { FACTION_BY_ID } from '../data/factions.js';
 
 const round = Math.round;
 
@@ -44,7 +45,11 @@ export function shipCost(state, id) {
   const def = SHIP_BY_ID[id];
   const count = state.ships[id]?.count ?? 0;
   const factor =
-    CONFIG.shipCostGrowth ** count * techMultipliers(state).shipCost;
+    CONFIG.shipCostGrowth ** count *
+    techMultipliers(state).shipCost *
+    prestigeMultipliers(state).shipCost *
+    factionMultipliers(state).shipCost *
+    runMultipliers(state).shipCost;
   const out = {};
   for (const [res, base] of Object.entries(def.cost)) {
     out[res] = round(base * factor);
@@ -116,36 +121,92 @@ export function techMultipliers(state) {
   return m;
 }
 
-/** Bonus permanents : ascensions + améliorations de prestige. */
+/** @returns {object} un accumulateur neutre pour `applyLeveledEffect`. */
+function neutralMultipliers() {
+  return {
+    production: 1,
+    click: 1,
+    fleet: 1,
+    shipCost: 1,
+    fleetMaintenance: 1,
+    resourceProduction: {}, // { resourceId: mult }
+  };
+}
+
+/**
+ * Applique un effet « à niveaux » (commun aux améliorations de prestige, aux
+ * compétences de faction et aux bonus de run) sur un accumulateur créé par
+ * `neutralMultipliers()`. `shipCost`/`fleetMaintenance` sont des réductions
+ * (perLevel = fraction retirée par niveau, plafonnée à 95 % de réduction) ;
+ * les autres types sont des bonus multiplicatifs classiques.
+ */
+export function applyLeveledEffect(out, effect, level) {
+  if (level <= 0) return;
+  switch (effect.type) {
+    case 'productionMultiplier':
+      out.production *= 1 + effect.perLevel * level;
+      break;
+    case 'clickMultiplier':
+      out.click *= 1 + effect.perLevel * level;
+      break;
+    case 'fleetMultiplier':
+      out.fleet *= 1 + effect.perLevel * level;
+      break;
+    case 'shipCost':
+      out.shipCost *= Math.max(0.05, 1 - effect.perLevel * level);
+      break;
+    case 'fleetMaintenance':
+      out.fleetMaintenance *= Math.max(0.05, 1 - effect.perLevel * level);
+      break;
+    case 'resourceProductionMultiplier':
+      for (const res of effect.resources) {
+        out.resourceProduction[res] =
+          (out.resourceProduction[res] ?? 1) * (1 + effect.perLevel * level);
+      }
+      break;
+  }
+}
+
+/** Bonus permanents : ascensions + améliorations de prestige (communes). */
 export function prestigeMultipliers(state) {
   const a = state.prestige.ascensions;
   const { clickPerAscension, productionPerAscension, fleetPerAscension } =
     CONFIG.ascension;
 
-  const out = {
-    production: 1 + a * productionPerAscension,
-    click: 1 + a * clickPerAscension,
-    fleet: 1 + a * fleetPerAscension,
-    resourceProduction: {}, // { resourceId: mult }
-  };
+  const out = neutralMultipliers();
+  out.production += a * productionPerAscension;
+  out.click += a * clickPerAscension;
+  out.fleet += a * fleetPerAscension;
 
   for (const def of PRESTIGE_UPGRADES) {
     const level = state.prestige.upgrades[def.id]?.level ?? 0;
-    if (level === 0) continue;
-    const eff = def.effect;
-    if (eff.type === 'productionMultiplier') {
-      out.production *= 1 + eff.perLevel * level;
-    } else if (eff.type === 'clickMultiplier') {
-      out.click *= 1 + eff.perLevel * level;
-    } else if (eff.type === 'fleetMultiplier') {
-      out.fleet *= 1 + eff.perLevel * level;
-    } else if (eff.type === 'resourceProductionMultiplier') {
-      for (const res of eff.resources) {
-        out.resourceProduction[res] =
-          (out.resourceProduction[res] ?? 1) * (1 + eff.perLevel * level);
-      }
-    }
+    applyLeveledEffect(out, def.effect, level);
   }
+  return out;
+}
+
+/** Bonus de la faction active pour cette run : bonus de départ + arbre de
+ * compétences (acheté entre les runs, persiste dans `state.prestige.factions`). */
+export function factionMultipliers(state) {
+  const out = neutralMultipliers();
+  const id = state.run.factionId;
+  if (!id) return out;
+  const def = FACTION_BY_ID[id];
+  if (!def) return out;
+
+  for (const bonus of def.startBonuses) applyLeveledEffect(out, bonus, 1);
+  for (const skill of def.skillTree) {
+    const level = state.prestige.factions[id]?.skills[skill.id]?.level ?? 0;
+    applyLeveledEffect(out, skill.effect, level);
+  }
+  return out;
+}
+
+/** Bonus temporaires accumulés pendant la run en cours (nœuds « bonus » et
+ * « conquête » de la carte d'exploration). Remis à zéro par `ascend()`. */
+export function runMultipliers(state) {
+  const out = neutralMultipliers();
+  for (const effect of state.run.buffs) applyLeveledEffect(out, effect, 1);
   return out;
 }
 
@@ -154,9 +215,17 @@ export function prestigeMultipliers(state) {
 export function clickPower(state) {
   const tech = techMultipliers(state);
   const prestige = prestigeMultipliers(state);
+  const faction = factionMultipliers(state);
+  const run = runMultipliers(state);
   return Math.max(
     1,
-    Math.floor(state.clickPowerBase * tech.clickPower * prestige.click)
+    Math.floor(
+      state.clickPowerBase *
+        tech.clickPower *
+        prestige.click *
+        faction.click *
+        run.click
+    )
   );
 }
 
@@ -167,7 +236,10 @@ export function fleetPower(state) {
   for (const [id, s] of Object.entries(state.ships)) {
     total += (s.count ?? 0) * SHIP_BY_ID[id].attack;
   }
-  return Math.floor(total * prestigeMultipliers(state).fleet);
+  const prestige = prestigeMultipliers(state);
+  const faction = factionMultipliers(state);
+  const run = runMultipliers(state);
+  return Math.floor(total * prestige.fleet * faction.fleet * run.fleet);
 }
 
 export function fleetMaintenance(state) {
@@ -175,7 +247,16 @@ export function fleetMaintenance(state) {
   for (const [id, s] of Object.entries(state.ships)) {
     total += (s.count ?? 0) * SHIP_BY_ID[id].maintenance;
   }
-  return total * techMultipliers(state).fleetMaintenance;
+  const prestige = prestigeMultipliers(state);
+  const faction = factionMultipliers(state);
+  const run = runMultipliers(state);
+  return (
+    total *
+    techMultipliers(state).fleetMaintenance *
+    prestige.fleetMaintenance *
+    faction.fleetMaintenance *
+    run.fleetMaintenance
+  );
 }
 
 // ─── Production ──────────────────────────────────────────────────────────────
@@ -187,13 +268,19 @@ export function fleetMaintenance(state) {
 export function grossProduction(state) {
   const tech = techMultipliers(state);
   const prestige = prestigeMultipliers(state);
+  const faction = factionMultipliers(state);
+  const run = runMultipliers(state);
   const out = Object.fromEntries(RESOURCE_IDS.map((r) => [r, 0]));
 
   const resourceMult = (res) =>
     prestige.production *
+    faction.production *
+    run.production *
     tech.generatorProduction *
     (tech.resourceProduction[res] ?? 1) *
-    (prestige.resourceProduction[res] ?? 1);
+    (prestige.resourceProduction[res] ?? 1) *
+    (faction.resourceProduction[res] ?? 1) *
+    (run.resourceProduction[res] ?? 1);
 
   for (const def of GENERATORS) {
     const count = state.generators[def.id]?.count ?? 0;
@@ -205,7 +292,7 @@ export function grossProduction(state) {
   if (autoClickers > 0) out.energy += autoClickers * clickPower(state);
 
   const explo = tech.explorationIncome;
-  for (const system of state.exploration.conquered) {
+  for (const system of state.run.exploration.conquered) {
     for (const [res, amount] of Object.entries(system.rewards)) {
       out[res] += amount * CONFIG.conqueredIncomeFraction * explo;
     }
