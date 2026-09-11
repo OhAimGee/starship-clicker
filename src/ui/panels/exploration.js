@@ -9,6 +9,7 @@ import { boardRow, sectionHead, setFacts } from '../board-row.js';
 import { runSkillIconId } from '../icon-map.js';
 import { objectiveLabel, objectiveProgressText } from '../objective-text.js';
 import { renderNodeMap } from '../node-map.js';
+import { planetArt } from '../planet-art.js';
 
 const rewardLine = (rewards, factor = 1) =>
   Object.entries(rewards)
@@ -84,10 +85,13 @@ export function createExplorationPanel(engine) {
         activeSystem ? activeSystem.name : ''
       ),
       activeSystem
-        ? el('p', {
-            class: 'panel-note',
-            text: t(`systemArchetype.${activeSystem.archetype}`),
-          })
+        ? el('div', { class: 'system-portrait' }, [
+            planetArt(activeSystem.archetype, 'system-portrait-art'),
+            el('p', {
+              class: 'panel-note',
+              text: t(`systemArchetype.${activeSystem.archetype}`),
+            }),
+          ])
         : null,
       mapHost,
       sectionHead(t('ui.sections.conqueredSystems'), ''),

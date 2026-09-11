@@ -1,387 +1,284 @@
 ---
 name: Starship Clicker
-description: A public departures board for a spacefaring civilisation — an incremental game where every quantity is a ruled row and every change flaps digit by digit.
+description: A departures-board idle game reskinned as a neon synthwave signal terminal broadcasting from deep space.
 colors:
-  face: '#1a1713'
-  face-raised: '#241f18'
-  page: '#0d0a06'
-  ink: '#f4f0e4'
-  ink-dim: '#aca894'
-  ink-faint: '#8d887a'
-  steel: '#48453f'
-  steel-mid: '#37342d'
-  steel-deep: '#26221c'
-  lamp-amber: '#ffb020'
-  signal-red: '#c9503f'
-  active-green: '#57b894'
-  focus-blue: '#79b8ff'
+  face: "#0c0818"
+  face-raised: "#170f2c"
+  steel-1: "#4a3a7a"
+  steel-2: "#322459"
+  steel-3: "#1e1640"
+  ink: "#f1ecff"
+  ink-dim: "#b7a9e2"
+  ink-faint: "#9384c0"
+  lamp: "#ff2fd0"
+  signal: "#ff4757"
+  go: "#35ffb0"
+  focus: "#6c8cff"
 typography:
   display:
-    fontFamily: "Barlow Condensed, 'Arial Narrow', system-ui, sans-serif"
-    fontSize: 'clamp(1.55rem, 6vw, 2.05rem)'
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif"
+    fontSize: "clamp(2.4rem, 11vw, 4.25rem)"
     fontWeight: 700
     lineHeight: 1
-    letterSpacing: '0.02em'
+    letterSpacing: "0.055em"
+  label:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif"
+    fontSize: "0.78rem"
+    fontWeight: 600
+    letterSpacing: "0.1em"
   body:
-    fontFamily: "Barlow Condensed, 'Arial Narrow', system-ui, sans-serif"
-    fontSize: '1rem'
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif"
+    fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.55
-    letterSpacing: '0.01em'
-  label:
-    fontFamily: "Barlow Condensed, 'Arial Narrow', system-ui, sans-serif"
-    fontSize: '0.78rem'
-    fontWeight: 600
-    lineHeight: 1
-    letterSpacing: '0.13em'
 rounded:
-  hairline: '1.5px'
-  base: '3px'
-  pill: '50%'
+  hairline: "1.5px"
+  base: "3px"
 spacing:
-  pad: 'clamp(0.75rem, 3vw, 1.25rem)'
-  gap: '0.9rem'
-  row: '2.4rem'
+  gap: "0.9rem"
+  pad: "clamp(0.75rem, 3vw, 1.25rem)"
+  row: "2.75rem"
 components:
   button-primary:
-    backgroundColor: '{colors.active-green}'
-    textColor: '#0c130f'
-    rounded: '{rounded.base}'
-    padding: '0.6rem 1rem'
-  button-default:
-    backgroundColor: '{colors.face-raised}'
-    textColor: '{colors.ink}'
-    rounded: '{rounded.base}'
-    padding: '0.6rem 1rem'
-  button-danger:
-    backgroundColor: '{colors.signal-red}'
-    textColor: '{colors.signal-red}'
-    rounded: '{rounded.base}'
-    padding: '0.6rem 1rem'
-  service-row:
-    backgroundColor: '{colors.face}'
-    textColor: '{colors.ink}'
-    typography: '{typography.body}'
-    height: '2.75rem'
-  terminal-button:
-    backgroundColor: '{colors.steel}'
-    textColor: '{colors.ink}'
-    typography: '{typography.label}'
-    height: '3.9rem'
+    backgroundColor: "{colors.go}"
+    textColor: "#0a0616"
+    rounded: "{rounded.base}"
+    padding: "0.6rem 1rem"
+  terminal-btn-active:
+    backgroundColor: "{colors.face}"
+    textColor: "{colors.ink}"
+    rounded: "0"
+  row-cost-afford:
+    textColor: "{colors.go}"
+  row-cost-cant:
+    textColor: "{colors.lamp}"
 ---
 
 # Design System: Starship Clicker
 
 ## Overview
 
-**Creative North Star: "Le Grand Tableau"**
+**Creative North Star: "The Deep-Space Signal Terminal"**
 
-The game is a public departures board for a spacefaring civilisation. Not a
-dashboard, not a HUD over a starfield, not the idle-game scroll of same-size
-buy-cards — a single physical board of matte flap faces set in a brushed-steel
-frame, hung above a concourse. Every quantity the player owns is a ruled row on
-that board. Every number that moves, moves the way a departures board moves:
-one character cell flips, then the next, a cascade running left to right down
-the row with a soft mechanical clatter you can almost hear.
+Starship Clicker is still a departures board — the ruled-row, split-flap
+skeleton of the prior "Le Grand Tableau" identity is explicitly preserved —
+but it no longer reads as a warm steel airport concourse. It now reads as a
+terminal receiving a live broadcast from deep space: 1985's idea of what the
+year 3000 looks like. Every quantity is still a ruled row on one board; every
+change still flaps digit by digit. What changed is the material the board is
+made of: indigo-black space instead of warm brushed steel, neon magenta/cyan/
+violet fields that command whole regions instead of hairline-only signal
+color, and a genuine light-emission glow around every affordance state. A
+faint procedural starfield sits behind every panel and modal — the board is
+not lit by an overhead lamp anymore, it is floating in the field it reports
+on. Twelve hand-illustrated planet portraits (one per system archetype, see
+Components → Planet Portrait) are the one place painted material replaces
+the old world's flat-pictogram-only rule, appearing in the Exploration panel
+and behind the map's conquest node.
 
-The surface commits to one material world and stays in it. The ground is a warm
-matte near-black — the colour of a painted flap, never blue-black slate. Letters
-are painted white, slightly warm, with a hairline of shadow where the paint
-sits on the metal. The frame is real brushed aluminium: an anisotropic noise
-texture, not a CSS bevel pretending to be metal. Colour is rationed to three
-signal roles — an amber lamp when you can't afford something, an active green
-when you can, a dim signal-red for a locked or terminated line — plus a cool
-blue focus ring that belongs to the browser, not the board.
-
-Density is high and legible. The board is meant to be scanned: ruled rows,
-fixed columns, tabular figures, a condensed grotesque (Barlow Condensed, from
-highway signage) carrying every word on the page. The one concession to scale
-is the header: the running total energy produced and the civilisation level are
-set large, the two numbers that tell you how far you've come, the way a
-concourse board leads with its clock.
+This is a reskin, not a re-architecture: the same tabs, board-rows, drawers,
+and full-frame modal pattern carry the new material. A player who knew the
+old board will recognize every gesture; nothing about *what* the board says
+changed, only what it looks and feels like saying it.
 
 **Key Characteristics:**
-
-- One ruled board; no cards, ever.
-- Any changing number changes by flap cascade, digit by digit.
-- One typeface (Barlow Condensed) for every word.
-- Warm matte near-black ground; painted-white letters; brushed-steel frame.
-- Colour is signal only: amber = can't afford, green = affordable, red = locked.
-- Real generated textures (brushed metal, paint grain), never faked bevels.
+- Deep-space indigo ground, never warm or neutral-black.
+- Neon color owns whole regions (afford/cant states, selected tab, glow),
+  not just a lamp-dot or hairline.
+- Glow (`box-shadow`/`text-shadow` bloom) is a first-class material,
+  layered onto — never replacing — the existing steel/machined-lip depth
+  shadows.
+- A faint procedural starfield texture sits behind body, modals, and node
+  buttons.
+- One typeface throughout (Barlow Condensed), tabular numerals everywhere,
+  unchanged from the prior identity.
+- Twelve hand-authored SVG planet portraits, the system's one illustrated
+  (non-pictogram) art category.
 
 ## Colors
 
-A warm greyscale board with three signal accents and one browser-blue focus.
+The palette is Full palette strategy: four named roles carry real regional
+weight (not a restrained neutral-plus-accent scheme) — this is an Operate
+surface that earns bold color because the whole point of the redesign is to
+feel like an emissive instrument panel, not a muted productivity tool.
 
 ### Primary
-
-- **Lamp Amber** (`#ffb020`): the deficit/unaffordable signal. A cost turns
-  amber the instant the player can't pay it; a resource row's trend lamp glows
-  amber while it is falling. Also the active-terminal indicator bar. Used as a
-  point, never a field.
+- **Magenta Deficit** (`--lamp` #ff2fd0): unaffordable cost figures, the
+  LANCER control's held/auto-cadence glow, the selected terminal tab's inset
+  bar. The system's most attention-getting neon — reserved for "you can't
+  afford this yet" and the master input's active state.
 
 ### Secondary
+- **Cyan-Mint Go** (`--go` #35ffb0): affordable cost figures, resource
+  trend-up lamps, the "ASCEND — NEW GAME+" action, invade-node names once
+  reachable. Reads as "this is live and ready."
 
-- **Active Green** (`#57b894`): the affordable signal. A cost is green when the
-  player can buy now; the primary action button (`buy` / `build` / `research` /
-  `ascend`) is a green fill; the trend lamp glows green while a resource climbs.
-- **Signal Red** (`#c9503f`): the locked / terminated signal. A locked service
-  row and its unlock hint; the "ALL SERVICES TERMINATED" ascension marquee; the
-  destructive reset button (outline, not fill).
+### Tertiary
+- **Coral Signal** (`--signal` #ff4757): locked/terminated rows, the "all
+  services complete" marquee, combat-defeat log entries. Distinct enough
+  from Magenta Deficit to never be confused with "just can't afford it yet."
 
 ### Neutral
-
-- **Painted White** (`#f4f0e4`): all primary text and figures, pictogram fill.
-  Warm, not pure white.
-- **Ink Dim** (`#aca894`): row sub-text (counts, rates), resource names,
-  secondary values. 7.5:1 on the board ground.
-- **Ink Faint** (`#8d887a`): time-codes, column headers, section labels, the
-  desktop dotted leader. Held at ≥ 4.5:1 on the matte ground for small text.
-- **Flap Face** (`#1a1713`): the board / row / resource-panel ground. Warm
-  matte near-black.
-- **Raised Face** (`#241f18`): the detail-drawer and hover ground, one step up
-  from the board.
-- **Page** (`#0d0a06`): the field behind the board (visible as the outer
-  margin on desktop).
-- **Brushed Steel** (`#48453f` / `#37342d` / `#26221c`): the frame — header,
-  terminal bar, modal head. A vertical brushed-noise texture over a top-lit
-  gradient; the light-to-dark run reads as a slightly domed metal panel.
-- **Focus Blue** (`#79b8ff`): the keyboard focus ring only. Deliberately the
-  one cool colour on the surface, so focus never reads as a board signal.
+- **Deep Space** (`--face` #0c0818): the base panel/row surface.
+- **Raised Space** (`--face-raised` #170f2c): hover/raised state, board
+  drawers.
+- **Violet Chrome** (`--steel-1/2/3` #4a3a7a/#322459/#1e1640): the brushed
+  "metal" frame gradient (header, terminal bar, launch control) — now a
+  violet chrome lit by the neon world instead of warm brushed steel.
+- **Lavender Ink** (`--ink` #f1ecff / `--ink-dim` #b7a9e2 / `--ink-faint`
+  #9384c0): body text at three emphasis levels, all ≥5.9:1 on Deep Space.
+- **Focus Blue-Violet** (`--focus` #6c8cff): keyboard focus ring only.
 
 ### Named Rules
+**The Region, Not a Hairline Rule.** Magenta/cyan/coral are allowed to fill a
+button, a marquee, a selected tab's background wash, or a glow halo — the
+prior world's "color is a lamp or a hairline, never a region" restraint is
+explicitly retired. This is the one deliberate reversal from the incumbent
+system.
 
-**The Lamp Rule.** Cost colour IS the affordability state. Amber means you
-cannot pay; green means you can. Never show a cost in neutral ink — the player
-reads the board by colour first.
-
-**The Signal-Only Rule.** The three accents (amber, green, red) are points and
-1px marks, never fills over a region. If an accent owns more than a lamp, a
-short word, or a hairline, it has stopped being a signal.
+**The Glow-Is-Material Rule.** Every neon color role has a matching
+`--glow-*` token (soft + tight blur pair). A neon color used for emphasis
+should usually carry its glow token too — a flat neon fill with no bloom
+reads as a plain accent, not a signal.
 
 ## Typography
 
-**Display / Body / Label Font:** Barlow Condensed (self-hosted via @fontsource,
-weights 400/500/600/700; fallback `'Arial Narrow', system-ui, sans-serif`).
+**Display Font:** Barlow Condensed (with Arial Narrow, system-ui fallback)
+**Body Font:** Barlow Condensed (same family — unchanged from the incumbent
+system: one typeface throughout remains a hard rule)
 
-**Character:** One family, the whole board. Barlow Condensed is a utilitarian
-condensed grotesque drawn from Californian highway signage — narrow enough to
-run long service names in a fixed column, plain enough that a digit run reads as
-data, not decoration. Uppercase for every label and name; sentence case only in
-drawer descriptions. Tabular numerals everywhere (`font-variant-numeric:
-tabular-nums` on `body`).
+**Character:** A condensed grotesque read as terminal/signage type under
+glow rather than paint-on-metal — the letterforms are unchanged, only the
+`text-shadow` treatment (glow instead of a single dark paint-shadow on
+selected/accent text) shifts the read.
 
 ### Hierarchy
-
-- **Readout** (700, `clamp(1.55rem, 6vw, 2.05rem)`; civ level `clamp(1.7rem,
-7vw, 2.35rem)`, +0.02em): the header anchor — total energy produced and
-  civilisation level. The only text set at display scale.
-- **Flap figure** (700, 1.35rem): the resource-panel numbers that flap.
-- **Launch figure** (700, 1.7rem) / **Launch label** (700, 1.2rem, +0.18em):
-  the master control.
-- **Panel heading** (700, 1.35rem, uppercase, +0.055em): the terminal title
-  ("CENTRE DE COMMANDE").
-- **Row name** (600, 1.02rem, uppercase, +0.045em): a service name on the
-  board.
-- **Row figure / count / fare** (700, 1–1.1rem, tabular): the values in a row's
-  tail.
-- **Body** (400–500, 1rem, line-height 1.55, +0.01em): drawer descriptions,
-  modal copy.
-- **Label** (600, 0.78rem, uppercase, +0.1–0.16em, ink-faint): time-codes,
-  column headers, section labels.
+- **Display** (700, `clamp(2.4rem, 11vw, 4.25rem)`, line-height 1): the
+  Civilisation Level readout — the page's anchor figure.
+- **Row** (700, 1.1rem): board-row counts and split-flap figures.
+- **Body** (400, 1rem, line-height 1.55): panel notes, drawer descriptions.
+- **Label** (600, 0.78rem, tracked 0.1em, uppercase): section heads,
+  timetable codes, tab labels — always tabular-numeral, always uppercase.
 
 ### Named Rules
-
-**The One Face Rule.** Barlow Condensed carries every word on the surface.
-There is no second family — no serif, no mono, no system-sans body face. A
-departures board is lettered once.
-
-**The Painted-Letter Rule.** Display text on the matte ground carries
-`text-shadow: 0 1px 0 rgba(0,0,0,0.45)` — the shadow of paint sitting proud of
-the metal. Applied to the wordmark, readouts, panel headings, section labels,
-row names, the launch label, the marquee. Body copy does not get it.
+**The One Voice Rule.** Barlow Condensed is the only typeface anywhere in
+the UI, carried over unchanged from the prior identity — a redesign this
+large is exactly the moment a second "technical" or "display" face gets
+smuggled in, and it stays refused.
 
 ## Layout
 
-One centred column, `max-width: 860px`; on desktop (≥ 720px) the service list,
-section heads and stat grids cap tighter (~46–52rem) and centre inside it so
-rows stay a comfortable scan width. Outer page field shows as margin beyond
-that.
-
-**Stacking, top to bottom:** brushed-steel header (sticky, `top: 0`) → resource
-panel (sticky, `top: 0`, so the flapping figures never scroll away) → the
-LANCER master control → the active terminal's list → footer stats → terminal
-selector.
-
-**Terminal selector.** Sticky to the bottom of the viewport on mobile
-(`--bottom-bar-h: 3.9rem`, five equal columns, icon over label, safe-area
-padding); sticky to the top and reordered above the header on desktop (`order:
--1`, single row, icon beside label).
-
-**Rows.** Ruled: a 1px `--rule` divider under each, no gaps, no card margins.
-Resource rows `min-height: 2.4rem`; service rows `2.75rem`. A service row is a
-grid: `time-code · pictogram · name+sub · [tail]`. On desktop the name+sub
-column ends in a dotted leader (`border-bottom: 1px dotted`) that runs to the
-fare — the printed-timetable tie between a destination and its price.
-
-**Rhythm.** `--pad: clamp(0.75rem, 3vw, 1.25rem)` is the single horizontal
-inset (rows, headings, sections all share it). `--gap: 0.9rem` vertical between
-blocks. Section headings get more space above than below.
+Unchanged from the incumbent system by explicit product constraint (see
+`.impeccable/surfaces/index-html.md` direction contract): mobile-first
+single column capped at `--maxw` (860px, 1040px ≥720px, 1360px ≥1280px with
+a fixed 300px sidebar), sticky header/resources-board, a sticky terminal tab
+bar (bottom on mobile, top on desktop), and the same `--pad`/`--gap` rhythm.
+Nothing about grid structure, breakpoints, or component placement changed in
+this pass — only the material rendered inside that structure.
 
 ## Elevation & Depth
 
-The board is flat. Rows have no shadow and no elevation; depth is carried by
-material and by exactly one lifted element.
+Hybrid: the steel/machined-lip depth shadows from the incumbent system are
+kept exactly as they were (inset bevels on `.steel`, the LANCER control's
+pressed/released states) — those convey physical depth and were not part of
+this redesign's scope. Layered on top, a new emissive category (glow) is
+purely additive: it never replaces a depth shadow, it rides alongside one
+(e.g. `.launch.is-holding` keeps its inset bevel shadows *and* gains
+`--glow-lamp`).
 
-- **Texture, not shadow.** The steel frame is a brushed-noise texture over a
-  top-lit gradient (`inset 0 1px 0 rgba(255,255,255,0.12)` highlight, `inset 0
--2px 5px rgba(0,0,0,0.5)` underside). The flap faces carry a fine paint grain
-  and a 2px gradient hinge shadow across the middle. These read as physical
-  surface without a single drop shadow on the layout.
-- **The one lift.** `.launch` is a machined lip: `inset 0 2px 0
-rgba(255,255,255,0.09)` top bevel, `inset 0 -3px 6px rgba(0,0,0,0.5)`
-  underside, `inset 0 0 0 1px rgba(0,0,0,0.55)` seat, and a real `0 10px 22px
-rgba(0,0,0,0.5)` drop — the master control sits proud of the board. `:active`
-  presses it in (`translateY(2px)`, shadow collapses inward). Held, it gains an
-  amber inner ring.
-- **Floating chrome.** Toasts (`0 6px 16px rgba(0,0,0,0.45)`) and modals sit
-  above the board on a `rgba(6,7,9,0.75)` scrim.
-- **Lamp glow.** A trend lamp gets `0 0 8px` of its own colour — the only glow
-  on the surface, and it is a lamp.
+### Shadow Vocabulary
+- **`--glow-lamp`** (`0 0 10px rgba(255,47,208,.65), 0 0 26px rgba(255,47,208,.32)`):
+  magenta bloom — LANCER hold state, unaffordable-cost text-shadow, the
+  conquest node's border glow.
+- **`--glow-go`** (`0 0 10px rgba(53,255,176,.6), 0 0 24px rgba(53,255,176,.3)`):
+  cyan-mint bloom — affordable-cost text-shadow, reachable invade-node name.
+- **`--glow-signal`** (`0 0 10px rgba(255,71,87,.6), 0 0 24px rgba(255,71,87,.3)`):
+  coral bloom, reserved for locked/defeat states that need it.
+- **`--glow-focus`** (`0 0 8px rgba(108,140,255,.55)`): reserved for focus
+  states that want a glow beyond the default outline ring.
 
-### Named Rule
-
-**The Real-Material Rule.** Metal and paint are generated textures (SVG
-`feTurbulence` tiles blended over a gradient). CSS bevels, embossing, and
-zero-blur block shadows (`box-shadow: 0 Ypx 0`) imitating a material the page
-never renders are banned — the machined lip on `.launch` is the single
-sanctioned dimensional treatment.
+### Named Rules
+**The Glow Rides, Never Replaces Rule.** A glow token is added to an
+existing shadow/box-shadow list, never substituted for the steel/machined-
+lip depth shadow already there.
 
 ## Shapes
 
-Near-square. `--radius: 3px` on buttons, the board frame, modal, toast; `1.5px`
-on a flap cell; `50%` on a trend lamp only. No large radii, no pill buttons, no
-rounded cards (there are no cards). The board's structure is drawn entirely with
-1px rules and fixed grid columns; corners are incidental, not a form language.
-
-Pictograms are their own shape system: a single set on a 24-unit grid, solid
-single-weight silhouettes in the AIGA/DOT transit-signage tradition,
-`fill: currentColor`. Kept short and reused by meaning (a generator borrows the
-pictogram of the resource it produces; every ship shares one; every technology
-shares one).
+Unchanged from the incumbent system: `--radius: 3px` throughout (rows,
+modals, buttons, inputs), no large rounded containers, no card silhouettes.
+Planet portraits are the one new circular form in the system — a
+deliberate, singular exception (a celestial body reads as a circle;
+squaring it off would fight the subject), never extended to any other
+component.
 
 ## Components
 
 ### Buttons
+- **Shape:** 3px radius, unchanged.
+- **Primary (`.btn-go`):** Cyan-Mint Go fill, `#0a0616` text (contrast-
+  checked, ~13:1), no glow at rest — the glow vocabulary is reserved for
+  signal states (afford/cant/held), not every primary action.
+- **Terminal tab (selected):** Deep Space background, Magenta Deficit
+  inset top bar plus a soft magenta glow washed up from the bar
+  (`inset 0 8px 14px -8px rgba(255,47,208,.45)`).
 
-- **Shape:** 3px radius (`--radius`), 1px `--rule-strong` border, `0.6rem 1rem`
-  padding, Barlow Condensed 700 / 0.85rem / uppercase / +0.12em.
-- **Default:** warm dark gradient fill (`#2a2620 → #1a1712`), painted-white
-  text. Hover lightens the border to `--ink-faint`.
-- **Primary (`.btn-go`):** Active Green fill, near-black text (`#0c130f`). The
-  buy / build / research / ascend action.
-- **Danger (`.btn-danger`):** Signal Red outline and text on a faint red wash,
-  no fill. The reset action only.
-- **Disabled:** `opacity: 0.6`, `--ink-faint` text, `not-allowed`.
+### Board Rows
+- **Style:** unchanged ruled-row grid; `afford`/`cant`/`locked`/`done`
+  states now carry glow on top of color (`--glow-go` / `--glow-lamp` text-
+  shadow on the cost figure).
 
-### Service Row (signature)
+### Modals (Board Modal)
+- **Style:** steel-chrome head, Deep Space body, unchanged frame — now with
+  the procedural starfield layered behind the body (`--starfield`, blend
+  mode `screen`) and a soft violet-chrome halo (`0 0 40px rgba(74,58,122,.5)`)
+  around the whole modal.
 
-The board's atom. A `<li>` with a 1px underrule; a full-width `<button>` (the
-buy action) plus a narrow chevron button (opens the drawer).
+### Node Map Buttons
+- **Style:** unchanged ruled-button grid; the conquest node additionally
+  carries its system's Planet Portrait as a background layer
+  (`z-index: -1`, 40% opacity, clipped to the button's rounded corners) and
+  a permanent `--glow-lamp` border glow.
 
-- **Layout:** `time-code · pictogram · name / sub · tail`. Tail = load bar
-  (desktop only) · count (`×N`, hidden at 0) · fare. Desktop adds a dotted
-  leader between the label and the tail.
-- **States (via `data-state`):** `afford` — fare in Active Green, buy enabled;
-  `cant` — fare in Lamp Amber, buy disabled; `locked` — whole row in Signal
-  Red, pictogram dimmed, buy inert, drawer shows the unlock condition; `done`
-  (technologies) — row faint, sub reads "Researched".
-- **Drawer:** slides open in place via `grid-template-rows: 0fr → 1fr` (220ms),
-  pushing the rows below down; never a modal. Holds a sentence description and a
-  `<dl>` of facts (produces / consumes / owned, or attack / upkeep / cost).
-
-### Split-Flap Display (signature)
-
-`.flaps` is an inline row of `.flap` character cells. On `set(text)`, only cells
-whose character changed get `.is-flipping`; the animation delay is
-`calc(var(--i) * 26ms)` so the change cascades left to right. `flap-flip`
-keyframes fold the cell at the hinge (`perspective(160px) rotateX`). Separators
-(thin space) render as transparent `.is-sep` cells. The final string is always
-in the DOM for screen readers. `prefers-reduced-motion`: no animation, instant
-swap. Drives every resource figure and the LANCER "+N" figure.
-
-### LANCER control (signature)
-
-A full-width machined-lip bar directly under the resource panel: label left,
-flapping "+N NRG" figure right. Tap = one click. **Hold** (`bindHold`, 320ms
-threshold) enters an auto-cadence — the master control runs itself and gains an
-amber inner ring — then releases on pointer-up. This is the game's single
-continuous input.
-
-### Terminal Selector (navigation)
-
-Brushed-steel bar of five equal buttons, each a pictogram over an uppercase
-label (0.78rem). Inactive: `rgba(244,240,228,0.55)` on steel. Active: matte
-board-black inset with a 3px Lamp Amber bar on the leading edge and full painted
-white. Fixed bottom on mobile, top on desktop.
-
-### Announcement strip (transient)
-
-Station-PA banner stacked above the terminal bar. `.announce`: matte face, 1px
-border, a pictogram whose colour carries the level (green check / amber lock /
-blue bolt), and a level-tinted left-edge gradient wash — **not** a coloured
-`border-left`. Auto-dismisses after ~4.2s; max 3 at once.
-
-### Board Modal
-
-Steel head (painted-white title) + matte body on a scrim. Used for the offline
-"welcome back" report (accumulated gains, one big green line) and the reset
-confirmation. Escape and scrim-click close.
-
-### Resource Row
-
-`pictogram · name · flapping figure · trend lamp`. Progressive disclosure: a
-resource row is not rendered until that resource has been produced at least once
-(energy always shows). The trend lamp is a 0.55rem dot — grey at rest, green +
-glow while climbing, amber + glow while falling.
+### Planet Portrait (signature component)
+Twelve hand-authored inline SVG illustrations (`src/ui/planet-art.js`), one
+per system archetype (`mining`, `energetic`, `crystalline`, `balanced`,
+`hostile`, `diplomatic`, `antimatterComplex`, `quantumStation`,
+`galacticFortress`, `tradeHub`, `cosmicLab`, `voidBastion`). Each is a
+radial-gradient sphere (three-stop, dark rim → bright near-side) with a
+matching neon rim-glow ring and a distinct surface treatment tied to the
+archetype's resource theme (craters for mining, a corona for energetic
+worlds, faceting for crystalline, cloud bands for balanced, cracks of glow
+for hostile/antimatter worlds, a ring for diplomatic/trade worlds, a hex
+lattice for quantum/lab stations, plating for the fortress archetype, and a
+near-black event-horizon disc for the void bastion). All twelve share one
+13-star backdrop field for visual consistency. Appears at 4.2rem in the
+Exploration panel's system header and as a 40%-opacity backdrop behind the
+map's conquest node.
 
 ## Do's and Don'ts
 
 ### Do:
-
-- **Do** put every quantity on a ruled row of the one board. New content is a
-  new row or a new section of rows, never a card or a panel.
-- **Do** route any on-screen number that changes through the split-flap display
-  so it flaps digit by digit; honour `prefers-reduced-motion` with an instant
-  swap.
-- **Do** set every word in Barlow Condensed, uppercase for names and labels,
-  with tabular numerals.
-- **Do** colour costs by affordability — Active Green when payable, Lamp Amber
-  when not — and never in neutral ink.
-- **Do** build metal and paint as generated textures; keep the machined lip on
-  `.launch` as the only dimensional element.
-- **Do** give the header the two lead numbers (total produced, civilisation
-  level) at display scale as the page's anchor.
-- **Do** open detail in place with the row drawer's mechanical slide.
+- **Do** let Magenta Deficit / Cyan-Mint Go / Coral Signal fill a region
+  (button, marquee, tab-selected wash) — this is the reversal this redesign
+  makes on purpose.
+- **Do** pair a neon color used for signal with its `--glow-*` token.
+- **Do** keep every existing steel/machined-lip depth shadow exactly as
+  it was; add glow alongside it, never instead of it.
+- **Do** route new content through the same ruled-row/board-modal skeleton;
+  this redesign changed material, not structure.
+- **Do** keep Barlow Condensed as the only typeface and route every
+  changing number through the split-flap display.
 
 ### Don't:
-
-- **Don't** introduce cards, boxed panels, rounded containers, or elevation on
-  rows. Nested cards especially.
-- **Don't** use emoji or Unicode glyphs as icons — only the authored 24-grid
-  pictogram set.
-- **Don't** add a second typeface, gradient text, glass/blur decoration, or a
-  coloured `border-left` above 1px on any strip or alert.
-- **Don't** use a zero-blur block shadow (`box-shadow: 0 Ypx 0 …`) — the
-  neobrutalist ledge is not this world.
-- **Don't** put a starfield, nebula, or neon-HUD chrome behind the board.
-- **Don't** let an accent (amber / green / red) own a region; it is a lamp, a
-  word, or a hairline.
-- **Don't** flatten or remove the flap cascade to "simplify" — it is the
-  thesis.
-
-<!-- Not canonized (defects the build currently carries, not house rules):
-     the footer stat-grid still reads as a small stat-strip; modal.js keeps a
-     full modal for reset-confirm and the offline report rather than the
-     in-place drawer pattern; the métal (trapezoid) and influence (crown)
-     pictograms are rough below ~18px. -->
+- **Don't** introduce cards, boxed panels, or elevation on rows — carried
+  over unchanged from the prior world.
+- **Don't** use emoji or Unicode glyphs as icons — only the authored
+  24-grid pictogram set (`src/ui/icons.js`) or, for the twelve system
+  archetypes specifically, the illustrated Planet Portrait set.
+- **Don't** add a second typeface, or a gradient applied to text.
+- **Don't** reach for a hard-offset block shadow (`box-shadow: Npx Npx 0`) —
+  the neobrutalist ledge was never this world, before or after the redesign.
+- **Don't** let a glow stand alone as the only depth cue on an
+  interactive control — it rides with the existing bevel/inset system.
+- **Don't** extend the Planet Portrait's circular silhouette to any other
+  component; it is a deliberate, singular exception for celestial bodies.

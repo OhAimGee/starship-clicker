@@ -1,301 +1,136 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-11T00:00:00Z",
+  "generatedAt": "2026-09-12T01:40:00Z",
   "title": "Design System: Starship Clicker",
   "extensions": {
     "colorMeta": {
+      "lamp": {
+        "role": "primary",
+        "displayName": "Magenta Deficit",
+        "canonical": "#ff2fd0",
+        "tonalRamp": ["#0a0614", "#50124a", "#961d7f", "#dc29b5", "#ff4dd7", "#ff88e4", "#ffc4f2", "#ffffff"]
+      },
+      "go": {
+        "role": "secondary",
+        "displayName": "Cyan-Mint Go",
+        "canonical": "#35ffb0",
+        "tonalRamp": ["#0a0614", "#164d41", "#23946d", "#2fdb9a", "#52ffbb", "#8cffd2", "#c5ffe8", "#ffffff"]
+      },
+      "signal": {
+        "role": "tertiary",
+        "displayName": "Coral Signal",
+        "canonical": "#ff4757",
+        "tonalRamp": ["#0a0614", "#501927", "#962b3a", "#dc3e4d", "#ff616f", "#ff969f", "#ffcacf", "#ffffff"]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus Blue-Violet",
+        "canonical": "#6c8cff",
+        "tonalRamp": ["#0a0614", "#262c57", "#42539a", "#5e79dd", "#819cff", "#abbdff", "#d5deff", "#ffffff"]
+      },
       "face": {
         "role": "neutral",
-        "displayName": "Flap Face",
-        "canonical": "#1a1713",
-        "tonalRamp": [
-          "#0d0a06",
-          "#141009",
-          "#1a1713",
-          "#241f18",
-          "#332c22",
-          "#4a4234",
-          "#6b5f4a",
-          "#8d887a"
-        ]
+        "displayName": "Deep Space",
+        "canonical": "#0c0818",
+        "tonalRamp": ["#0a0614", "#0b0715", "#0b0716", "#0c0817", "#2f2b39", "#74727b", "#bab8bd", "#ffffff"]
       },
       "ink": {
         "role": "neutral",
-        "displayName": "Painted White",
-        "canonical": "#f4f0e4",
-        "tonalRamp": [
-          "#2c2820",
-          "#4a4234",
-          "#6b5f4a",
-          "#8d887a",
-          "#aca894",
-          "#c9c5b4",
-          "#e4e0d2",
-          "#f4f0e4"
-        ]
+        "displayName": "Lavender Ink",
+        "canonical": "#f1ecff",
+        "tonalRamp": ["#0a0614", "#4c4857", "#8e899a", "#d0cbdd", "#f3efff", "#f7f4ff", "#fbfaff", "#ffffff"]
       },
-      "steel": {
+      "steel-1": {
         "role": "neutral",
-        "displayName": "Brushed Steel",
-        "canonical": "#48453f",
-        "tonalRamp": [
-          "#1c1915",
-          "#26221c",
-          "#312d25",
-          "#37342d",
-          "#48453f",
-          "#5c5850",
-          "#7a756b",
-          "#989286"
-        ]
-      },
-      "lamp-amber": {
-        "role": "primary",
-        "displayName": "Lamp Amber",
-        "canonical": "#ffb020",
-        "tonalRamp": [
-          "#3a2705",
-          "#5c3d08",
-          "#8a5c0d",
-          "#b87914",
-          "#e0951b",
-          "#ffb020",
-          "#ffc65c",
-          "#ffe0a8"
-        ]
-      },
-      "active-green": {
-        "role": "secondary",
-        "displayName": "Active Green",
-        "canonical": "#57b894",
-        "tonalRamp": [
-          "#0f2a20",
-          "#164034",
-          "#215c49",
-          "#2f7c62",
-          "#41977c",
-          "#57b894",
-          "#8fd3ba",
-          "#c4e9dc"
-        ]
-      },
-      "signal-red": {
-        "role": "tertiary",
-        "displayName": "Signal Red",
-        "canonical": "#c9503f",
-        "tonalRamp": [
-          "#331512",
-          "#4d1f19",
-          "#732e24",
-          "#993d30",
-          "#b3473a",
-          "#c9503f",
-          "#dd8579",
-          "#efc0b8"
-        ]
-      },
-      "focus-blue": {
-        "role": "neutral",
-        "displayName": "Focus Blue",
-        "canonical": "#79b8ff",
-        "tonalRamp": [
-          "#0d2033",
-          "#123049",
-          "#1a4870",
-          "#256199",
-          "#3f89cc",
-          "#79b8ff",
-          "#a8d1ff",
-          "#d4e8ff"
-        ]
+        "displayName": "Violet Chrome",
+        "canonical": "#4a3a7a",
+        "tonalRamp": ["#0a0614", "#1c1531", "#2f244e", "#41336b", "#64568d", "#988eb3", "#cbc7d9", "#ffffff"]
       }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Readout",
-        "purpose": "Header anchor only — total energy produced, civilisation level. The one display-scale text."
-      },
-      "body": {
-        "displayName": "Body / Row",
-        "purpose": "Row names, figures, drawer copy, modal copy. Barlow Condensed carries all of it."
-      },
-      "label": {
-        "displayName": "Label",
-        "purpose": "Time-codes, column headers, section labels; uppercase, wide tracking, ink-faint."
-      }
+      "display": { "displayName": "Display", "purpose": "Civilisation Level readout only — the page's anchor figure." },
+      "label": { "displayName": "Label", "purpose": "Section heads, timetable codes, tab labels — uppercase, tracked, tabular." },
+      "body": { "displayName": "Body", "purpose": "Panel notes and drawer descriptions." }
     },
     "shadows": [
-      {
-        "name": "steel-dome",
-        "value": "inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -2px 5px rgba(0,0,0,0.5)",
-        "purpose": "The brushed-steel frame reads as a slightly domed panel. Header, terminal bar, modal head."
-      },
-      {
-        "name": "machined-lip",
-        "value": "inset 0 2px 0 rgba(255,255,255,0.09), inset 0 -3px 6px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(0,0,0,0.55), 0 10px 22px rgba(0,0,0,0.5)",
-        "purpose": "The LANCER master control — the only element lifted off the board."
-      },
-      {
-        "name": "machined-lip-pressed",
-        "value": "inset 0 2px 5px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.45)",
-        "purpose": "LANCER :active — pressed into its seat."
-      },
-      {
-        "name": "flap-hinge",
-        "value": "linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.35))",
-        "purpose": "The 2px shadow across the middle of a flap character cell (a ::after bar, not a box-shadow)."
-      },
-      {
-        "name": "floating-chrome",
-        "value": "0 6px 16px rgba(0,0,0,0.45)",
-        "purpose": "Toasts and other transient chrome above the board."
-      },
-      {
-        "name": "lamp-glow",
-        "value": "0 0 8px currentColor",
-        "purpose": "A trend lamp's own-colour glow — the only glow on the surface."
-      }
+      { "name": "glow-lamp", "value": "0 0 10px rgba(255,47,208,.65), 0 0 26px rgba(255,47,208,.32)", "purpose": "Magenta bloom — LANCER hold, unaffordable-cost text, conquest-node border." },
+      { "name": "glow-go", "value": "0 0 10px rgba(53,255,176,.6), 0 0 24px rgba(53,255,176,.3)", "purpose": "Cyan-mint bloom — affordable-cost text, reachable invade-node name." },
+      { "name": "glow-signal", "value": "0 0 10px rgba(255,71,87,.6), 0 0 24px rgba(255,71,87,.3)", "purpose": "Coral bloom for locked/defeat states." },
+      { "name": "glow-focus", "value": "0 0 8px rgba(108,140,255,.55)", "purpose": "Reserved for focus states wanting a glow beyond the outline ring." }
     ],
     "motion": [
-      {
-        "name": "flap-flip",
-        "value": "200ms ease-in; per-cell delay calc(var(--i) * 26ms)",
-        "purpose": "The split-flap cascade. perspective(160px) rotateX fold at the hinge. Disabled under prefers-reduced-motion (instant swap)."
-      },
-      {
-        "name": "drawer-slide",
-        "value": "grid-template-rows 220ms ease (0fr -> 1fr)",
-        "purpose": "The service-row detail drawer opening in place."
-      },
-      {
-        "name": "control-press",
-        "value": "transform 70ms ease, box-shadow 70ms ease",
-        "purpose": "LANCER press-in."
-      },
-      {
-        "name": "announce-in",
-        "value": "260ms ease-out (translateY 8px + fade)",
-        "purpose": "A station-PA banner arriving."
-      }
+      { "name": "flap-flip", "value": "200ms ease-in, per-cell delay calc(var(--i,0) * 26ms)", "purpose": "Split-flap digit cascade, unchanged from the incumbent system." }
     ],
     "breakpoints": [
-      {
-        "name": "board",
-        "value": "720px",
-        "purpose": "Terminal selector moves from fixed-bottom to sticky-top; readouts go inline in the header; service rows cap tighter and gain the dotted leader."
-      },
-      {
-        "name": "board-wide",
-        "value": "1040px",
-        "purpose": "Service list max-width widens from ~46rem to ~52rem."
-      }
+      { "name": "desktop", "value": "720px" },
+      { "name": "desktop-wide-sidebar", "value": "1280px" }
     ]
   },
   "components": [
     {
-      "name": "Service Row",
-      "kind": "custom",
-      "refersTo": "service-row",
-      "description": "The board's atom — one buyable line. Whole row is the buy action; the chevron opens a detail drawer in place. State (afford / cant / locked / done) is carried by data-state and shows mostly in the fare colour.",
-      "html": "<li class=\"ds-row\" data-state=\"cant\"><div class=\"ds-row-line\"><button class=\"ds-row-main\" type=\"button\"><span class=\"ds-row-code\">06:21</span><svg class=\"ds-row-ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M13 2 4 14h6l-2 8 12-13h-6z\"/></svg><span class=\"ds-row-label\"><span class=\"ds-row-name\">Réacteur à fusion</span><span class=\"ds-row-sub\">×6 · +30 NRG/s</span></span><span class=\"ds-row-fare\">925 CRY</span></button><button class=\"ds-row-exp\" type=\"button\" aria-label=\"Détails\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 4 17 12 9 20 6.2 17.2 11.4 12 6.2 6.8z\"/></svg></button></div></li>",
-      "css": ".ds-row{list-style:none;border-bottom:1px solid rgba(242,239,230,0.13);color:#f4f0e4;font-family:'Barlow Condensed','Arial Narrow',sans-serif}.ds-row-line{display:flex;align-items:stretch}.ds-row-main{flex:1;min-width:0;display:grid;grid-template-columns:2.6rem 1.4rem minmax(0,1fr) auto;align-items:center;column-gap:.55rem;min-height:2.75rem;padding:.45rem .5rem .45rem 1.1rem;background:transparent;border:0;color:inherit;text-align:left;cursor:pointer;font:inherit}.ds-row-main:enabled:hover{background:#241f18}.ds-row-main:disabled{cursor:not-allowed}.ds-row-code{font-size:.78rem;letter-spacing:.06em;color:#8d887a}.ds-row-ico{width:1.35rem;height:1.35rem;fill:#f4f0e4;opacity:.9}.ds-row-label{min-width:0;display:flex;flex-direction:column;gap:.05rem}.ds-row-name{font-weight:600;font-size:1.02rem;letter-spacing:.045em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 0 rgba(0,0,0,.45)}.ds-row-sub{font-size:.78rem;color:#aca894;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-row-fare{font-weight:700;font-size:1rem;text-align:right;font-variant-numeric:tabular-nums}.ds-row[data-state=afford] .ds-row-fare{color:#57b894}.ds-row[data-state=cant] .ds-row-fare{color:#ffb020}.ds-row[data-state=locked]{color:#c9503f}.ds-row-exp{flex-shrink:0;width:2.4rem;display:grid;place-items:center;background:transparent;border:0;border-left:1px solid rgba(242,239,230,0.13);color:#8d887a;cursor:pointer}.ds-row-exp svg{width:14px;height:14px;fill:currentColor}"
-    },
-    {
-      "name": "Split-Flap Figure",
-      "kind": "custom",
-      "refersTo": "flap",
-      "description": "A row of flap character cells. On value change only the changed cells flip, cascading left to right. The mid-cell hinge shadow is a ::after bar. Every resource figure and the LANCER +N use this.",
-      "html": "<span class=\"ds-flaps\"><span class=\"ds-flap\">1</span><span class=\"ds-flap\">4</span><span class=\"ds-flap\">8</span><span class=\"ds-flap ds-flap-sep\"> </span><span class=\"ds-flap\">2</span><span class=\"ds-flap ds-flap-flip\">6</span><span class=\"ds-flap ds-flap-flip\">0</span></span>",
-      "css": ".ds-flaps{display:inline-flex;gap:1px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:700;font-size:1.35rem;color:#f4f0e4}.ds-flap{position:relative;display:inline-grid;place-items:center;min-width:.68em;padding:.05em .03em;background:linear-gradient(180deg,#2a2620 0 50%,#131010 50% 100%);border-radius:1.5px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04);overflow:hidden}.ds-flap::after{content:'';position:absolute;inset-inline:0;top:calc(50% - 1px);height:2px;background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.35))}.ds-flap-sep{background:none;box-shadow:none;padding:0;min-width:.18em;color:transparent}.ds-flap-sep::after{display:none}.ds-flap-flip{animation:ds-flip .2s ease-in}@keyframes ds-flip{0%{transform:perspective(160px) rotateX(0)}49%{transform:perspective(160px) rotateX(-88deg)}50%{transform:perspective(160px) rotateX(88deg)}100%{transform:perspective(160px) rotateX(0)}}@media (prefers-reduced-motion:reduce){.ds-flap-flip{animation:none}}"
-    },
-    {
-      "name": "LANCER control",
-      "kind": "button",
-      "refersTo": null,
-      "description": "The master input. Full-width machined-lip bar; tap = one click, hold = auto-cadence with an amber inner ring; :active presses in.",
-      "html": "<button class=\"ds-launch\" type=\"button\"><span class=\"ds-launch-label\">Lancer</span><span class=\"ds-launch-figure\">+ <span class=\"ds-flaps\"><span class=\"ds-flap\">6</span></span> NRG</span></button>",
-      "css": ".ds-launch{position:relative;width:100%;padding:1.15rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:linear-gradient(180deg,#2b2720,#1c1812 45%,#17130e);color:#f4f0e4;border:0;border-radius:0 0 3px 3px;box-shadow:inset 0 2px 0 rgba(255,255,255,.09),inset 0 -3px 6px rgba(0,0,0,.5),inset 0 0 0 1px rgba(0,0,0,.55),0 10px 22px rgba(0,0,0,.5);cursor:pointer;font-family:'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;transition:transform 70ms ease,box-shadow 70ms ease}.ds-launch-label{font-weight:700;font-size:1.2rem;letter-spacing:.18em;text-shadow:0 1px 0 rgba(0,0,0,.45)}.ds-launch-figure{font-weight:700;font-size:1.7rem;display:inline-flex;align-items:baseline;gap:.15em}.ds-launch:active{transform:translateY(2px);box-shadow:inset 0 2px 5px rgba(0,0,0,.55),inset 0 0 0 1px rgba(0,0,0,.6),0 4px 10px rgba(0,0,0,.45)}.ds-launch:focus-visible{outline:2px solid #79b8ff;outline-offset:2px}"
-    },
-    {
-      "name": "Terminal Button",
-      "kind": "nav",
-      "refersTo": "terminal-button",
-      "description": "One of five in the sticky terminal selector. Pictogram over uppercase label. Active = matte board-black inset with an amber leading-edge bar.",
-      "html": "<nav class=\"ds-terminals\"><button class=\"ds-terminal\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 4h18v3.5H3zM3 9.5h18V13H3zM3 15h11v3.5H3z\"/></svg><span>Boutique</span></button><button class=\"ds-terminal\" type=\"button\" aria-selected=\"true\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2c3 3.4 4.4 7.6 4.4 11.6l2 3.2v3.4l-4.4-2.2h-4L5.6 23.2v-3.4l2-3.2C7.6 9.6 9 5.4 12 2z\"/></svg><span>Flotte</span></button></nav>",
-      "css": ".ds-terminals{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;height:3.9rem;background:linear-gradient(180deg,#5c5850,#48453f 30%,#26221c);border-top:2px solid #26221c}.ds-terminal{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;background:transparent;border:0;border-right:1px solid rgba(0,0,0,.4);color:rgba(244,240,228,.55);font:600 .78rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}.ds-terminal svg{width:20px;height:20px;fill:currentColor}.ds-terminal:hover{color:rgba(244,240,228,.8)}.ds-terminal[aria-selected=true]{color:#f4f0e4;background:#1a1713;box-shadow:inset 0 3px 0 #ffb020}.ds-terminal:focus-visible{outline:2px solid #79b8ff;outline-offset:-2px}"
-    },
-    {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The buy / build / research / ascend action inside a row drawer or the ascension panel.",
-      "html": "<button class=\"ds-btn ds-btn-go\" type=\"button\">Rechercher</button>",
-      "css": ".ds-btn{font:700 .85rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#f4f0e4;background:linear-gradient(180deg,#2a2620,#1a1712);border:1px solid rgba(242,239,230,.24);border-radius:3px;padding:.6rem 1rem;cursor:pointer}.ds-btn:hover:not(:disabled){border-color:#8d887a}.ds-btn:disabled{opacity:.6;color:#8d887a;cursor:not-allowed}.ds-btn-go{color:#0c130f;background:#57b894;border-color:#57b894}.ds-btn:focus-visible{outline:2px solid #79b8ff;outline-offset:2px}"
+      "description": "Cyan-Mint Go fill, dark text, 3px radius — the system's main affirmative action.",
+      "html": "<button class=\"ds-btn-primary\">ASCENDRE — NEW GAME+</button>",
+      "css": ".ds-btn-primary { font: 700 0.85rem/1 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #0a0616; background: #35ffb0; border: 1px solid #35ffb0; border-radius: 3px; padding: 0.6rem 1rem; cursor: pointer; } .ds-btn-primary:hover { filter: brightness(1.08); } .ds-btn-primary:focus-visible { outline: 2px solid #6c8cff; outline-offset: 2px; }"
     },
     {
-      "name": "Announcement Strip",
+      "name": "Terminal Tab (selected)",
+      "kind": "nav",
+      "refersTo": "terminal-btn-active",
+      "description": "Selected state of the bottom/top tab bar — magenta inset bar plus a soft glow wash.",
+      "html": "<button class=\"ds-tab\" aria-selected=\"true\">Exploration</button>",
+      "css": ".ds-tab { display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #0c0818; color: #f1ecff; border: 0; box-shadow: inset 0 3px 0 #ff2fd0, inset 0 8px 14px -8px rgba(255,47,208,.45); font: 600 0.8rem/1 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.6rem 1rem; }"
+    },
+    {
+      "name": "Board Row (afford / cant)",
       "kind": "custom",
-      "refersTo": null,
-      "description": "Station-PA banner above the terminal bar. Level colour rides the pictogram and a left-edge gradient wash — never a coloured border-left.",
-      "html": "<div class=\"ds-announce ds-announce-success\" role=\"status\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 12.5 9.8 18.5 20.5 6.5 18 4.2 9.8 13.7 6.4 9.7z\"/></svg>Panneau solaire construit.</div>",
-      "css": ".ds-announce{display:flex;align-items:center;gap:.55rem;padding:.55rem .8rem;background:#1a1713;border:1px solid rgba(242,239,230,.24);border-radius:3px;box-shadow:0 6px 16px rgba(0,0,0,.45);font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-size:.92rem;letter-spacing:.03em}.ds-announce svg{width:14px;height:14px;fill:currentColor;flex-shrink:0;color:#79b8ff}.ds-announce-success{background:linear-gradient(90deg,rgba(87,184,148,.14),transparent 40%),#1a1713}.ds-announce-success svg{color:#57b894}.ds-announce-error{background:linear-gradient(90deg,rgba(255,176,32,.16),transparent 40%),#1a1713}.ds-announce-error svg{color:#ffb020}"
+      "refersTo": "row-cost-afford",
+      "description": "Ruled row cost figure, glow-backed to signal affordability — the core repeated primitive of the whole UI.",
+      "html": "<div class=\"ds-row\"><span class=\"ds-row-name\">Panneau solaire</span><span class=\"ds-row-cost ds-afford\">15 NRG</span></div>",
+      "css": ".ds-row { display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0.5rem; border-bottom: 1px solid rgba(241,236,255,.14); font-family: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif; } .ds-row-name { color: #f1ecff; text-transform: uppercase; font-weight: 600; } .ds-row-cost { font-weight: 700; } .ds-afford { color: #35ffb0; text-shadow: 0 0 10px rgba(53,255,176,.6), 0 0 24px rgba(53,255,176,.3); } .ds-cant { color: #ff2fd0; text-shadow: 0 0 10px rgba(255,47,208,.65), 0 0 26px rgba(255,47,208,.32); }"
+    },
+    {
+      "name": "Planet Portrait",
+      "kind": "custom",
+      "refersTo": "planet-portrait",
+      "description": "Signature illustrated component — one hand-authored SVG per system archetype (src/ui/planet-art.js): radial-gradient sphere, neon rim glow, archetype-specific surface detail, shared starfield backdrop.",
+      "html": "<svg viewBox=\"0 0 120 120\" class=\"ds-planet\"><defs><radialGradient id=\"ds-planet-g\" cx=\"38%\" cy=\"34%\" r=\"70%\"><stop offset=\"0%\" stop-color=\"#e0a35c\"/><stop offset=\"55%\" stop-color=\"#a0653a\"/><stop offset=\"100%\" stop-color=\"#3a2a1c\"/></radialGradient></defs><circle cx=\"60\" cy=\"58\" r=\"44\" fill=\"none\" stroke=\"#ff9a4d\" stroke-width=\"2\" opacity=\"0.18\"/><circle cx=\"60\" cy=\"58\" r=\"34\" fill=\"url(#ds-planet-g)\"/><circle cx=\"60\" cy=\"58\" r=\"34\" fill=\"none\" stroke=\"#ff9a4d\" stroke-width=\"1\" opacity=\"0.5\"/></svg>",
+      "css": ".ds-planet { width: 4.2rem; height: 4.2rem; filter: drop-shadow(0 0 10px rgba(108,140,255,.35)); }"
     }
   ],
   "narrative": {
-    "northStar": "Le Grand Tableau",
-    "overview": "The game is a public departures board for a spacefaring civilisation. Not a dashboard, not a HUD over a starfield, not the idle-game scroll of same-size buy-cards — a single physical board of matte flap faces set in a brushed-steel frame. Every quantity the player owns is a ruled row on that board; every number that moves flips character by character, a cascade running left to right. The surface commits to one material world: a warm matte near-black ground, painted-white letters with a hairline of paint shadow, a real brushed-aluminium frame (a generated noise texture, never a CSS bevel). Colour is rationed to three signal roles — amber when you can't afford something, green when you can, dim signal-red for locked or terminated — plus a cool blue focus ring. Density is high and legible: ruled rows, fixed columns, tabular figures, one condensed grotesque (Barlow Condensed, from highway signage) for every word. The one concession to scale is the header, which leads with the two numbers that tell you how far you've come, the way a concourse board leads with its clock.",
+    "northStar": "The Deep-Space Signal Terminal",
+    "overview": "Starship Clicker is still a departures board — the ruled-row, split-flap skeleton of the prior \"Le Grand Tableau\" identity is explicitly preserved — but it no longer reads as a warm steel airport concourse. It now reads as a terminal receiving a live broadcast from deep space: 1985's idea of what the year 3000 looks like. Every quantity is still a ruled row on one board; every change still flaps digit by digit. What changed is the material the board is made of: indigo-black space instead of warm brushed steel, neon magenta/cyan/violet fields that command whole regions instead of hairline-only signal color, and a genuine light-emission glow around every affordance state. A faint procedural starfield sits behind every panel and modal — the board is not lit by an overhead lamp anymore, it is floating in the field it reports on. This is a reskin, not a re-architecture: the same tabs, board-rows, drawers, and full-frame modal pattern carry the new material.",
     "keyCharacteristics": [
-      "One ruled board; no cards, ever.",
-      "Any changing number changes by flap cascade, digit by digit.",
-      "One typeface (Barlow Condensed) for every word.",
-      "Warm matte near-black ground; painted-white letters; brushed-steel frame.",
-      "Colour is signal only: amber = can't afford, green = affordable, red = locked.",
-      "Real generated textures (brushed metal, paint grain), never faked bevels."
+      "Deep-space indigo ground, never warm or neutral-black.",
+      "Neon color owns whole regions (afford/cant states, selected tab, glow), not just a lamp-dot or hairline.",
+      "Glow (box-shadow/text-shadow bloom) is a first-class material, layered onto — never replacing — the existing steel/machined-lip depth shadows.",
+      "A faint procedural starfield texture sits behind body, modals, and node buttons.",
+      "One typeface throughout (Barlow Condensed), tabular numerals everywhere, unchanged from the prior identity.",
+      "Twelve hand-authored SVG planet portraits, the system's one illustrated (non-pictogram) art category."
     ],
     "rules": [
-      {
-        "name": "The Lamp Rule",
-        "body": "Cost colour IS the affordability state. Amber means you cannot pay; green means you can. Never show a cost in neutral ink — the player reads the board by colour first.",
-        "section": "colors"
-      },
-      {
-        "name": "The Signal-Only Rule",
-        "body": "The three accents (amber, green, red) are points and 1px marks, never fills over a region. If an accent owns more than a lamp, a short word, or a hairline, it has stopped being a signal.",
-        "section": "colors"
-      },
-      {
-        "name": "The One Face Rule",
-        "body": "Barlow Condensed carries every word on the surface. There is no second family — no serif, no mono, no system-sans body face. A departures board is lettered once.",
-        "section": "typography"
-      },
-      {
-        "name": "The Painted-Letter Rule",
-        "body": "Display text on the matte ground carries text-shadow: 0 1px 0 rgba(0,0,0,0.45) — the shadow of paint sitting proud of the metal. Body copy does not get it.",
-        "section": "typography"
-      },
-      {
-        "name": "The Real-Material Rule",
-        "body": "Metal and paint are generated textures (SVG feTurbulence tiles blended over a gradient). CSS bevels, embossing, and zero-blur block shadows imitating a material the page never renders are banned — the machined lip on .launch is the single sanctioned dimensional treatment.",
-        "section": "elevation"
-      }
+      { "name": "The Region, Not a Hairline Rule", "body": "Magenta/cyan/coral are allowed to fill a button, a marquee, a selected tab's background wash, or a glow halo — the prior world's \"color is a lamp or a hairline, never a region\" restraint is explicitly retired. This is the one deliberate reversal from the incumbent system.", "section": "colors" },
+      { "name": "The Glow-Is-Material Rule", "body": "Every neon color role has a matching --glow-* token (soft + tight blur pair). A neon color used for emphasis should usually carry its glow token too — a flat neon fill with no bloom reads as a plain accent, not a signal.", "section": "colors" },
+      { "name": "The One Voice Rule", "body": "Barlow Condensed is the only typeface anywhere in the UI, carried over unchanged from the prior identity.", "section": "typography" },
+      { "name": "The Glow Rides, Never Replaces Rule", "body": "A glow token is added to an existing shadow/box-shadow list, never substituted for the steel/machined-lip depth shadow already there.", "section": "elevation" }
     ],
     "dos": [
-      "Do put every quantity on a ruled row of the one board. New content is a new row or a new section of rows, never a card or a panel.",
-      "Do route any on-screen number that changes through the split-flap display so it flaps digit by digit; honour prefers-reduced-motion with an instant swap.",
-      "Do set every word in Barlow Condensed, uppercase for names and labels, with tabular numerals.",
-      "Do colour costs by affordability — Active Green when payable, Lamp Amber when not — and never in neutral ink.",
-      "Do build metal and paint as generated textures; keep the machined lip on .launch as the only dimensional element.",
-      "Do give the header the two lead numbers (total produced, civilisation level) at display scale as the page's anchor.",
-      "Do open detail in place with the row drawer's mechanical slide."
+      "Do let Magenta Deficit / Cyan-Mint Go / Coral Signal fill a region (button, marquee, tab-selected wash) — this is the reversal this redesign makes on purpose.",
+      "Do pair a neon color used for signal with its --glow-* token.",
+      "Do keep every existing steel/machined-lip depth shadow exactly as it was; add glow alongside it, never instead of it.",
+      "Do route new content through the same ruled-row/board-modal skeleton; this redesign changed material, not structure.",
+      "Do keep Barlow Condensed as the only typeface and route every changing number through the split-flap display."
     ],
     "donts": [
-      "Don't introduce cards, boxed panels, rounded containers, or elevation on rows. Nested cards especially.",
-      "Don't use emoji or Unicode glyphs as icons — only the authored 24-grid pictogram set.",
-      "Don't add a second typeface, gradient text, glass/blur decoration, or a coloured border-left above 1px on any strip or alert.",
-      "Don't use a zero-blur block shadow (box-shadow: 0 Ypx 0 …) — the neobrutalist ledge is not this world.",
-      "Don't put a starfield, nebula, or neon-HUD chrome behind the board.",
-      "Don't let an accent (amber / green / red) own a region; it is a lamp, a word, or a hairline.",
-      "Don't flatten or remove the flap cascade to \"simplify\" — it is the thesis."
+      "Don't introduce cards, boxed panels, or elevation on rows — carried over unchanged from the prior world.",
+      "Don't use emoji or Unicode glyphs as icons — only the authored 24-grid pictogram set or the illustrated Planet Portrait set for system archetypes.",
+      "Don't add a second typeface, or a gradient applied to text.",
+      "Don't reach for a hard-offset block shadow (box-shadow: Npx Npx 0) — the neobrutalist ledge was never this world, before or after the redesign.",
+      "Don't let a glow stand alone as the only depth cue on an interactive control — it rides with the existing bevel/inset system.",
+      "Don't extend the Planet Portrait's circular silhouette to any other component; it is a deliberate, singular exception for celestial bodies."
     ]
   }
 }

@@ -13,6 +13,7 @@ import { nodeTypeIconId } from './icon-map.js';
 import { formatNumber } from './format.js';
 import { resourceCode } from '../data/resources.js';
 import { reachableNodeIds } from '../game/nodemap.js';
+import { planetArt } from './planet-art.js';
 
 const GATED_TYPES = new Set(['invade', 'conquest']);
 
@@ -61,6 +62,10 @@ export function renderNodeMap(engine) {
             : 'cant';
 
       const meta = nodeMeta(node, gated);
+      const portrait =
+        node.type === 'conquest' && node.data.systemDef
+          ? planetArt(node.data.systemDef.archetype, 'node-btn-portrait')
+          : null;
       group.append(
         el(
           'button',
@@ -75,6 +80,7 @@ export function renderNodeMap(engine) {
             },
           },
           [
+            portrait,
             icon(nodeTypeIconId(node.type), 'node-icon'),
             el('span', { class: 'node-label' }, [
               el('span', {

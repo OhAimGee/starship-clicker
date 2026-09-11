@@ -1,7 +1,7 @@
 ---
 version: 1
 slug: "index-html"
-primary_target: "index.html"
+primary_target: "index-html"
 related_targets: []
 ---
 
@@ -18,45 +18,41 @@ reduced-motion "snap" only or also a "no cascade" setting.
 
 ## Direction contract
 
-THESIS: The game is a public departures board for a spacefaring civilisation.
-It refuses the idle-game default — a scroll of same-size buy-cards — and the
-sci-fi default — a neon HUD over a starfield. Every quantity is a ruled row on
-one board; every change is a per-character flap cascade down that row.
+THESIS: The board stops being a departures board and becomes a live signal
+terminal broadcasting from deep space — 1985's idea of what the year 3000
+looks like. It refuses the old world's "signal-only, color never owns a
+region" restraint: neon now commands whole fields, not hairlines.
 
-OWN-WORLD: Matte near-black flap faces, white painted condensed grotesque in
-fixed character cells, a brushed-steel board frame as the ground. Amber row
-lamp = unaffordable or deficit; locked/terminated rows drop to dim signal-red.
-One self-hosted condensed face throughout. Icons: one transit-pictogram set
-(AIGA/DOT lineage) — solid white, single weight, one grid. Ruled rows and
-columns are the whole composition: no cards, no gradients, no glass, tabular
-numerals everywhere, themed scrollbar/caret/selection/focus.
+OWN-WORLD: Deep space-indigo/near-black ground (not warm steel), neon
+magenta/cyan/violet as commanding color fields with genuine glow (text-shadow
+and box-shadow bloom as first-class material, not decoration), a faint
+procedural starfield texture behind panels and modals. Hand-authored SVG
+planet/system portraits per exploration archetype are the illustrated core —
+the one place painted material replaces the old world's flat pictogram-only
+rule. Structural language is explicitly PRESERVED (brief-pinned product
+constraint, confirmed with the user): same ruled rows, board-modal, terminal-
+bar, drawer pattern — this is a material translation of the existing form,
+not a new one. Barlow Condensed stays the sole display face (continuity +
+legibility budget) but reads as terminal/signage type under glow, not painted
+metal.
 
-STORY: The player reads the board, watches a resource line tick up flap by
-flap, taps the board's origin to launch energy, and schedules services
-(generators) that then run themselves. Locked rows state their unlock. Reaching
-the quantum threshold lets them call ASCENSION — the board clears with a full
-cascade and re-populates.
+STORY: Same player journey (click, buy, explore, ascend) now feels like
+operating a neon cockpit terminal wired into deep space. Conquering a system
+reveals its illustrated planet portrait glowing on the board instead of a
+line of flavor text alone.
 
-FIRST VIEWPORT (390px portrait): brushed-steel header — wordmark left,
-CIVILISATION LEVEL set large right. Beneath it the resource board: 3–5 flap
-rows (pictogram cell · name · right-aligned flapping figure · trend/lamp).
-Centre, thumb-height: the LAUNCH control, a flap-framed bar reading "+N ⚡"
-that flaps on every tap. Below: the active terminal's departures — generators
-as timetabled services (time-code · name · ×count · load bar · cost). Fixed
-bottom strip: the terminal selector. LAUNCH is the visual and physical centre.
+FIRST VIEWPORT (390px portrait): unchanged composition (steel-glow header,
+resource board, LANCER, terminal-bar) — the product constraint pins the
+layout; only the material changes: header rule and LANCER glow neon on
+hold/afford, resource trend lamps read magenta/cyan instead of amber/green,
+planet portrait appears in the Exploration panel's system header.
 
-FORM: Rail-concourse split-flap board (signals-instruments-split-flap-concourse).
-Dealt challenger; beat the assigned orrery on audience identification and
-product clarity. Fuses my top grounded candidate ("a departures/telemetry
-board", rank 1 of 7). Seed key 5e1de50f.
+FORM: Reskin of "Le Grand Tableau" into a CyberSpace terminal. Brief-pinned
+direction (confirmed with the user before this build) — concept-seed/dice
+round skipped per new-work.md's exception for a precisely specified request
+with an already-approved plan; no seed key. Code-led (no image-generation
+tool available in this environment; illustrations are hand-authored SVG).
 
-RAISE (from Alphabet Storm, declined — type as monumental matter): the
-civilisation level and running grand totals are set at board-header display
-scale as the page's anchor, never a stat-strip afterthought.
-RAISE (from Variable Font Specimen, declined — one continuous control drives
-the surface): LAUNCH is the single master input; held, it runs a visible
-auto-cadence and the whole board answers in step.
-RAISE (from Sneaker Box Archive, declined — tactile pull-to-reveal depth): a
-row opens in place with a mechanical slide to its detail drawer, never a modal.
-
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+FINISH: unreviewed and undocumented is unfinished; this build ends with the
+finish review, the verdict, DESIGN.md, and every shipping raster carrying its
+provenance
