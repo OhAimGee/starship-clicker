@@ -53,6 +53,18 @@ describe('loadState', () => {
     expect(state.prestige.ascensions).toBe(0);
   });
 
+  it('conserve run.factionId au rechargement (un champ null par défaut ' +
+    'dont la vraie valeur est une chaîne — typeof null === "object" piégeait ' +
+    'la fusion de forme)', () => {
+    const saved = createInitialState();
+    saved.run.factionId = 'ironLegion';
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(saved) });
+
+    const { state, status } = loadState(storage);
+    expect(status).toBe('loaded');
+    expect(state.run.factionId).toBe('ironLegion');
+  });
+
   it('archive une sauvegarde corrompue dans .bak et repart proprement', () => {
     const storage = memoryStorage({ [STORAGE_KEY]: '{{{ pas du JSON' });
     const { state, status } = loadState(storage);

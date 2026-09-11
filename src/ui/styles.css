@@ -1198,6 +1198,27 @@ h3 {
   }
 }
 
+@media (min-width: 720px) {
+  /* La grille "ligne de service" (3.4rem 1.5rem 1fr auto) et le libellé mis
+     en ligne juste au-dessus ne conviennent pas à la sélection de faction
+     (3 enfants seulement, description longue sur plusieurs lignes) — on les
+     re-déclare pour ce cas précis, après le bloc générique pour gagner sur
+     la cascade (même spécificité, .board-row-main/.row-label plein-écran). */
+  .faction-row {
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+  }
+  .faction-row .row-label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .faction-row .row-label::after {
+    content: none;
+  }
+  .faction-row .row-sub {
+    white-space: normal;
+  }
+}
+
 /* ── Mouvement réduit ────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

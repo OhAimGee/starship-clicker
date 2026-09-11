@@ -38,11 +38,18 @@ function mergeIntoShape(template, saved) {
     for (const key of Object.keys(template)) {
       const t = template[key];
       const s = saved ? saved[key] : undefined;
+      // `typeof null === 'object'` : un champ dont la valeur par défaut est
+      // `null` (ex. `run.factionId`, pas encore de faction choisie) ne peut
+      // pas être comparé par `typeof` à sa valeur réelle une fois posée (une
+      // chaîne, par ex.) — on accepte alors n'importe quelle valeur définie,
+      // faute de forme plus précise à faire respecter.
       const sameKind =
-        s !== undefined &&
-        s !== null &&
-        typeof s === typeof t &&
-        Array.isArray(s) === Array.isArray(t);
+        t === null
+          ? s !== undefined
+          : s !== undefined &&
+            s !== null &&
+            typeof s === typeof t &&
+            Array.isArray(s) === Array.isArray(t);
       out[key] =
         t && typeof t === 'object'
           ? mergeIntoShape(t, sameKind ? s : undefined)
