@@ -7,12 +7,12 @@ systèmes stellaires, un arbre technologique, puis **ascendez** (prestige) pour
 des bonus permanents.
 
 100 % côté client — aucun compte, aucun serveur. Déployé en statique sur
-GitHub Pages.
+GitHub Pages : **https://ohaimgee.github.io/starship-clicker/**
 
 ## Statut
 
-Refonte 2026. Vision produit : `PRODUCT.md` · système visuel : `DESIGN.md` ·
-plan : `.claude/plans/`.
+Refonte 2026 terminée. Vision produit : `PRODUCT.md` · système visuel :
+`DESIGN.md` · plan : `.claude/plans/`.
 
 | Phase | Contenu                                                     | État |
 | ----- | ----------------------------------------------------------- | ---- |
@@ -20,7 +20,7 @@ plan : `.claude/plans/`.
 | 1     | Réparer la boucle de jeu (prestige, progression hors-ligne) | ✅   |
 | 2     | Architecture modulaire pilotée par les données + i18n       | ✅   |
 | 3     | Refonte visuelle — « tableau des départs à palettes »       | ✅   |
-| 4     | Finition, équilibrage, déploiement                          | ⏳   |
+| 4     | Finition, équilibrage, déploiement                          | ✅   |
 
 ## Développement
 
@@ -50,7 +50,7 @@ docs/archive/         anciens rapports de développement
 .github/workflows/    déploiement GitHub Pages
 ```
 
-76 tests (`npm test`), lint (`npm run lint`).
+77 tests (`npm test`), lint (`npm run lint`).
 
 ## Sauvegarde
 
