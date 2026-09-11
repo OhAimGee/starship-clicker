@@ -13,6 +13,34 @@ import { generateSystemMap } from './nodemap.js';
 
 const CONQUEST_OBJECTIVE_TYPES = new Set(['conquerAll', 'conquerOne']);
 
+/**
+ * Construit le système-objectif d'index `index` — base ou avancé selon
+ * `state.run.exploration.advancedUnlocked`, **relu à chaque appel** (pas
+ * figé au lancement de la run) : rechercher `warpDrive` en cours de run
+ * donne donc accès aux systèmes avancés dès le prochain système généré.
+ */
+function generateNextTarget(state, index) {
+  const advancedOn = state.run.exploration.advancedUnlocked;
+  const advanced = advancedOn && index % 2 === 1;
+  return advanced
+    ? buildSystem(
+        index,
+        ADVANCED_SYSTEM_NAMES[index % ADVANCED_SYSTEM_NAMES.length],
+        ADVANCED_ARCHETYPES[index % ADVANCED_ARCHETYPES.length],
+        EXPLORATION.advancedBaseReward,
+        EXPLORATION.advancedBaseDefense,
+        true
+      )
+    : buildSystem(
+        index,
+        SYSTEM_NAMES[index % SYSTEM_NAMES.length],
+        SYSTEM_ARCHETYPES[index % SYSTEM_ARCHETYPES.length],
+        EXPLORATION.baseReward,
+        EXPLORATION.baseDefense,
+        false
+      );
+}
+
 function buildSystem(
   index,
   name,
@@ -61,46 +89,46 @@ export function generateRunTargets(state) {
     obj && CONQUEST_OBJECTIVE_TYPES.has(obj.type)
       ? obj.target
       : CONFIG.run.baseSystems;
-  const advancedOn = state.run.exploration.advancedUnlocked;
   const targets = [];
   for (let i = 0; i < n; i++) {
-    const advanced = advancedOn && i % 2 === 1;
-    targets.push(
-      advanced
-        ? buildSystem(
-            i,
-            ADVANCED_SYSTEM_NAMES[i % ADVANCED_SYSTEM_NAMES.length],
-            ADVANCED_ARCHETYPES[i % ADVANCED_ARCHETYPES.length],
-            EXPLORATION.advancedBaseReward,
-            EXPLORATION.advancedBaseDefense,
-            true
-          )
-        : buildSystem(
-            i,
-            SYSTEM_NAMES[i % SYSTEM_NAMES.length],
-            SYSTEM_ARCHETYPES[i % SYSTEM_ARCHETYPES.length],
-            EXPLORATION.baseReward,
-            EXPLORATION.baseDefense,
-            false
-          )
-    );
+    targets.push(generateNextTarget(state, i));
   }
   state.run.exploration.targets = targets;
 }
 
 /**
  * Dépile le prochain système-objectif et construit sa carte à nœuds dans
- * `state.run.exploration.activeMap`.
- * @returns {object|null} la nouvelle carte, ou `null` si la file est vide
- * (tous les systèmes-objectif ont été traités).
+ * `state.run.exploration.activeMap`. Si la file est épuisée, un nouveau
+ * système est généré à la volée au lieu de s'arrêter — SAUF pour un
+ * objectif de conquête (`conquerAll`/`conquerOne`) déjà atteint, où le
+ * nombre de systèmes EST l'objectif et doit rester fini (voir DÉCISIONS du
+ * plan « exploration infinie »). Les objectifs `gatherResources`/
+ * `reachFleetPower` ne dépendent pas d'un compte de systèmes : l'explo-
+ * ration y reste une source de récompenses/points de compétence à volonté.
+ * @returns {object|null} la nouvelle carte, ou `null` si un objectif de
+ * conquête déjà rempli n'a plus besoin de systèmes supplémentaires.
  */
 export function startNextMap(state) {
   const targets = state.run.exploration.targets;
-  if (!targets || targets.length === 0) {
+  const obj = state.run.objective;
+  const conquestSatisfied =
+    !!obj &&
+    CONQUEST_OBJECTIVE_TYPES.has(obj.type) &&
+    state.run.exploration.conquered.length >= obj.target;
+
+  let systemDef;
+  if (targets && targets.length > 0) {
+    systemDef = targets.shift();
+  } else if (conquestSatisfied) {
     state.run.exploration.activeMap = null;
     return null;
+  } else {
+    systemDef = generateNextTarget(
+      state,
+      state.run.exploration.conquered.length
+    );
   }
-  const systemDef = targets.shift();
+
   const queueIndex = state.run.exploration.conquered.length;
   const map = generateSystemMap(state, systemDef, queueIndex);
   state.run.exploration.activeMap = map;

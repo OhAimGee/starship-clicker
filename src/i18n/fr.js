@@ -528,6 +528,8 @@ export const fr = {
     cosmicLab: 'Laboratoire cosmique',
     diplomatic: 'Système diplomatique',
     voidBastion: 'Bastion du vide',
+    volatile: 'Système volatil',
+    darkNexus: 'Nexus de matière noire',
     legacy: 'Système',
   },
 

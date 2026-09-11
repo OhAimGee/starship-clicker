@@ -515,6 +515,8 @@ export const en = {
     cosmicLab: 'Cosmic laboratory',
     diplomatic: 'Diplomatic system',
     voidBastion: 'Void bastion',
+    volatile: 'Volatile system',
+    darkNexus: 'Dark matter nexus',
     legacy: 'System',
   },
 

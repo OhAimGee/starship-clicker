@@ -21,6 +21,12 @@ export const SYSTEM_NAMES = [
   'Capella',
   'Deneb',
   'Procyon',
+  'Fomalhaut',
+  'Antarès',
+  'Régulus',
+  'Bellatrix',
+  'Mizar',
+  'Alcyone',
 ];
 
 export const ADVANCED_SYSTEM_NAMES = [
@@ -38,6 +44,12 @@ export const ADVANCED_SYSTEM_NAMES = [
   'Sagittaire A*',
   'Nébuleuse X-7',
   'Cœur de Matière Noire',
+  'Bastion de Kepler-186',
+  'Passage de 55 Cancri',
+  'Nid de LHS 1140',
+  'Faille de Ross 128',
+  'Dôme de TOI-700',
+  'Confins de GJ 1214',
 ];
 
 // bonus : multiplicateur appliqué à la récompense de base de chaque ressource.
@@ -66,6 +78,11 @@ export const SYSTEM_ARCHETYPES = [
   {
     id: 'diplomatic',
     bonus: { influence: 2.4, energy: 0.9, metal: 0.9 },
+  },
+  {
+    id: 'volatile',
+    bonus: { antimatter: 1.6, energy: 1.4, metal: 0.6 },
+    defenseMult: 1.3,
   },
 ];
 
@@ -99,6 +116,11 @@ export const ADVANCED_ARCHETYPES = [
     id: 'voidBastion',
     bonus: { darkMatter: 3, quantumEnergy: 2, antimatter: 1.5 },
     defenseMult: 2.2,
+  },
+  {
+    id: 'darkNexus',
+    bonus: { darkMatter: 4, quantumEnergy: 3, energy: 1.5 },
+    defenseMult: 2.8,
   },
 ];
 
