@@ -376,6 +376,10 @@ export const fr = {
     techResearched: 'Technologie acquise : {name}.',
     prestigeUpgraded: '{name} — niveau {level}.',
     factionSkillBought: '{name} — niveau {level}.',
+    nodeReward: 'Butin : {list}',
+    skillPointGained: '+1 point de compétence de run.',
+    objectiveComplete:
+      'Objectif de run atteint ! Tu peux ascender pour le bonus.',
     systemConquered: '{name} conquis !',
     fleetTooWeak: 'Flotte trop faible (puissance requise : {required}).',
     cannotAscend: 'Il faut {amount} {resource} pour ascendre.',

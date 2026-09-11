@@ -33,7 +33,13 @@ import {
   spend,
   gain,
 } from './economy.js';
-import { regenerateSystems, conquer } from './exploration.js';
+import {
+  regenerateSystems,
+  conquer,
+  generateRunTargets,
+  startNextMap,
+} from './exploration.js';
+import { resolveNode } from './nodemap.js';
 import { canAscend, potentialPoints, ascend } from './prestige.js';
 import { startRun, buyFactionSkill as buyFactionSkillRun } from './run.js';
 import { tickEvents } from './events.js';
@@ -331,13 +337,56 @@ export class Engine {
   }
 
   /** Démarre une run avec la faction `factionId` (uniquement si aucune run
-   * n'est déjà en cours — voir `ascend()`/`reset()`). */
+   * n'est déjà en cours — voir `ascend()`/`reset()`). Amorce la file de
+   * systèmes-objectif et sa première carte à nœuds. */
   selectFaction(factionId) {
     if (this.state.run.factionId) return false;
     if (!FACTION_BY_ID[factionId]) return false;
     if (!startRun(this.state, factionId)) return false;
+    generateRunTargets(this.state);
+    startNextMap(this.state);
     this._seen = this._currentUnlockSet();
     this._emit('run-started', { factionId });
+    this._afterChange();
+    return true;
+  }
+
+  /** Choisit le nœud `nodeId` sur la carte active (voir `run.exploration.
+   * activeMap`, parmi les nœuds accessibles). */
+  chooseNode(nodeId) {
+    const map = this.state.run.exploration.activeMap;
+    if (!map) return false;
+
+    const result = resolveNode(this.state, map, nodeId);
+    if (!result.ok) {
+      if (result.required !== undefined) {
+        this._notify(
+          'notify.fleetTooWeak',
+          { required: result.required },
+          'error'
+        );
+      }
+      return false;
+    }
+
+    if (result.type === 'conquest') {
+      this._notify(
+        'notify.systemConquered',
+        { name: result.system.name },
+        'success'
+      );
+      const nextMap = startNextMap(this.state);
+      if (!nextMap) {
+        this._notify('notify.objectiveComplete', {}, 'success');
+      }
+    } else if (result.type === 'skillPoint') {
+      this._notify('notify.skillPointGained', {}, 'success');
+    } else {
+      this._notify('notify.nodeReward', { reward: result.reward }, 'success');
+    }
+
+    this._seen = this._currentUnlockSet();
+    this._emit('node-resolved', result);
     this._afterChange();
     return true;
   }

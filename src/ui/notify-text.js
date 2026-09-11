@@ -32,6 +32,13 @@ export function notifyText({ key, params = {} }, engine) {
     return t(key, { name, level });
   }
 
+  if (key === 'notify.nodeReward') {
+    const list = Object.entries(params.reward ?? {})
+      .map(([res, amt]) => `+${formatNumber(amt)} ${resourceCode(res)}`)
+      .join(', ');
+    return t(key, { list });
+  }
+
   if (key === 'notify.factionSkillBought') {
     const factionId = engine?.state?.run?.factionId;
     const name = t(`factionSkill.${params.id}.name`);

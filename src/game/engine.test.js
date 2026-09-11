@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from './engine.js';
 import { createInitialState } from './initial-state.js';
+import { CONFIG } from '../data/config.js';
 
 const withResources = (patch) => {
   const s = createInitialState();
@@ -140,6 +141,41 @@ describe('Engine — faction & run', () => {
     e.selectFaction('ironLegion'); // +20% puissance de flotte dès le départ
     e.state.ships.fighters.count = 10; // 10 * 2 = 20 de base
     expect(e.fleetPower).toBe(Math.floor(20 * 1.2));
+  });
+
+  it('selectFaction amorce une file de cibles et une première carte', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('miningCollective');
+    expect(e.state.run.objective).not.toBeNull();
+    expect(e.state.run.exploration.activeMap).not.toBeNull();
+  });
+
+  it('parcours complet : sélection -> cartes à nœuds -> objectif -> ascension', () => {
+    const e = new Engine(createInitialState());
+    e.state.ships.fighters.count = 1_000_000; // flotte énorme : tout se résout
+    e.selectFaction('ironLegion');
+    e.state.resources.quantumEnergy = CONFIG.ascension.quantumCost; // pour pouvoir ascender
+
+    let guard = 0;
+    while (e.state.run.exploration.activeMap && guard < 1000) {
+      guard++;
+      const map = e.state.run.exploration.activeMap;
+      const nextRow = map.currentRow + 1;
+      if (nextRow >= map.rows.length) break; // carte terminée, en attente de la suivante
+      const [nodeId] = map.rows[nextRow];
+      e.chooseNode(nodeId);
+    }
+    expect(guard).toBeLessThan(1000); // pas de boucle infinie
+
+    expect(e.state.run.exploration.targets).toHaveLength(0);
+    expect(e.state.run.exploration.activeMap).toBeNull();
+    expect(e.state.run.exploration.conquered.length).toBe(
+      CONFIG.run.baseSystems
+    );
+
+    e.ascend();
+    expect(e.state.run.factionId).toBeNull();
+    expect(e.state.prestige.factions.ironLegion.level).toBe(1);
   });
 });
 
