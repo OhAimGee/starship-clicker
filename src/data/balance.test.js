@@ -6,6 +6,7 @@ import { TECHNOLOGIES, TECH_IDS } from './technologies.js';
 import { PRESTIGE_UPGRADES, CLICK_UPGRADES } from './upgrades.js';
 import { RANDOM_EVENTS } from './events.js';
 import { FACTIONS } from './factions.js';
+import { ASCENSION_REWARDS } from './ascensionRewards.js';
 
 const isResource = (id) => RESOURCE_IDS.includes(id);
 const KNOWN_EFFECTS = new Set([
@@ -62,6 +63,7 @@ describe('cohérence des identifiants', () => {
       CLICK_UPGRADES,
       RANDOM_EVENTS,
       FACTIONS,
+      ASCENSION_REWARDS,
     ]) {
       const ids = list.map((x) => x.id);
       expect(new Set(ids).size).toBe(ids.length);
@@ -174,6 +176,31 @@ describe('factions', () => {
         expect(skill.costGrowth, `${f.id}.${skill.id}`).toBeGreaterThan(1);
         assertLeveledEffect(skill.effect, `${f.id}.${skill.id}`);
       }
+    }
+  });
+});
+
+describe('récompenses d’Ascension', () => {
+  it('effets valides, plus généreux que les compétences de faction du même type', () => {
+    // Une récompense d'Ascension est rare (~1 par Ascension, contre plusieurs
+    // compétences de faction achetées par run) : son perLevel doit dépasser,
+    // type d'effet par type d'effet, le maximum observé dans les arbres de
+    // faction — sinon elle ne se "sent" pas comme la vraie récompense ultime.
+    const maxByType = {};
+    for (const f of FACTIONS) {
+      for (const skill of f.skillTree) {
+        maxByType[skill.effect.type] = Math.max(
+          maxByType[skill.effect.type] ?? 0,
+          skill.effect.perLevel
+        );
+      }
+    }
+    for (const r of ASCENSION_REWARDS) {
+      assertLeveledEffect(r.effect, r.id);
+      const cap = maxByType[r.effect.type] ?? 0;
+      expect(r.effect.perLevel, `${r.id} (${r.effect.type})`).toBeGreaterThan(
+        cap
+      );
     }
   });
 });

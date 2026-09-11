@@ -35,8 +35,19 @@ import {
 } from './economy.js';
 import { generateRunTargets, startNextMap } from './exploration.js';
 import { resolveNode } from './nodemap.js';
-import { canAscend, potentialPoints, ascend } from './prestige.js';
-import { startRun, buyFactionSkill as buyFactionSkillRun } from './run.js';
+import {
+  canEndRun,
+  endRun as endRunState,
+  canAscend,
+  ascend as ascendState,
+  potentialPoints,
+  applyAscensionReward,
+} from './prestige.js';
+import {
+  startRun,
+  buyFactionSkill as buyFactionSkillRun,
+  isObjectiveComplete,
+} from './run.js';
 import { tickEvents } from './events.js';
 import { computeOfflineGains } from './offline.js';
 
@@ -91,6 +102,9 @@ export class Engine {
   }
   isUnlocked(unlock) {
     return isUnlocked(this.state, unlock);
+  }
+  canEndRun() {
+    return canEndRun(this.state);
   }
   canAscend() {
     return canAscend(this.state);
@@ -355,10 +369,10 @@ export class Engine {
         { name: result.system.name },
         'success'
       );
-      const nextMap = startNextMap(this.state);
-      if (!nextMap) {
-        this._notify('notify.objectiveComplete', {}, 'success');
-      }
+      // La complétion d'objectif (carte épuisée incluse) est détectée de
+      // façon centralisée dans `_afterChange()`, pour tous les types
+      // d'objectif — pas seulement la conquête.
+      startNextMap(this.state);
     } else if (result.type === 'skillPoint') {
       this._notify('notify.skillPointGained', {}, 'success');
     } else {
@@ -371,15 +385,44 @@ export class Engine {
     return true;
   }
 
+  /** Termine la run en cours (fréquent) : gagné dès l'objectif de run rempli
+   * (voir `canEndRun`). Petite récompense permanente — niveau de faction +1. */
+  endRun() {
+    if (!canEndRun(this.state)) {
+      this._notify('notify.cannotEndRun', {}, 'error');
+      return false;
+    }
+    const { points } = endRunState(this.state);
+    this._seen = this._currentUnlockSet();
+    this._notify('notify.runEnded', { points }, 'success');
+    this._emit('run-ended', { points });
+    this._afterChange();
+    return true;
+  }
+
+  /** Vraie Ascension (rare) : gagnée au niveau de faction seuil (voir
+   * `canAscend`), indépendamment de l'objectif de la run en cours. Termine
+   * la run, remet à 0 le niveau et les compétences de toutes les factions
+   * (New Game+), et propose un choix de récompense permanente à fort
+   * impact — voir `chooseAscensionReward()`. */
   ascend() {
     if (!canAscend(this.state)) {
       this._notify('notify.cannotAscend', {}, 'error');
       return false;
     }
-    const { points } = ascend(this.state);
+    const { options } = ascendState(this.state);
     this._seen = this._currentUnlockSet();
-    this._notify('notify.ascended', { points }, 'success');
-    this._emit('ascend', { points });
+    this._notify('notify.ascended', {}, 'success');
+    this._emit('ascend-choice', { options });
+    this._afterChange();
+    return true;
+  }
+
+  /** Applique la récompense d'Ascension choisie par le joueur parmi les
+   * options proposées par le dernier `ascend()`. */
+  chooseAscensionReward(id) {
+    if (!applyAscensionReward(this.state, id)) return false;
+    this._notify('notify.ascensionRewardChosen', { id }, 'success');
     this._afterChange();
     return true;
   }
@@ -403,8 +446,21 @@ export class Engine {
   }
 
   // ─── Interne ───────────────────────────────────────────────────────────────
+
+  /** Vérifie l'objectif de run en continu (après TOUTE action qui modifie
+   * l'état — clic, achat, recherche, tick, résolution de nœud...), pas
+   * seulement au moment précis d'une conquête : les objectifs
+   * `reachFleetPower`/`gatherResources` n'ont pas d'événement dédié qui
+   * marquerait leur complétion. Notifie une seule fois par run
+   * (`run.objectiveAnnounced`, réinitialisé par `startRun()`). */
   _afterChange() {
-    this._emit('changed', this.state);
+    const s = this.state;
+    if (s.run.objective && !s.run.objectiveAnnounced && isObjectiveComplete(s)) {
+      s.run.objectiveAnnounced = true;
+      this._notify('notify.objectiveComplete', {}, 'success');
+      this._emit('objective-complete', {});
+    }
+    this._emit('changed', s);
   }
 
   _currentUnlockSet() {

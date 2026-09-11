@@ -37,6 +37,9 @@ export const en = {
       prestigeUpgrades: 'Permanent upgrades',
       factionSkills: 'Skills — {faction}',
       ascensionStats: 'Statistics',
+      ascension: 'Ascension — the ultimate goal',
+      ascensionRewards: 'Ascension rewards owned',
+      endRun: 'End the run',
     },
     cols: {
       cost: 'Fare',
@@ -47,7 +50,8 @@ export const en = {
       fleetPower: 'Fleet power',
       conquered: 'Systems conquered',
       totalClicks: 'Total clicks',
-      ascensions: 'Ascensions',
+      ascensions: 'Runs completed',
+      trueAscensions: 'Ascensions',
       lifetimeEnergy: 'Lifetime energy',
       permanentBonus: 'Permanent production bonus',
       owned: 'Owned',
@@ -80,7 +84,8 @@ export const en = {
       research: 'Research',
       researched: 'Researched',
       improve: 'Upgrade',
-      ascend: 'Ascend — terminate all',
+      endRun: 'End the run',
+      ascend: 'Ascend — New Game+',
       reset: 'Restart game',
       resume: 'Resume',
       launch: 'Launch',
@@ -108,11 +113,25 @@ export const en = {
     ascension: {
       marquee: 'All services terminated',
       intro:
-        'Ascension resets your progress but grants ascension points (AP) and ' +
-        'permanent bonuses.',
-      requirement: 'Requires {amount} {resource}',
-      willGain: 'You will gain {n} ✨',
-      permanentBonus: 'Permanent bonus: +{n}% production',
+        'The ultimate goal. At the threshold faction level, choose a ' +
+        'permanent, high-impact reward — every faction drops back to ' +
+        'level 0 and loses its skills: a New Game+. Only Ascension ' +
+        'rewards survive.',
+      progress: 'Faction level',
+    },
+    endRun: {
+      intro:
+        "End the run once its objective is complete: your faction's level " +
+        'goes up a notch, and its skills (plus the common tree) become ' +
+        'buyable with the points earned.',
+      requirement: "Available once the run's objective is complete",
+      willGain: 'You will gain',
+    },
+    ascensionChoice: {
+      title: 'Choose an Ascension reward',
+      intro:
+        'Ascension! Choose a permanent reward — every faction drops back ' +
+        'to level 0, a New Game+ begins.',
     },
     offline: {
       title: 'Welcome back, Commander',
@@ -388,6 +407,43 @@ export const en = {
     },
   },
 
+  ascensionReward: {
+    hyperProduction: {
+      name: 'Production Overcharge',
+      desc: '+50% overall production per level.',
+    },
+    overcharge: {
+      name: 'Mothership Overdrive',
+      desc: '+60% click power per level.',
+    },
+    grandArmada: {
+      name: 'Grand Armada',
+      desc: '+50% fleet power per level.',
+    },
+    stockpile: {
+      name: 'Strategic Stockpile',
+      desc: '+45% metal and crystal production per level.',
+    },
+    quantumMastery: {
+      name: 'Quantum Mastery',
+      desc:
+        '+45% dark matter, quantum energy and antimatter production per ' +
+        'level.',
+    },
+    masterShipwrights: {
+      name: 'Master Shipwrights',
+      desc: '-15% ship cost per level.',
+    },
+    selfSufficientFleet: {
+      name: 'Self-Sufficient Fleet',
+      desc: '-20% fleet upkeep per level.',
+    },
+    primordialSpark: {
+      name: 'Primordial Spark',
+      desc: '+50% energy production per level.',
+    },
+  },
+
   event: {
     solarStorm: 'Solar storm',
     archaeologicalFind: 'Archaeological find',
@@ -425,11 +481,15 @@ export const en = {
     factionSkillBought: '{name} — level {level}.',
     nodeReward: 'Loot: {list}',
     skillPointGained: '+1 run skill point.',
-    objectiveComplete: 'Run objective complete! You can ascend for the bonus.',
+    objectiveComplete:
+      'Run objective complete! You can end the run for the bonus.',
     systemConquered: '{name} conquered!',
     fleetTooWeak: 'Fleet too weak (power required: {required}).',
-    cannotAscend: 'You need {amount} {resource} to ascend.',
-    ascended: 'Ascension! +{points} ✨ and permanent bonuses.',
+    cannotEndRun: "You need to complete the run's objective first.",
+    runEnded: 'Run complete! +{points} ✨ and your faction levels up.',
+    cannotAscend: 'Your faction needs to reach level {level} to ascend.',
+    ascended: 'Ascension! Every faction resets to zero — pick your reward.',
+    ascensionRewardChosen: '{name} — Ascension reward gained (level {level}).',
     maintenanceLoss: 'Insufficient upkeep: ships were lost.',
     unlocked: 'New: {name}',
     saveRecovered:

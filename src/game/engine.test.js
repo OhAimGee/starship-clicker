@@ -167,12 +167,12 @@ describe('Engine — faction & run', () => {
     expect(map.nodes[nodeId].resolved).toBe(true);
   });
 
-  it('parcours complet : sélection -> cartes à nœuds -> objectif -> ascension', () => {
+  it('parcours complet : sélection -> cartes à nœuds -> objectif -> fin de run', () => {
     const e = new Engine(createInitialState());
     e.state.prestige.factions.ironLegion.level = 3; // objectif conquerAll (sinon niveau 0 = gatherResources)
     e.state.ships.fighters.count = 1_000_000; // flotte énorme : tout se résout
     e.selectFaction('ironLegion');
-    e.state.resources.quantumEnergy = CONFIG.ascension.quantumCost; // pour pouvoir ascender
+    e.state.resources.quantumEnergy = CONFIG.ascension.quantumCost; // bonus de PA optionnel
 
     let guard = 0;
     while (e.state.run.exploration.activeMap && guard < 1000) {
@@ -190,10 +190,31 @@ describe('Engine — faction & run', () => {
     expect(e.state.run.exploration.conquered.length).toBe(
       CONFIG.run.baseSystems + Math.floor(3 * CONFIG.run.systemsPerLevel)
     );
+    // Détection centralisée (Engine#_afterChange) : notifiée dès que l'objectif
+    // est rempli, sans attendre un `endRun()` explicite.
+    expect(e.state.run.objectiveAnnounced).toBe(true);
+    expect(e.canEndRun()).toBe(true);
 
-    e.ascend();
+    e.endRun();
     expect(e.state.run.factionId).toBeNull();
     expect(e.state.prestige.factions.ironLegion.level).toBe(4);
+  });
+
+  it('objectif gatherResources : détecté sans passer par chooseNode, notifié une seule fois', () => {
+    const e = new Engine(createInitialState()); // niveau 0 -> gatherResources
+    e.selectFaction('miningCollective');
+    const obj = e.state.run.objective;
+    const notified = [];
+    e.on('notify', (msg) => notified.push(msg.key));
+
+    e.state.totalProduced[obj.resource] = obj.target; // objectif rempli "hors bande"
+    e.click(); // n'importe quelle action mutant l'état -> _afterChange() détecte
+    e.click(); // un second changement d'état ne renotifie pas
+
+    expect(e.canEndRun()).toBe(true);
+    expect(
+      notified.filter((k) => k === 'notify.objectiveComplete')
+    ).toHaveLength(1);
   });
 });
 

@@ -8,11 +8,15 @@ import { SHIP_IDS } from '../data/fleet.js';
 import { TECH_IDS } from '../data/technologies.js';
 import { CLICK_UPGRADES, PRESTIGE_UPGRADES } from '../data/upgrades.js';
 import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
+import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
 
 // v1 = schéma monolithique d'avant la refonte (généré par l'ancien script.js).
 // v2 = schéma piloté par les données.
 // v3 = refonte rogue-like (factions, run/méta, carte à nœuds).
-export const SCHEMA_VERSION = 3;
+// v4 = fin de run vs Ascension (state.ascension, run.objectiveAnnounced) —
+// purement additif, `mergeIntoShape` comble les nouveaux champs sur une
+// sauvegarde v3 existante sans y toucher (pas de reset forcé).
+export const SCHEMA_VERSION = 4;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -64,10 +68,11 @@ export function createInitialState() {
     },
 
     // État de la run en cours — vidé/reconstruit à chaque `selectFaction()`
-    // et à chaque `ascend()`.
+    // et à chaque `endRun()`/`ascend()`.
     run: {
       factionId: null,
       objective: null,
+      objectiveAnnounced: false, // notifié une seule fois par run (voir Engine#_afterChange)
       buffs: [], // effets temporaires accumulés cette run (nœuds bonus/conquête)
       skillPoints: 0, // points de compétence de run (nœuds "skillPoint")
       exploration: {
@@ -76,6 +81,15 @@ export function createInitialState() {
         conquered: [],
         advancedUnlocked: false,
       },
+    },
+
+    // Vraie Ascension (rare) : ne reset JAMAIS, ni par `endRun()` ni par
+    // `ascend()` — c'est justement ce qui survit au New Game+.
+    ascension: {
+      count: 0,
+      rewards: Object.fromEntries(
+        ASCENSION_REWARDS.map((r) => [r.id, { level: 0 }])
+      ),
     },
 
     events: { lastAt: 0, accumMs: 0 },

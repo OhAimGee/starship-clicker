@@ -38,6 +38,7 @@ export function startRun(state, factionId) {
   const objective = pickObjective(level);
 
   state.run.factionId = factionId;
+  state.run.objectiveAnnounced = false;
   state.run.buffs = [];
   state.run.skillPoints = 0;
   state.run.objective = {

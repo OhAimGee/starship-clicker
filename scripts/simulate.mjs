@@ -10,8 +10,12 @@
 //  - Le temps augmente avec le niveau de faction (plus de systèmes à
 //    conquérir, défense plus élevée) mais reste fini avant le plafond de
 //    8h — un plafond atteint signale un vrai blocage, pas juste "lent".
-//  - Enchaîner plusieurs ascensions avec la même faction doit accélérer
+//  - Enchaîner plusieurs fins de run avec la même faction doit accélérer
 //    nettement (bonus de faction + arbre commun qui s'accumulent).
+//  - Atteindre la première vraie Ascension (niveau de faction seuil,
+//    CONFIG.ascension.factionLevelThreshold) doit rester de l'ordre de
+//    quelques heures de jeu optimisé cumulées sur plusieurs runs — pas des
+//    dizaines d'heures (voir Rapport 3).
 
 import { Engine } from '../src/game/engine.js';
 import {
@@ -22,12 +26,13 @@ import {
   factionSkillCost,
   canAfford,
 } from '../src/game/economy.js';
-import { canAscend } from '../src/game/prestige.js';
+import { canEndRun } from '../src/game/prestige.js';
 import { reachableNodeIds } from '../src/game/nodemap.js';
 import { GENERATORS } from '../src/data/generators.js';
 import { SHIPS } from '../src/data/fleet.js';
 import { TECHNOLOGIES } from '../src/data/technologies.js';
 import { CLICK_UPGRADES, PRESTIGE_UPGRADES } from '../src/data/upgrades.js';
+import { CONFIG } from '../src/data/config.js';
 import { FACTIONS, FACTION_BY_ID } from '../src/data/factions.js';
 
 const CLICK_RATE = 3; // clics/s, joueur engagé
@@ -97,8 +102,14 @@ function burstBuy(engine, choice) {
   return n;
 }
 
-/** Résout en boucle tous les nœuds accessibles non bloqués par la flotte. */
+/** Résout en boucle tous les nœuds accessibles non bloqués par la flotte.
+ * `Engine#chooseNode` exige de posséder au moins un vaisseau (voir
+ * `hasFleet()`), pour TOUS les types de nœud, même « gratuits » — sans quoi
+ * chaque tentative échoue silencieusement et rescanner les mêmes nœuds
+ * accessibles boucle indéfiniment (`progressed` ne doit être vrai QUE si
+ * `chooseNode` a réellement réussi). */
 function resolveFreeNodes(engine) {
+  if (!engine.hasFleet()) return;
   let progressed = true;
   while (progressed) {
     progressed = false;
@@ -108,8 +119,7 @@ function resolveFreeNodes(engine) {
       const node = map.nodes[id];
       const gated = node.type === 'invade' || node.type === 'conquest';
       if (!gated || engine.fleetPower >= node.data.defenseRating) {
-        engine.chooseNode(id);
-        progressed = true;
+        if (engine.chooseNode(id)) progressed = true;
         break; // la rangée accessible a changé, on repart du début
       }
     }
@@ -117,12 +127,12 @@ function resolveFreeNodes(engine) {
 }
 
 /**
- * Joue une run jusqu'à ce que l'ascension soit possible : la carte doit être
- * épuisée (objectif atteint) ET `quantumEnergy` doit atteindre le seuil
- * d'ascension (les deux sont indépendants dans le jeu réel — finir
- * l'objectif ne garantit pas d'avoir assez de quantumEnergy). Sans cette
- * double condition, `engine.ascend()` échoue silencieusement et la run
- * suivante « termine » instantanément sur une carte déjà vide.
+ * Joue une run jusqu'à ce que `endRun()` soit possible, c'est-à-dire jusqu'à
+ * ce que l'objectif de run soit rempli (`canEndRun` = `isObjectiveComplete`,
+ * plus du tout lié à `quantumEnergy` depuis la séparation fin de run /
+ * Ascension). Continue aussi de résoudre la carte à nœuds tant qu'elle a des
+ * nœuds accessibles, même après l'objectif rempli, pour refléter un joueur
+ * qui pousse un peu plus loin avant de terminer sa run.
  */
 function playRun(engine) {
   let simTime = 0;
@@ -130,7 +140,7 @@ function playRun(engine) {
   resolveFreeNodes(engine);
 
   while (
-    (engine.state.run.exploration.activeMap || !canAscend(engine.state)) &&
+    (engine.state.run.exploration.activeMap || !canEndRun(engine.state)) &&
     simTime < TIME_CAP_S &&
     iterations < MAX_ITERATIONS
   ) {
@@ -188,7 +198,7 @@ function playRun(engine) {
   return {
     simTime,
     completed:
-      !engine.state.run.exploration.activeMap && canAscend(engine.state),
+      !engine.state.run.exploration.activeMap && canEndRun(engine.state),
     iterations,
   };
 }
@@ -256,7 +266,7 @@ for (const faction of FACTIONS) {
 }
 
 // ─── Rapport 2 : enchaînement de runs (même faction, PA dépensés entre deux) ─
-// Simule 5 ascensions d'affilée avec la première faction, en dépensant les
+// Simule 5 fins de run d'affilée avec la première faction, en dépensant les
 // PA gagnés sur les compétences les moins chères entre chaque run. Doit
 // montrer une accélération nette (bonus permanents qui s'accumulent).
 
@@ -281,6 +291,57 @@ console.log(
         `${completed ? fmtTime(simTime) : 'BLOQUÉ'} (cumulé ${fmtTime(totalTime)})`
     );
     if (!completed) break;
-    engine.ascend();
+    engine.endRun();
   }
+}
+
+// ─── Rapport 3 : rythme jusqu'à la 1ère vraie Ascension ─────────────────────
+// Enchaîne des fins de run avec la même faction (PA dépensés entre chaque,
+// comme au Rapport 2) jusqu'à ce que son niveau atteigne le seuil
+// `CONFIG.ascension.factionLevelThreshold` et qu'une vraie Ascension
+// (`canAscend`) devienne possible. Sert de garde-fou de rythme : une
+// première Ascension qui prendrait des dizaines d'heures de jeu optimisé
+// cumulées signalerait un déséquilibre à corriger.
+
+console.log(
+  "\n=== Rapport 3 : rythme jusqu'à la 1ère vraie Ascension ===\n"
+);
+
+{
+  const faction = FACTIONS[0];
+  const engine = new Engine();
+  let totalTime = 0;
+  let run = 0;
+  const MAX_RUNS = 200; // garde-fou : évite une boucle infinie si bloqué
+
+  while (run < MAX_RUNS) {
+    run++;
+    engine.selectFaction(faction.id);
+    spendAscensionPoints(engine);
+    const { simTime, completed } = playRun(engine);
+    totalTime += simTime;
+    if (!completed) {
+      console.log(`  run ${run} : BLOQUÉ après ${fmtTime(simTime)} (cumulé ${fmtTime(totalTime)})`);
+      break;
+    }
+    engine.endRun();
+    // `canAscend` exige une faction ACTIVE (voir prestige.js) — `endRun()`
+    // vide justement `run.factionId` : on compare directement le niveau
+    // stocké au seuil plutôt que d'attendre une resélection de faction.
+    if (
+      engine.state.prestige.factions[faction.id].level >=
+      CONFIG.ascension.factionLevelThreshold
+    ) {
+      break;
+    }
+  }
+
+  const level = engine.state.prestige.factions[faction.id].level;
+  const threshold = CONFIG.ascension.factionLevelThreshold;
+  const thresholdReached = level >= threshold;
+  console.log(
+    `  ${faction.id} : niveau ${level}/${threshold} après ${run} run(s), ` +
+      `${fmtTime(totalTime)} de jeu optimisé cumulé — ` +
+      `${thresholdReached ? 'Ascension possible' : 'seuil NON atteint (' + MAX_RUNS + ' runs)'}`
+  );
 }

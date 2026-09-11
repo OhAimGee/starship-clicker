@@ -14,6 +14,7 @@ import {
   PRESTIGE_UPGRADE_BY_ID,
 } from '../data/upgrades.js';
 import { FACTION_BY_ID } from '../data/factions.js';
+import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
 
 const round = Math.round;
 
@@ -49,7 +50,8 @@ export function shipCost(state, id) {
     techMultipliers(state).shipCost *
     prestigeMultipliers(state).shipCost *
     factionMultipliers(state).shipCost *
-    runMultipliers(state).shipCost;
+    runMultipliers(state).shipCost *
+    ascensionRewardMultipliers(state).shipCost;
   const out = {};
   for (const [res, base] of Object.entries(def.cost)) {
     out[res] = round(base * factor);
@@ -214,10 +216,22 @@ export function factionMultipliers(state) {
 }
 
 /** Bonus temporaires accumulés pendant la run en cours (nœuds « bonus » et
- * « conquête » de la carte d'exploration). Remis à zéro par `ascend()`. */
+ * « conquête » de la carte d'exploration). Remis à zéro par `endRun()`. */
 export function runMultipliers(state) {
   const out = neutralMultipliers();
   for (const effect of state.run.buffs) applyLeveledEffect(out, effect, 1);
+  return out;
+}
+
+/** Bonus des récompenses d'Ascension choisies (voir data/ascensionRewards.js)
+ * — permanents, ne reset jamais, même pas par `ascend()` (c'est justement le
+ * New Game+ qui les rend précieux). */
+export function ascensionRewardMultipliers(state) {
+  const out = neutralMultipliers();
+  for (const def of ASCENSION_REWARDS) {
+    const level = state.ascension?.rewards[def.id]?.level ?? 0;
+    applyLeveledEffect(out, def.effect, level);
+  }
   return out;
 }
 
@@ -228,6 +242,7 @@ export function clickPower(state) {
   const prestige = prestigeMultipliers(state);
   const faction = factionMultipliers(state);
   const run = runMultipliers(state);
+  const ascensionR = ascensionRewardMultipliers(state);
   return Math.max(
     1,
     Math.floor(
@@ -235,7 +250,8 @@ export function clickPower(state) {
         tech.clickPower *
         prestige.click *
         faction.click *
-        run.click
+        run.click *
+        ascensionR.click
     )
   );
 }
@@ -250,7 +266,10 @@ export function fleetPower(state) {
   const prestige = prestigeMultipliers(state);
   const faction = factionMultipliers(state);
   const run = runMultipliers(state);
-  return Math.floor(total * prestige.fleet * faction.fleet * run.fleet);
+  const ascensionR = ascensionRewardMultipliers(state);
+  return Math.floor(
+    total * prestige.fleet * faction.fleet * run.fleet * ascensionR.fleet
+  );
 }
 
 export function fleetMaintenance(state) {
@@ -261,12 +280,14 @@ export function fleetMaintenance(state) {
   const prestige = prestigeMultipliers(state);
   const faction = factionMultipliers(state);
   const run = runMultipliers(state);
+  const ascensionR = ascensionRewardMultipliers(state);
   return (
     total *
     techMultipliers(state).fleetMaintenance *
     prestige.fleetMaintenance *
     faction.fleetMaintenance *
-    run.fleetMaintenance
+    run.fleetMaintenance *
+    ascensionR.fleetMaintenance
   );
 }
 
@@ -281,17 +302,20 @@ export function grossProduction(state) {
   const prestige = prestigeMultipliers(state);
   const faction = factionMultipliers(state);
   const run = runMultipliers(state);
+  const ascensionR = ascensionRewardMultipliers(state);
   const out = Object.fromEntries(RESOURCE_IDS.map((r) => [r, 0]));
 
   const resourceMult = (res) =>
     prestige.production *
     faction.production *
     run.production *
+    ascensionR.production *
     tech.generatorProduction *
     (tech.resourceProduction[res] ?? 1) *
     (prestige.resourceProduction[res] ?? 1) *
     (faction.resourceProduction[res] ?? 1) *
-    (run.resourceProduction[res] ?? 1);
+    (run.resourceProduction[res] ?? 1) *
+    (ascensionR.resourceProduction[res] ?? 1);
 
   for (const def of GENERATORS) {
     const count = state.generators[def.id]?.count ?? 0;

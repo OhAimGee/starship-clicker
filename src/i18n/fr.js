@@ -39,6 +39,9 @@ export const fr = {
       prestigeUpgrades: 'Améliorations permanentes',
       factionSkills: 'Compétences — {faction}',
       ascensionStats: 'Statistiques',
+      ascension: 'Ascension — objectif ultime',
+      ascensionRewards: "Récompenses d'Ascension possédées",
+      endRun: 'Terminer la run',
     },
     cols: {
       cost: 'Coût',
@@ -49,7 +52,8 @@ export const fr = {
       fleetPower: 'Puissance de flotte',
       conquered: 'Systèmes conquis',
       totalClicks: 'Clics au total',
-      ascensions: 'Ascensions',
+      ascensions: 'Runs terminées',
+      trueAscensions: 'Ascensions',
       lifetimeEnergy: 'Énergie de toutes les vies',
       permanentBonus: 'Bonus de production permanent',
       owned: 'Possédés',
@@ -82,7 +86,8 @@ export const fr = {
       research: 'Rechercher',
       researched: 'Recherchée',
       improve: 'Améliorer',
-      ascend: 'Ascendre — tout terminer',
+      endRun: 'Terminer la run',
+      ascend: 'Ascendre — New Game+',
       reset: 'Recommencer la partie',
       resume: 'Reprendre',
       launch: 'Lancer',
@@ -110,11 +115,25 @@ export const fr = {
     ascension: {
       marquee: 'Tous services terminés',
       intro:
-        "L'Ascension réinitialise votre progression mais accorde des points " +
-        "d'ascension (AP) et des bonus permanents.",
-      requirement: 'Nécessite {amount} {resource}',
-      willGain: 'Vous obtiendrez {n} ✨',
-      permanentBonus: 'Bonus permanent : +{n}% de production',
+        "L'objectif ultime. Au niveau de faction seuil, choisissez une " +
+        'récompense permanente à fort impact — toutes les factions ' +
+        'retombent au niveau 0 et perdent leurs compétences : un New ' +
+        'Game+. Seules les récompenses d’Ascension survivent.',
+      progress: 'Niveau de faction',
+    },
+    endRun: {
+      intro:
+        'Terminez la run une fois son objectif rempli : le niveau de votre ' +
+        'faction augmente d’un cran et ses compétences (ainsi que l’arbre ' +
+        'commun) deviennent achetables avec les points gagnés.',
+      requirement: "Disponible une fois l'objectif de la run rempli",
+      willGain: 'Vous obtiendrez',
+    },
+    ascensionChoice: {
+      title: "Choisir une récompense d'Ascension",
+      intro:
+        'Ascension ! Choisissez une récompense permanente — toutes les ' +
+        'factions retombent au niveau 0, un New Game+ commence.',
     },
     offline: {
       title: 'Bon retour, Commandant',
@@ -397,6 +416,43 @@ export const fr = {
     },
   },
 
+  ascensionReward: {
+    hyperProduction: {
+      name: 'Surcharge de production',
+      desc: '+50 % de production globale par niveau.',
+    },
+    overcharge: {
+      name: 'Surtension du vaisseau mère',
+      desc: '+60 % de pouvoir de clic par niveau.',
+    },
+    grandArmada: {
+      name: 'Grande Armada',
+      desc: '+50 % de puissance de flotte par niveau.',
+    },
+    stockpile: {
+      name: 'Réserves stratégiques',
+      desc: '+45 % de production de métal et de cristaux par niveau.',
+    },
+    quantumMastery: {
+      name: 'Maîtrise quantique',
+      desc:
+        '+45 % de production de matière noire, d’énergie quantique et ' +
+        'd’antimatière par niveau.',
+    },
+    masterShipwrights: {
+      name: 'Maîtres charpentiers',
+      desc: '-15 % de coût des vaisseaux par niveau.',
+    },
+    selfSufficientFleet: {
+      name: 'Flotte autonome',
+      desc: '-20 % de maintenance de flotte par niveau.',
+    },
+    primordialSpark: {
+      name: 'Étincelle primordiale',
+      desc: "+50 % de production d'énergie par niveau.",
+    },
+  },
+
   event: {
     solarStorm: 'Tempête solaire',
     archaeologicalFind: 'Découverte archéologique',
@@ -435,11 +491,14 @@ export const fr = {
     nodeReward: 'Butin : {list}',
     skillPointGained: '+1 point de compétence de run.',
     objectiveComplete:
-      'Objectif de run atteint ! Tu peux ascender pour le bonus.',
+      'Objectif de run atteint ! Tu peux terminer la run pour le bonus.',
     systemConquered: '{name} conquis !',
     fleetTooWeak: 'Flotte trop faible (puissance requise : {required}).',
-    cannotAscend: 'Il faut {amount} {resource} pour ascendre.',
-    ascended: 'Ascension ! +{points} ✨ et des bonus permanents.',
+    cannotEndRun: "Il faut d'abord remplir l'objectif de la run.",
+    runEnded: 'Run terminée ! +{points} ✨ et la faction monte de niveau.',
+    cannotAscend: 'Il faut atteindre le niveau {level} avec ta faction pour ascendre.',
+    ascended: 'Ascension ! Toutes les factions repartent à zéro — choisis ta récompense.',
+    ascensionRewardChosen: '{name} — récompense d’Ascension obtenue (niveau {level}).',
     maintenanceLoss: 'Maintenance insuffisante : des vaisseaux ont été perdus.',
     unlocked: 'Nouveau : {name}',
     saveRecovered:

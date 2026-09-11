@@ -41,3 +41,15 @@ const NODE_TYPE_ICON = {
 export const factionIconId = (id) => FACTION_ICON[id] ?? 'ascension';
 export const factionSkillIconId = () => 'ascension';
 export const nodeTypeIconId = (type) => NODE_TYPE_ICON[type] ?? 'exploration';
+
+const ASCENSION_REWARD_ICON = {
+  hyperProduction: 'trendUp',
+  overcharge: 'bolt',
+  grandArmada: 'fleet',
+  stockpile: 'metal',
+  quantumMastery: 'quantumEnergy',
+  masterShipwrights: 'fleet',
+  selfSufficientFleet: 'fleet',
+  primordialSpark: 'energy',
+};
+export const ascensionRewardIconId = (id) => ASCENSION_REWARD_ICON[id] ?? 'ascension';

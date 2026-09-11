@@ -48,6 +48,12 @@ export function notifyText({ key, params = {} }, engine) {
     return t(key, { name, level });
   }
 
+  if (key === 'notify.ascensionRewardChosen') {
+    const name = t(`ascensionReward.${params.id}.name`);
+    const level = engine?.state?.ascension?.rewards?.[params.id]?.level;
+    return t(key, { name, level });
+  }
+
   if (key === 'notify.unlocked') {
     const ns = UNLOCK_NS[params.kind];
     return t('notify.unlocked', {
@@ -60,10 +66,7 @@ export function notifyText({ key, params = {} }, engine) {
   }
 
   if (key === 'notify.cannotAscend') {
-    return t(key, {
-      amount: formatNumber(CONFIG.ascension.quantumCost),
-      resource: `${resourceCode('quantumEnergy')} ${t('resource.quantumEnergy')}`,
-    });
+    return t(key, { level: CONFIG.ascension.factionLevelThreshold });
   }
 
   return t(key, params);

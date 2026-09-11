@@ -18,6 +18,7 @@ import { createNotifier } from './notifications.js';
 import { notifyText } from './notify-text.js';
 import { showOfflineReport, confirmDialog } from './modal.js';
 import { showFactionSelect } from './faction-select.js';
+import { showAscensionReward } from './ascension-reward.js';
 import { bindHold } from './motion.js';
 import { createFlap } from './flap.js';
 import { createShopPanel } from './panels/shop.js';
@@ -247,6 +248,9 @@ export function mountApp(host, engine, { offlineReport } = {}) {
       case 'buy-faction-skill':
         engine.buyFactionSkill(id);
         break;
+      case 'end-run':
+        engine.endRun();
+        break;
       case 'ascend':
         engine.ascend();
         break;
@@ -266,9 +270,18 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     notifier.push(notifyText(msg, engine), msg.level)
   );
   engine.on('unlock', () => panels[activeKey].refresh());
-  engine.on('ascend', () => {
+  engine.on('run-ended', () => {
     renderStatic();
     maybeShowFactionSelect();
+  });
+  engine.on('ascend-choice', ({ options }) => {
+    renderStatic();
+    showAscensionReward(engine, options, {
+      onChosen: () => {
+        renderStatic();
+        maybeShowFactionSelect();
+      },
+    });
   });
   engine.on('reset', () => {
     renderStatic();

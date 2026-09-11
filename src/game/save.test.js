@@ -65,6 +65,27 @@ describe('loadState', () => {
     expect(state.run.factionId).toBe('ironLegion');
   });
 
+  it('comble state.ascension et run.objectiveAnnounced sur une sauvegarde v3 (v3->v4 additif)', () => {
+    // v3->v4 (fin de run vs Ascension) est purement additif — contrairement
+    // au saut v1/v2->v3, pas de reset forcé : mergeIntoShape doit combler
+    // les nouveaux champs sans perdre la progression v3 existante.
+    const v3 = createInitialState();
+    v3.schemaVersion = 3;
+    delete v3.ascension;
+    delete v3.run.objectiveAnnounced;
+    v3.resources.energy = 42;
+    v3.prestige.factions.ironLegion.level = 5;
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(v3) });
+
+    const { state, status } = loadState(storage);
+    expect(status).toBe('loaded');
+    expect(state.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(state.resources.energy).toBe(42);
+    expect(state.prestige.factions.ironLegion.level).toBe(5);
+    expect(state.ascension.count).toBe(0);
+    expect(state.run.objectiveAnnounced).toBe(false);
+  });
+
   it('archive une sauvegarde corrompue dans .bak et repart proprement', () => {
     const storage = memoryStorage({ [STORAGE_KEY]: '{{{ pas du JSON' });
     const { state, status } = loadState(storage);

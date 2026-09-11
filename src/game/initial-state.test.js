@@ -5,12 +5,13 @@ import { SHIP_IDS } from '../data/fleet.js';
 import { TECH_IDS } from '../data/technologies.js';
 import { RESOURCE_IDS } from '../data/resources.js';
 import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
+import { ASCENSION_REWARD_IDS } from '../data/ascensionRewards.js';
 
 describe('createInitialState', () => {
-  it('produit un état taggé v3 avec horodatages', () => {
+  it('produit un état taggé v4 avec horodatages', () => {
     const s = createInitialState();
     expect(s.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(s.schemaVersion).toBe(3);
+    expect(s.schemaVersion).toBe(4);
     expect(typeof s.savedAt).toBe('number');
     expect(typeof s.createdAt).toBe('number');
   });
@@ -42,10 +43,22 @@ describe('createInitialState', () => {
       );
     }
     expect(s.run.factionId).toBeNull();
+    expect(s.run.objectiveAnnounced).toBe(false);
     expect(s.run.buffs).toEqual([]);
     expect(s.run.skillPoints).toBe(0);
     expect(s.run.exploration.targets).toEqual([]);
     expect(s.run.exploration.activeMap).toBeNull();
+  });
+
+  it('prépare un compartiment Ascension neuf, indépendant de la run', () => {
+    const s = createInitialState();
+    expect(s.ascension.count).toBe(0);
+    expect(Object.keys(s.ascension.rewards).sort()).toEqual(
+      [...ASCENSION_REWARD_IDS].sort()
+    );
+    for (const id of ASCENSION_REWARD_IDS) {
+      expect(s.ascension.rewards[id].level).toBe(0);
+    }
   });
 
   it('ne partage aucune référence entre deux instances', () => {

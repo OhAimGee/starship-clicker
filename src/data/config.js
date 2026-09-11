@@ -12,18 +12,24 @@ export const CONFIG = {
   offlineCapMs: 8 * 60 * 60 * 1000, // 8 h
   offlineMinMs: 60_000, // en-dessous, on ne montre pas de rapport
 
-  // Ascension / prestige
+  // Fin de run / Ascension (prestige). Deux paliers distincts (voir
+  // game/prestige.js) : `endRun()` (fréquent, gagné dès l'objectif de run
+  // rempli — récompense petite : niveau de faction +1) et `ascend()` (rare,
+  // gagné au niveau de faction seuil — récompense forte : choix d'un bonus
+  // permanent + New Game+ pour toutes les factions).
   ascension: {
-    quantumCost: 1000, // 🔮 requis pour ascendre
+    quantumCost: 1000, // 🔮 — n'est plus une condition, seulement `potentialPoints()`
     pointsDivisor: 1000, // points = floor(quantumEnergy / divisor)
-    // Bonus permanents cumulés par ascension
+    // Bonus permanents cumulés par run terminée (state.prestige.ascensions)
     clickPerAscension: 0.1, // +10 % pouvoir de clic
     productionPerAscension: 0.2, // +20 % production
     fleetPerAscension: 0.15, // +15 % puissance de flotte
-    // Petit capital de redémarrage, par ascension
+    // Petit capital de redémarrage, par run terminée
     restartGrant: { energy: 150, metal: 75, crystals: 40, antimatter: 6 },
-    // Réduction permanente du coût des générateurs à chaque ascension
+    // Réduction permanente du coût des générateurs à chaque run terminée
     generatorCostReduction: 0.9,
+    // Niveau de faction requis pour la vraie Ascension (rare, New Game+)
+    factionLevelThreshold: 10,
   },
 
   // Événements aléatoires
