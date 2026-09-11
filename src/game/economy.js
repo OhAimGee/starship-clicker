@@ -54,8 +54,11 @@ export function shipCost(state, id) {
 
 export function clickUpgradeCost(state, id) {
   const def = CLICK_UPGRADE_BY_ID[id];
-  const level = state.clickUpgrades[id]?.level ?? 0;
-  return round(def.baseCost * def.costGrowth ** level);
+  const entry = state.clickUpgrades[id];
+  // autoClicker s'achète en exemplaires (`count`), clickPower en niveaux
+  // (`level`) — voir Engine#buyClickUpgrade.
+  const owned = id === 'autoClicker' ? (entry?.count ?? 0) : (entry?.level ?? 0);
+  return round(def.baseCost * def.costGrowth ** owned);
 }
 
 export function prestigeUpgradeCost(state, id) {

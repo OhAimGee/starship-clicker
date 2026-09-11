@@ -66,6 +66,13 @@ describe('coûts', () => {
     s.clickUpgrades.clickPower.level = 3;
     expect(clickUpgradeCost(s, 'clickPower')).toBeGreaterThan(c0);
   });
+
+  it('auto-clicker : croît avec le nombre d’exemplaires possédés', () => {
+    const s = createInitialState();
+    const c0 = clickUpgradeCost(s, 'autoClicker');
+    s.clickUpgrades.autoClicker.count = 5;
+    expect(clickUpgradeCost(s, 'autoClicker')).toBeGreaterThan(c0);
+  });
 });
 
 describe('multiplicateurs', () => {

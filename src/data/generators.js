@@ -12,8 +12,8 @@
 // départ. Les déblocages sont monotones (jamais re-verrouillés).
 //
 // La courbe vise un temps de retour sur investissement de quelques minutes en
-// début de partie, qui s'allonge doucement par palier. À ajuster au playtest
-// (Phase 4).
+// début de partie, qui s'allonge doucement par palier (validé par simulation :
+// première ascension ~2h20 de jeu optimisé, la suivante ~40 min).
 
 export const GENERATORS = [
   // — Palier 1 : socle énergétique ————————————————————————————————
@@ -115,9 +115,9 @@ export const GENERATORS = [
     id: 'darkMatterCollector',
     resource: 'darkMatter',
     costResource: 'antimatter',
-    baseCost: 60000,
+    baseCost: 8000,
     costGrowth: 1.18,
-    rate: 0.02,
+    rate: 0.08,
     tier: 4,
     unlock: { tech: 'darkMatterPhysics' },
   },
@@ -125,9 +125,9 @@ export const GENERATORS = [
     id: 'quantumResonator',
     resource: 'quantumEnergy',
     costResource: 'darkMatter',
-    baseCost: 150000,
+    baseCost: 12000,
     costGrowth: 1.18,
-    rate: 0.05,
+    rate: 0.2,
     tier: 4,
     unlock: { resource: 'darkMatter', total: 5 },
   },
