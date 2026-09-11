@@ -280,6 +280,60 @@ export const en = {
     },
   },
 
+  faction: {
+    miningCollective: {
+      name: 'Mining Collective',
+      desc: '+25% metal and crystal production from the start.',
+    },
+    ironLegion: {
+      name: 'Iron Legion',
+      desc: '+20% fleet power from the start.',
+    },
+    quantumOrder: {
+      name: 'Quantum Order',
+      desc: '+20% antimatter, dark matter and quantum energy production from the start.',
+    },
+  },
+
+  factionSkill: {
+    deepCoreDrilling: {
+      name: 'Deep Core Drilling',
+      desc: '+30% metal production per level.',
+    },
+    crystalRefining: {
+      name: 'Crystal Refining',
+      desc: '+30% crystal production per level.',
+    },
+    massProduction: {
+      name: 'Mass Production',
+      desc: '+15% overall production per level.',
+    },
+    shipyards: {
+      name: 'Shipyards',
+      desc: '+25% fleet power per level.',
+    },
+    leanLogistics: {
+      name: 'Lean Logistics',
+      desc: '-15% fleet upkeep per level.',
+    },
+    rapidAssembly: {
+      name: 'Rapid Assembly',
+      desc: '-12% ship cost per level.',
+    },
+    entangledFields: {
+      name: 'Entangled Fields',
+      desc: '+40% quantum energy production per level.',
+    },
+    voidSight: {
+      name: 'Void Sight',
+      desc: '+30% click power per level.',
+    },
+    ascendantMinds: {
+      name: 'Ascendant Minds',
+      desc: '+15% overall production per level.',
+    },
+  },
+
   event: {
     solarStorm: 'Solar storm',
     archaeologicalFind: 'Archaeological find',
@@ -312,6 +366,7 @@ export const en = {
     upgradeBought: 'Upgrade bought: {name}.',
     techResearched: 'Technology acquired: {name}.',
     prestigeUpgraded: '{name} — level {level}.',
+    factionSkillBought: '{name} — level {level}.',
     systemConquered: '{name} conquered!',
     fleetTooWeak: 'Fleet too weak (power required: {required}).',
     cannotAscend: 'You need {amount} {resource} to ascend.',

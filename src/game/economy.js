@@ -72,6 +72,16 @@ export function prestigeUpgradeCost(state, id) {
   return round(def.baseCost * def.costGrowth ** level);
 }
 
+/** Coût de la prochaine amélioration d'une compétence de faction. */
+export function factionSkillCost(state, factionId, skillId) {
+  const skill = FACTION_BY_ID[factionId]?.skillTree.find(
+    (s) => s.id === skillId
+  );
+  if (!skill) return Infinity;
+  const level = state.prestige.factions[factionId]?.skills[skillId]?.level ?? 0;
+  return round(skill.baseCost * skill.costGrowth ** level);
+}
+
 // ─── Multiplicateurs ─────────────────────────────────────────────────────────
 
 /** Agrège les effets des technologies recherchées. */

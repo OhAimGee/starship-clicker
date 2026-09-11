@@ -110,6 +110,39 @@ describe('Engine — événements aléatoires', () => {
   });
 });
 
+describe('Engine — faction & run', () => {
+  it('selectFaction fixe la faction, refuse une deuxième sélection', () => {
+    const e = new Engine(createInitialState());
+    expect(e.selectFaction('miningCollective')).toBe(true);
+    expect(e.state.run.factionId).toBe('miningCollective');
+    expect(e.selectFaction('ironLegion')).toBe(false);
+    expect(e.state.run.factionId).toBe('miningCollective');
+  });
+
+  it('selectFaction refuse un id inconnu', () => {
+    const e = new Engine(createInitialState());
+    expect(e.selectFaction('nope')).toBe(false);
+    expect(e.state.run.factionId).toBeNull();
+  });
+
+  it('buyFactionSkill échoue sans faction active, réussit une fois sélectionnée', () => {
+    const e = new Engine(withResources({ ascensionPoints: 100 }));
+    expect(e.buyFactionSkill('entangledFields')).toBe(false);
+    e.selectFaction('quantumOrder');
+    expect(e.buyFactionSkill('entangledFields')).toBe(true);
+    expect(
+      e.state.prestige.factions.quantumOrder.skills.entangledFields.level
+    ).toBe(1);
+  });
+
+  it('les bonus de faction se reflètent dans la production/flotte', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion'); // +20% puissance de flotte dès le départ
+    e.state.ships.fighters.count = 10; // 10 * 2 = 20 de base
+    expect(e.fleetPower).toBe(Math.floor(20 * 1.2));
+  });
+});
+
 describe('Engine — reset', () => {
   it('repart d’un état neuf', () => {
     const e = new Engine(withResources({ energy: 9999 }));

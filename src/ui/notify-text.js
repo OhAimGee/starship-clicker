@@ -32,6 +32,15 @@ export function notifyText({ key, params = {} }, engine) {
     return t(key, { name, level });
   }
 
+  if (key === 'notify.factionSkillBought') {
+    const factionId = engine?.state?.run?.factionId;
+    const name = t(`factionSkill.${params.id}.name`);
+    const level =
+      engine?.state?.prestige?.factions?.[factionId]?.skills?.[params.id]
+        ?.level;
+    return t(key, { name, level });
+  }
+
   if (key === 'notify.unlocked') {
     const ns = UNLOCK_NS[params.kind];
     return t('notify.unlocked', {

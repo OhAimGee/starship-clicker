@@ -5,6 +5,7 @@ import { GENERATOR_IDS } from '../data/generators.js';
 import { SHIP_IDS } from '../data/fleet.js';
 import { RESOURCE_IDS } from '../data/resources.js';
 import { regenerateSystems } from './exploration.js';
+import { isObjectiveComplete } from './run.js';
 
 export function canAscend(state) {
   return state.resources.quantumEnergy >= CONFIG.ascension.quantumCost;
@@ -19,17 +20,28 @@ export function potentialPoints(state) {
 /**
  * Effectue l'ascension : +points, +1 ascension, remise à zéro partielle.
  * Conservés : technologies recherchées, améliorations de prestige, points
- * d'ascension, systèmes conservés ? Non — l'exploration est réinitialisée.
- * @returns {{ points: number }}
+ * d'ascension, progression méta de faction. Remis à zéro : le reste,
+ * l'exploration incluse — et la run (faction active, objectif, bonus
+ * temporaires), qui exige une nouvelle sélection de faction.
+ * @returns {{ points: number, objectiveComplete: boolean }}
  */
 export function ascend(state) {
   const points = potentialPoints(state);
+  const objectiveComplete = isObjectiveComplete(state);
+  const factionId = state.run.factionId;
+  const runSkillPoints = state.run.skillPoints;
 
   state.prestige.lifetime.energy += state.totalProduced.energy;
   state.prestige.ascensions += 1;
 
-  // Ressources : tout à zéro sauf les points d'ascension (on ajoute les gains).
-  const keptAscensionPoints = state.resources.ascensionPoints + points;
+  // Ressources : tout à zéro sauf les points d'ascension (on ajoute les gains
+  // d'ascension + le bonus de PA si l'objectif de run est atteint).
+  let keptAscensionPoints = state.resources.ascensionPoints + points;
+  if (objectiveComplete) {
+    keptAscensionPoints += Math.floor(
+      runSkillPoints * CONFIG.run.skillPointToApBonus
+    );
+  }
   for (const res of RESOURCE_IDS) state.resources[res] = 0;
   state.resources.ascensionPoints = keptAscensionPoints;
 
@@ -55,7 +67,19 @@ export function ascend(state) {
   state.run.exploration.advancedUnlocked = !!state.technologies.warpDrive?.unlocked;
   regenerateSystems(state);
 
+  // Progression méta de la faction active (survit à ascend()) : le niveau
+  // monte à chaque ascension, objectif atteint ou non — l'ascension
+  // anticipée reste permise. La run se termine : il faudra resélectionner
+  // une faction (la même ou une autre) pour la prochaine.
+  if (factionId && state.prestige.factions[factionId]) {
+    state.prestige.factions[factionId].level += 1;
+  }
+  state.run.factionId = null;
+  state.run.objective = null;
+  state.run.buffs = [];
+  state.run.skillPoints = 0;
+
   state.events = { lastAt: 0, accumMs: 0 };
 
-  return { points };
+  return { points, objectiveComplete };
 }

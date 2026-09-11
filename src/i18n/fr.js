@@ -289,6 +289,60 @@ export const fr = {
     },
   },
 
+  faction: {
+    miningCollective: {
+      name: 'Collectif minier',
+      desc: '+25 % de production de métal et de cristaux dès le départ.',
+    },
+    ironLegion: {
+      name: 'Légion de fer',
+      desc: '+20 % de puissance de flotte dès le départ.',
+    },
+    quantumOrder: {
+      name: 'Ordre quantique',
+      desc: '+20 % de production d’antimatière, de matière noire et d’énergie quantique dès le départ.',
+    },
+  },
+
+  factionSkill: {
+    deepCoreDrilling: {
+      name: 'Forage en profondeur',
+      desc: '+30 % de production de métal par niveau.',
+    },
+    crystalRefining: {
+      name: 'Raffinage des cristaux',
+      desc: '+30 % de production de cristaux par niveau.',
+    },
+    massProduction: {
+      name: 'Production de masse',
+      desc: '+15 % de production globale par niveau.',
+    },
+    shipyards: {
+      name: 'Chantiers navals',
+      desc: '+25 % de puissance de flotte par niveau.',
+    },
+    leanLogistics: {
+      name: 'Logistique optimisée',
+      desc: '-15 % de maintenance de flotte par niveau.',
+    },
+    rapidAssembly: {
+      name: 'Assemblage rapide',
+      desc: '-12 % de coût des vaisseaux par niveau.',
+    },
+    entangledFields: {
+      name: 'Champs intriqués',
+      desc: '+40 % de production d’énergie quantique par niveau.',
+    },
+    voidSight: {
+      name: 'Vision du vide',
+      desc: '+30 % de pouvoir de clic par niveau.',
+    },
+    ascendantMinds: {
+      name: 'Esprits ascendants',
+      desc: '+15 % de production globale par niveau.',
+    },
+  },
+
   event: {
     solarStorm: 'Tempête solaire',
     archaeologicalFind: 'Découverte archéologique',
@@ -321,6 +375,7 @@ export const fr = {
     upgradeBought: 'Amélioration achetée : {name}.',
     techResearched: 'Technologie acquise : {name}.',
     prestigeUpgraded: '{name} — niveau {level}.',
+    factionSkillBought: '{name} — niveau {level}.',
     systemConquered: '{name} conquis !',
     fleetTooWeak: 'Flotte trop faible (puissance requise : {required}).',
     cannotAscend: 'Il faut {amount} {resource} pour ascendre.',

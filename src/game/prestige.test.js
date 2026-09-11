@@ -74,3 +74,41 @@ describe('ascend', () => {
     expect(s.resources.energy).toBe(CONFIG.ascension.restartGrant.energy * 1);
   });
 });
+
+describe('ascend — faction & run', () => {
+  it('incrémente le niveau de la faction active et vide la run', () => {
+    const s = advancedState();
+    s.run.factionId = 'ironLegion';
+    s.run.buffs = [{ type: 'fleetMultiplier', perLevel: 1 }];
+    s.run.skillPoints = 4;
+    ascend(s);
+    expect(s.prestige.factions.ironLegion.level).toBe(1);
+    expect(s.run.factionId).toBeNull();
+    expect(s.run.objective).toBeNull();
+    expect(s.run.buffs).toEqual([]);
+    expect(s.run.skillPoints).toBe(0);
+  });
+
+  it('ascension anticipée (objectif non atteint) : pas de bonus de PA', () => {
+    const s = advancedState();
+    s.run.factionId = 'ironLegion';
+    s.run.objective = { type: 'conquerAll', target: 99, defenseMult: 1 };
+    s.run.skillPoints = 10;
+    const before = s.resources.ascensionPoints;
+    const { points, objectiveComplete } = ascend(s);
+    expect(objectiveComplete).toBe(false);
+    expect(s.resources.ascensionPoints).toBe(before + points);
+  });
+
+  it('objectif atteint : bonus de PA proportionnel aux points de run', () => {
+    const s = advancedState();
+    s.run.factionId = 'ironLegion';
+    s.run.objective = { type: 'conquerAll', target: 1, defenseMult: 1 };
+    s.run.exploration.conquered = [{ name: 'X' }];
+    s.run.skillPoints = 10; // *0.5 => +5 PA
+    const before = s.resources.ascensionPoints;
+    const { points, objectiveComplete } = ascend(s);
+    expect(objectiveComplete).toBe(true);
+    expect(s.resources.ascensionPoints).toBe(before + points + 5);
+  });
+});

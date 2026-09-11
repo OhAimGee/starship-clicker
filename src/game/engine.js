@@ -13,6 +13,7 @@ import {
   PRESTIGE_UPGRADES,
   PRESTIGE_UPGRADE_BY_ID,
 } from '../data/upgrades.js';
+import { FACTION_BY_ID } from '../data/factions.js';
 import { createInitialState } from './initial-state.js';
 import {
   isUnlocked,
@@ -20,6 +21,7 @@ import {
   shipCost,
   clickUpgradeCost,
   prestigeUpgradeCost,
+  factionSkillCost,
   techMultipliers,
   clickPower,
   fleetPower,
@@ -33,6 +35,7 @@ import {
 } from './economy.js';
 import { regenerateSystems, conquer } from './exploration.js';
 import { canAscend, potentialPoints, ascend } from './prestige.js';
+import { startRun, buyFactionSkill as buyFactionSkillRun } from './run.js';
 import { tickEvents } from './events.js';
 import { computeOfflineGains } from './offline.js';
 
@@ -84,6 +87,9 @@ export class Engine {
   }
   prestigeUpgradeCost(id) {
     return prestigeUpgradeCost(this.state, id);
+  }
+  factionSkillCost(skillId) {
+    return factionSkillCost(this.state, this.state.run.factionId, skillId);
   }
   isUnlocked(unlock) {
     return isUnlocked(this.state, unlock);
@@ -308,6 +314,30 @@ export class Engine {
     this.state.resources.ascensionPoints -= cost;
     this.state.prestige.upgrades[id].level += 1;
     this._notify('notify.prestigeUpgraded', { id }, 'success');
+    this._afterChange();
+    return true;
+  }
+
+  buyFactionSkill(skillId) {
+    const factionId = this.state.run.factionId;
+    if (!factionId) return false;
+    if (!buyFactionSkillRun(this.state, factionId, skillId)) {
+      this._notify('notify.cantAffordPrestige', {}, 'error');
+      return false;
+    }
+    this._notify('notify.factionSkillBought', { id: skillId }, 'success');
+    this._afterChange();
+    return true;
+  }
+
+  /** Démarre une run avec la faction `factionId` (uniquement si aucune run
+   * n'est déjà en cours — voir `ascend()`/`reset()`). */
+  selectFaction(factionId) {
+    if (this.state.run.factionId) return false;
+    if (!FACTION_BY_ID[factionId]) return false;
+    if (!startRun(this.state, factionId)) return false;
+    this._seen = this._currentUnlockSet();
+    this._emit('run-started', { factionId });
     this._afterChange();
     return true;
   }
