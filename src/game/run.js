@@ -5,12 +5,13 @@
 import { FACTION_BY_ID } from '../data/factions.js';
 import { OBJECTIVES } from '../data/objectives.js';
 import { factionSkillCost } from './economy.js';
-import { regenerateSystems } from './exploration.js';
 
 /**
  * Démarre une run avec la faction `factionId` : réinitialise les bonus/
  * points de compétence de run, construit l'objectif (difficulté dépendant
- * du niveau actuel de la faction), régénère les systèmes disponibles.
+ * du niveau actuel de la faction). Ne construit PAS la file de systèmes ni
+ * la première carte à nœuds : c'est `Engine#selectFaction` qui enchaîne
+ * `exploration.generateRunTargets` + `exploration.startNextMap` juste après.
  * @returns {boolean} succès (faux si `factionId` est invalide)
  */
 export function startRun(state, factionId) {
@@ -29,7 +30,6 @@ export function startRun(state, factionId) {
     defenseMult: objective.defenseGrowth(level),
   };
 
-  regenerateSystems(state);
   return true;
 }
 

@@ -10,13 +10,12 @@ describe('startRun', () => {
     expect(s.run.factionId).toBeNull();
   });
 
-  it('fixe la faction, construit l’objectif, régénère les systèmes', () => {
+  it('fixe la faction et construit l’objectif', () => {
     const s = createInitialState();
     expect(startRun(s, 'miningCollective')).toBe(true);
     expect(s.run.factionId).toBe('miningCollective');
     expect(s.run.objective.type).toBe('conquerAll');
     expect(s.run.objective.target).toBe(CONFIG.run.baseSystems);
-    expect(s.run.exploration.available.length).toBeGreaterThan(0);
   });
 
   it('l’objectif grandit avec le niveau de la faction', () => {
@@ -29,6 +28,13 @@ describe('startRun', () => {
     expect(s.run.objective.defenseMult).toBeCloseTo(
       1 + 3 * CONFIG.run.defenseGrowthPerLevel
     );
+  });
+
+  it('ne construit pas la file de systèmes (c’est Engine#selectFaction qui l’enchaîne)', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    expect(s.run.exploration.targets).toEqual([]);
+    expect(s.run.exploration.activeMap).toBeNull();
   });
 
   it('réinitialise les bonus/points de compétence de run', () => {

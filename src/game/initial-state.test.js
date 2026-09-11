@@ -44,7 +44,8 @@ describe('createInitialState', () => {
     expect(s.run.factionId).toBeNull();
     expect(s.run.buffs).toEqual([]);
     expect(s.run.skillPoints).toBe(0);
-    expect(s.run.exploration.available).toEqual([]);
+    expect(s.run.exploration.targets).toEqual([]);
+    expect(s.run.exploration.activeMap).toBeNull();
   });
 
   it('ne partage aucune référence entre deux instances', () => {

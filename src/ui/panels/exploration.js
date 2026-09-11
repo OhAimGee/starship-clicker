@@ -1,11 +1,11 @@
-// Terminal CARTES : conquête de systèmes (destinations du tableau).
+// Terminal CARTES : objectif de run + carte d'exploration à nœuds.
 
 import { el, clear } from '../dom.js';
 import { t } from '../../i18n/index.js';
 import { resourceCode } from '../../data/resources.js';
-import { formatNumber, timeCode } from '../format.js';
-import { boardRow, sectionHead, setFacts } from '../board-row.js';
-import { systemIconId } from '../icon-map.js';
+import { formatNumber } from '../format.js';
+import { sectionHead } from '../board-row.js';
+import { renderNodeMap } from '../node-map.js';
 
 const rewardLine = (rewards, factor = 1) =>
   Object.entries(rewards)
@@ -14,46 +14,59 @@ const rewardLine = (rewards, factor = 1) =>
 
 export function createExplorationPanel(engine) {
   const root = el('section', { class: 'panel' });
-  let rows = [];
+  let objectiveValue;
+  let mapHost;
+  let arrivals;
   let signature = '';
-  let statPower;
+  let mapSignature = '';
 
+  // Refresh complet : nouvelle carte ou système conquis (liste des arrivées
+  // à reconstruire). `currentRow` seul (progression au sein de la même
+  // carte) et `fleetPower` (affordabilité) sont gérés en aparté par
+  // `mapSig()`, sans reconstruire tout le panneau à chaque frame.
   const sig = () => {
-    const e = engine.state.run.exploration;
-    return `${e.available.map((s) => s.name).join(',')}|${e.conquered.length}`;
+    const s = engine.state;
+    const map = s.run.exploration.activeMap;
+    return `${s.run.factionId}|${map?.id ?? ''}|${s.run.exploration.conquered.length}`;
+  };
+
+  const mapSig = () => {
+    const map = engine.state.run.exploration.activeMap;
+    return `${map?.id ?? ''}|${map?.currentRow ?? -1}|${engine.fleetPower}`;
   };
 
   function refresh() {
     clear(root);
-    rows = [];
-    statPower = el('b');
-    const state = engine.state;
+    objectiveValue = el('b');
+    mapHost = el('div', { class: 'node-map-host' });
+    arrivals = el('ul', { class: 'board-list arrivals' });
 
-    const list = el('ul', { class: 'board-list' });
-    state.run.exploration.available.forEach((system, index) => {
-      const row = boardRow({
-        id: String(index),
-        action: 'explore',
-        iconId: systemIconId(),
-        code: timeCode(index * 5),
-        name: system.name,
-        desc: `${t(`systemArchetype.${system.archetype}`)}`,
-      });
-      row.refs.main.classList.toggle('is-advanced', !!system.advanced);
-      setFacts(row.refs.drawerFacts, [
-        [t('ui.labels.defense'), formatNumber(system.defenseRating)],
-        [t('ui.labels.rewards'), rewardLine(system.rewards)],
-        [t('ui.labels.passiveIncome'), `${rewardLine(system.rewards, 0.1)} /s`],
-      ]);
-      list.append(row.root);
-      rows.push({ ...row, system, index });
-    });
+    root.append(
+      el('h2', { text: t('ui.panels.exploration') }),
+      el('ul', { class: 'stat-grid' }, [
+        el('li', {}, [
+          el('span', { text: t('ui.stats.runObjective') }),
+          objectiveValue,
+        ]),
+      ]),
+      sectionHead(t('ui.sections.explorationMap'), ''),
+      mapHost,
+      sectionHead(t('ui.sections.conqueredSystems'), ''),
+      arrivals
+    );
+    buildArrivals();
+    signature = sig();
+    mapSignature = '';
+    update();
+  }
 
-    const arrivals = el('ul', { class: 'board-list arrivals' });
-    if (state.run.exploration.conquered.length === 0) {
+  function buildArrivals() {
+    clear(arrivals);
+    const conquered = engine.state.run.exploration.conquered;
+    if (conquered.length === 0) {
       arrivals.append(el('li', { class: 'row-empty', text: '—' }));
     }
-    for (const system of state.run.exploration.conquered) {
+    for (const system of conquered) {
       arrivals.append(
         el('li', { class: 'board-row', dataset: { state: 'done' } }, [
           el('div', { class: 'board-row-line' }, [
@@ -71,38 +84,21 @@ export function createExplorationPanel(engine) {
         ])
       );
     }
-
-    root.append(
-      el('h2', { text: t('ui.panels.exploration') }),
-      el('ul', { class: 'stat-grid' }, [
-        el('li', {}, [
-          el('span', { text: t('ui.stats.fleetPower') }),
-          statPower,
-        ]),
-      ]),
-      sectionHead(t('ui.sections.availableSystems')),
-      list,
-      sectionHead(t('ui.sections.conqueredSystems'), ''),
-      arrivals
-    );
-    signature = sig();
-    update();
   }
 
   function update() {
     if (sig() !== signature) return refresh();
-    const power = engine.fleetPower;
-    statPower.textContent = formatNumber(power);
-    for (const { root: rowEl, refs, system } of rows) {
-      const can = power >= system.defenseRating;
-      refs.main.disabled = !can;
-      refs.sub.textContent = `${t(`systemArchetype.${system.archetype}`)} · ${t('ui.labels.defense')} ${formatNumber(system.defenseRating)}`;
-      refs.cost.textContent = can
-        ? t('ui.buttons.explore')
-        : t('ui.labels.fleetPowerNeeded', {
-            n: formatNumber(system.defenseRating),
-          });
-      rowEl.dataset.state = can ? 'afford' : 'cant';
+    const state = engine.state;
+    const obj = state.run.objective;
+    objectiveValue.textContent = obj
+      ? `${formatNumber(state.run.exploration.conquered.length)} / ${formatNumber(obj.target)}`
+      : '—';
+
+    const currentMapSig = mapSig();
+    if (currentMapSig !== mapSignature) {
+      clear(mapHost);
+      mapHost.append(renderNodeMap(engine));
+      mapSignature = currentMapSig;
     }
   }
 
@@ -111,6 +107,5 @@ export function createExplorationPanel(engine) {
     refresh,
     update,
     key: 'exploration',
-    rowToggle: (id) => rows[Number(id)]?.toggle(),
   };
 }

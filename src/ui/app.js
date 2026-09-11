@@ -17,6 +17,7 @@ import { createResourcesBoard } from './resources-board.js';
 import { createNotifier } from './notifications.js';
 import { notifyText } from './notify-text.js';
 import { showOfflineReport, confirmDialog } from './modal.js';
+import { showFactionSelect } from './faction-select.js';
 import { bindHold } from './motion.js';
 import { createFlap } from './flap.js';
 import { createShopPanel } from './panels/shop.js';
@@ -237,11 +238,14 @@ export function mountApp(host, engine, { offlineReport } = {}) {
       case 'research':
         engine.research(id);
         break;
-      case 'explore':
-        engine.explore(Number(id));
+      case 'choose-node':
+        engine.chooseNode(id);
         break;
       case 'buy-prestige-upgrade':
         engine.buyPrestigeUpgrade(id);
+        break;
+      case 'buy-faction-skill':
+        engine.buyFactionSkill(id);
         break;
       case 'ascend':
         engine.ascend();
@@ -262,8 +266,20 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     notifier.push(notifyText(msg, engine), msg.level)
   );
   engine.on('unlock', () => panels[activeKey].refresh());
-  engine.on('ascend', () => renderStatic());
-  engine.on('reset', () => renderStatic());
+  engine.on('ascend', () => {
+    renderStatic();
+    maybeShowFactionSelect();
+  });
+  engine.on('reset', () => {
+    renderStatic();
+    maybeShowFactionSelect();
+  });
+
+  function maybeShowFactionSelect() {
+    if (!engine.state.run.factionId) {
+      showFactionSelect(engine, { onSelected: renderStatic });
+    }
+  }
 
   // — Sauvegarde —
   const saver = createThrottledSaver(() => engine.state, {
@@ -289,6 +305,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
   }
 
   renderStatic();
+  maybeShowFactionSelect();
   if (offlineReport) showOfflineReport(offlineReport);
   requestAnimationFrame(frame);
 

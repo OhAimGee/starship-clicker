@@ -186,7 +186,7 @@ describe('Engine — reset', () => {
     e.reset();
     expect(e.state.resources.energy).toBe(0);
     expect(e.state.generators.solarPanel.count).toBe(0);
-    expect(e.state.run.exploration.available.length).toBeGreaterThan(0);
+    expect(e.state.run.factionId).toBeNull();
   });
 });
 

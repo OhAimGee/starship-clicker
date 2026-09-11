@@ -778,6 +778,122 @@ h3 {
   font-size: 0.9rem;
 }
 
+/* ── Carte à nœuds (mini-jeu d'exploration) ─────────────────────────────── */
+/* Empilement de rangées réglées, pas un canevas libre : cohérent avec le
+   reste du tableau (voir DESIGN.md). */
+.node-map {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.node-map-row {
+  padding: 0.6rem var(--pad);
+  border-bottom: 1px solid var(--rule);
+  opacity: 0.4;
+}
+.node-map-row[data-current='true'] {
+  opacity: 1;
+  background: var(--face-raised);
+}
+.node-map-nodes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.node-btn {
+  flex: 1 1 9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--row-h);
+  padding: 0.5rem 0.7rem;
+  background: var(--face);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.node-btn:enabled:hover {
+  background: var(--face-raised);
+  border-color: var(--ink-faint);
+}
+.node-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.node-icon {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: var(--ink);
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.node-label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+.node-name {
+  font-family: var(--face-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.node-sub {
+  font-size: var(--fs-label);
+  color: var(--ink-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.node-btn[data-state='afford'] .node-name {
+  color: var(--go);
+}
+.node-btn[data-state='cant'] .node-icon,
+.node-btn[data-state='cant'] .node-sub {
+  color: var(--lamp);
+  fill: var(--lamp);
+}
+.node-btn[data-state='locked'] {
+  opacity: 0.35;
+}
+.node-btn[data-state='done'] {
+  opacity: 0.5;
+}
+.node-btn[data-state='done'] .node-icon {
+  fill: var(--go);
+}
+.node-btn-conquest {
+  border-color: var(--lamp);
+}
+
+/* ── Sélection de faction ────────────────────────────────────────────────── */
+/* 3 enfants (icône, libellé, queue) au lieu des 4 de .board-row-main
+   (code + icône + libellé + queue) : grille dédiée pour éviter d'écraser le
+   nom/la description dans la colonne « code » (1.4rem). */
+.faction-row {
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+  min-height: auto;
+  padding-block: 0.75rem;
+}
+.faction-row .row-sub {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+}
+.faction-row .row-name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+}
+
 /* ── Boutons ─────────────────────────────────────────────────────────────── */
 
 .btn {

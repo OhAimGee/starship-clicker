@@ -1,4 +1,5 @@
-// Exploration : génération des systèmes et conquête.
+// Exploration : génère les systèmes-objectif de la run et leur carte à
+// nœuds (voir `nodemap.js`).
 
 import {
   SYSTEM_NAMES,
@@ -7,7 +8,6 @@ import {
   ADVANCED_ARCHETYPES,
   EXPLORATION,
 } from '../data/systems.js';
-import { fleetPower } from './economy.js';
 import { generateSystemMap } from './nodemap.js';
 
 function buildSystem(
@@ -38,70 +38,6 @@ function buildSystem(
     ),
     rewards,
   };
-}
-
-/** (Re)génère la liste des systèmes disponibles selon l'état. */
-export function regenerateSystems(state) {
-  const list = [];
-  for (let i = 0; i < EXPLORATION.basicCount; i++) {
-    list.push(
-      buildSystem(
-        i,
-        SYSTEM_NAMES[i] ?? `Système ${i + 1}`,
-        SYSTEM_ARCHETYPES[i % SYSTEM_ARCHETYPES.length],
-        EXPLORATION.baseReward,
-        EXPLORATION.baseDefense,
-        false
-      )
-    );
-  }
-  if (state.run.exploration.advancedUnlocked) {
-    for (let i = 0; i < EXPLORATION.advancedCount; i++) {
-      list.push(
-        buildSystem(
-          i,
-          ADVANCED_SYSTEM_NAMES[i] ?? `Système distant ${i + 1}`,
-          ADVANCED_ARCHETYPES[i % ADVANCED_ARCHETYPES.length],
-          EXPLORATION.advancedBaseReward,
-          EXPLORATION.advancedBaseDefense,
-          true
-        )
-      );
-    }
-  }
-  // Retirer ceux déjà conquis (comparaison par nom).
-  const conquered = new Set(state.run.exploration.conquered.map((s) => s.name));
-  state.run.exploration.available = list.filter((s) => !conquered.has(s.name));
-}
-
-/** Débloque les systèmes avancés (tech warpDrive) et régénère la liste. */
-export function unlockAdvancedSystems(state) {
-  if (state.run.exploration.advancedUnlocked) return false;
-  state.run.exploration.advancedUnlocked = true;
-  regenerateSystems(state);
-  return true;
-}
-
-/**
- * Tente de conquérir `state.run.exploration.available[index]`.
- * @returns {{ ok: boolean, system?: object, required?: number }}
- * @deprecated Chemin pré-carte-à-nœuds, conservé le temps que
- * `Engine#explore` soit remplacé par `Engine#chooseNode` (Phase 4) et que le
- * panneau Exploration soit réécrit autour de la carte (Phase 5). Nouvelle
- * exploration : `generateRunTargets` + `startNextMap` ci-dessous.
- */
-export function conquer(state, index) {
-  const system = state.run.exploration.available[index];
-  if (!system) return { ok: false };
-
-  const power = fleetPower(state);
-  if (power < system.defenseRating) {
-    return { ok: false, system, required: system.defenseRating };
-  }
-
-  state.run.exploration.available.splice(index, 1);
-  state.run.exploration.conquered.push(system);
-  return { ok: true, system };
 }
 
 /**

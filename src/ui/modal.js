@@ -5,7 +5,9 @@ import { t } from '../i18n/index.js';
 import { formatNumber, formatDuration } from './format.js';
 import { resourceCode } from '../data/resources.js';
 
-function openPanel(headline, body) {
+/** `dismissable: false` retire la fermeture par clic sur le fond / Échap
+ *  (utilisé pour un choix obligatoire, ex. sélection de faction). */
+export function openPanel(headline, body, { dismissable = true } = {}) {
   const panel = el('div', {
     class: 'board-modal',
     role: 'dialog',
@@ -18,8 +20,10 @@ function openPanel(headline, body) {
   );
   const scrim = el('div', { class: 'board-modal-scrim' }, [panel]);
   const close = () => scrim.remove();
-  scrim.addEventListener('click', (e) => e.target === scrim && close());
-  scrim.addEventListener('keydown', (e) => e.key === 'Escape' && close());
+  if (dismissable) {
+    scrim.addEventListener('click', (e) => e.target === scrim && close());
+    scrim.addEventListener('keydown', (e) => e.key === 'Escape' && close());
+  }
   document.body.append(scrim);
   return { scrim, close };
 }

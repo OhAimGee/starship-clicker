@@ -4,7 +4,6 @@ import { CONFIG } from '../data/config.js';
 import { GENERATOR_IDS } from '../data/generators.js';
 import { SHIP_IDS } from '../data/fleet.js';
 import { RESOURCE_IDS } from '../data/resources.js';
-import { regenerateSystems } from './exploration.js';
 import { isObjectiveComplete } from './run.js';
 
 export function canAscend(state) {
@@ -62,10 +61,11 @@ export function ascend(state) {
   state.civilizationLevel = 1;
 
   state.run.exploration.conquered = [];
+  state.run.exploration.targets = [];
+  state.run.exploration.activeMap = null;
   // Les technos sont conservées : les systèmes avancés restent débloqués si
   // warpDrive a déjà été recherché.
   state.run.exploration.advancedUnlocked = !!state.technologies.warpDrive?.unlocked;
-  regenerateSystems(state);
 
   // Progression méta de la faction active (survit à ascend()) : le niveau
   // monte à chaque ascension, objectif atteint ou non — l'ascension

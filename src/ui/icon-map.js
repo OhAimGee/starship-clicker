@@ -25,3 +25,19 @@ export const clickUpgradeIconId = (id) => CLICK_UPGRADE_ICON[id] ?? 'bolt';
 export const prestigeUpgradeIconId = () => 'ascension';
 export const eventIconId = (id) => EVENT_ICON[id] ?? 'ascensionPoints';
 export const systemIconId = () => 'exploration';
+
+const FACTION_ICON = {
+  miningCollective: 'metal',
+  ironLegion: 'fleet',
+  quantumOrder: 'quantumEnergy',
+};
+const NODE_TYPE_ICON = {
+  invade: 'fleet',
+  bonus: 'trendUp',
+  skillPoint: 'ascensionPoints',
+  conquest: 'exploration',
+};
+
+export const factionIconId = (id) => FACTION_ICON[id] ?? 'ascension';
+export const factionSkillIconId = () => 'ascension';
+export const nodeTypeIconId = (type) => NODE_TYPE_ICON[type] ?? 'exploration';

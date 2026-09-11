@@ -33,12 +33,7 @@ import {
   spend,
   gain,
 } from './economy.js';
-import {
-  regenerateSystems,
-  conquer,
-  generateRunTargets,
-  startNextMap,
-} from './exploration.js';
+import { generateRunTargets, startNextMap } from './exploration.js';
 import { resolveNode } from './nodemap.js';
 import { canAscend, potentialPoints, ascend } from './prestige.js';
 import { startRun, buyFactionSkill as buyFactionSkillRun } from './run.js';
@@ -50,9 +45,6 @@ export class Engine {
     this.state = state ?? createInitialState();
     this._listeners = new Map();
     this._leftoverMs = 0;
-    if (this.state.run.exploration.available.length === 0) {
-      regenerateSystems(this.state);
-    }
     this._seen = this._currentUnlockSet();
   }
 
@@ -149,7 +141,6 @@ export class Engine {
       !s.run.exploration.advancedUnlocked
     ) {
       s.run.exploration.advancedUnlocked = true;
-      regenerateSystems(s);
     }
 
     // Événements aléatoires
@@ -282,31 +273,11 @@ export class Engine {
     for (const e of def.effects) {
       if (e.type === 'unlockAdvancedSystems') {
         this.state.run.exploration.advancedUnlocked = true;
-        regenerateSystems(this.state);
       }
     }
     this._notify('notify.techResearched', { id }, 'success');
     this._afterChange();
     return true;
-  }
-
-  explore(index) {
-    const result = conquer(this.state, index);
-    if (result.ok) {
-      this._notify(
-        'notify.systemConquered',
-        { name: result.system.name },
-        'success'
-      );
-      this._afterChange();
-    } else if (result.system) {
-      this._notify(
-        'notify.fleetTooWeak',
-        { required: result.required },
-        'error'
-      );
-    }
-    return result.ok;
   }
 
   buyPrestigeUpgrade(id) {
@@ -406,7 +377,6 @@ export class Engine {
 
   reset() {
     this.state = createInitialState();
-    regenerateSystems(this.state);
     this._seen = this._currentUnlockSet();
     this._leftoverMs = 0;
     this._emit('reset', {});
