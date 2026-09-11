@@ -24,13 +24,23 @@ import { showFleetAllocation } from './fleet-allocation.js';
 import { showBattleReport } from './battle-report.js';
 import { bindHold } from './motion.js';
 import { createFlap } from './flap.js';
+import { createClickPanel } from './panels/click.js';
 import { createShopPanel } from './panels/shop.js';
 import { createFleetPanel } from './panels/fleet.js';
 import { createExplorationPanel } from './panels/exploration.js';
 import { createTechnologyPanel } from './panels/technology.js';
 import { createAscensionPanel } from './panels/ascension.js';
 
-const TABS = ['shop', 'fleet', 'exploration', 'technology', 'ascension'];
+// « click » en tête : action première d'un clicker, notamment pour le tap
+// mobile — le contrôle LANCER global reste par ailleurs visible partout.
+const TABS = [
+  'click',
+  'shop',
+  'fleet',
+  'exploration',
+  'technology',
+  'ascension',
+];
 
 export function mountApp(host, engine, { offlineReport } = {}) {
   host.replaceChildren();
@@ -169,6 +179,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
 
   // — Panneaux —
   const panels = {
+    click: createClickPanel(engine),
     shop: createShopPanel(engine),
     fleet: createFleetPanel(engine),
     exploration: createExplorationPanel(engine),

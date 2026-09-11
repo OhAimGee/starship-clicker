@@ -33,6 +33,8 @@ const PATHS = {
     '<path d="M8 8h8v8H8zM10.5 3.5h3V6h-3zM10.5 18h3v2.5h-3zM3.5 10.5H6v3H3.5zM18 10.5h2.5v3H18z"/><circle cx="12" cy="12" r="2.3" fill="#0c0d10"/>',
   ascension:
     '<path d="M4.5 12.5 12 5l7.5 7.5H15L12 9.5 9 12.5zM4.5 19 12 11.5 19.5 19H15L12 16l-3 3z"/>',
+  // clic : curseur/pointeur stylisé (onglet de clic dédié)
+  click: '<path d="M3 2 21 12 12 14 10 21z"/>',
 
   // — Chrome —
   lock: '<path d="M7 10V8a5 5 0 0 1 10 0v2h1.5v10.5h-13V10zm2.2 0h5.6V8a2.8 2.8 0 0 0-5.6 0z" fill-rule="evenodd"/>',
