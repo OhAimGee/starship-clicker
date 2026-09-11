@@ -65,18 +65,18 @@ export function mountApp(host, engine, { offlineReport } = {}) {
   // — Contrôle LANCER —
   const launchLabel = el('span', { class: 'launch-label' });
   const launchFlap = createFlap('1');
-  const launchFigure = el('span', { class: 'launch-figure' }, [
-    '+',
-    launchFlap.node,
-    ' NRG',
-  ]);
+  const launchFigure = el(
+    'span',
+    { class: 'launch-figure', 'aria-hidden': 'true' },
+    ['+', launchFlap.node, ' NRG']
+  );
   const launch = el(
     'button',
     {
       class: 'launch',
       type: 'button',
       dataset: { action: 'click-mothership' },
-      'aria-label': t('ui.mothership'),
+      'aria-label': `${t('ui.buttons.launch')} — ${t('ui.mothership')}`,
     },
     [launchLabel, launchFigure]
   );
@@ -167,7 +167,10 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     civLabel.textContent = t('ui.civShort');
     totalLabel.textContent = t('ui.producedShort');
     launchLabel.textContent = t('ui.buttons.launch');
-    launch.setAttribute('aria-label', t('ui.mothership'));
+    launch.setAttribute(
+      'aria-label',
+      `${t('ui.buttons.launch')} — ${t('ui.mothership')}`
+    );
     for (const [key, btn] of tabButtons) {
       btn.querySelector('.terminal-label').textContent = t(`ui.tabs.${key}`);
     }
@@ -197,7 +200,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     clear(footStats);
     const stat = (label, value) =>
       footStats.append(
-        el('div', {}, [el('span', { text: label }), el('b', { text: value })])
+        el('div', {}, [el('dt', { text: label }), el('dd', { text: value })])
       );
     stat(t('ui.stats.perSecond'), perSec || '—');
     stat(t('ui.stats.fleetPower'), formatNumber(engine.fleetPower));

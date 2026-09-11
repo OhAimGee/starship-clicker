@@ -515,6 +515,13 @@ h3 {
 
 .app-main {
   flex: 1;
+  /* Le nav est sticky et reste ancré au bas de l'écran (mobile) tant que la
+     page défile ; sans cette réserve, le pied de page — dont le bouton
+     "recommencer" — peut se retrouver rendu sous lui dès le premier écran,
+     sur un onglet à contenu court. */
+  padding-bottom: calc(
+    var(--bottom-bar-h) * 2 + env(safe-area-inset-bottom) + 1rem
+  );
 }
 .panel {
   padding: var(--gap) 0 2rem;
@@ -822,17 +829,20 @@ h3 {
   display: flex;
   flex-direction: column;
 }
-.stat-grid span {
+.stat-grid span,
+.stat-grid dt {
   font-family: var(--face-display);
   font-size: var(--fs-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
-.stat-grid b {
+.stat-grid b,
+.stat-grid dd {
   font-family: var(--face-display);
   font-weight: 700;
   font-size: 1.25rem;
+  margin: 0;
 }
 
 .foot {
@@ -1003,6 +1013,9 @@ h3 {
   }
   .app {
     padding-bottom: 2rem;
+  }
+  .app-main {
+    padding-bottom: 0;
   }
   .terminal-bar {
     position: sticky;
