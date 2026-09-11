@@ -150,8 +150,26 @@ describe('Engine — faction & run', () => {
     expect(e.state.run.exploration.activeMap).not.toBeNull();
   });
 
+  it('chooseNode échoue sans flotte, réussit une fois un vaisseau acheté', () => {
+    const e = new Engine(createInitialState());
+    e.state.prestige.factions.ironLegion.level = 3; // objectif conquerAll
+    e.selectFaction('ironLegion');
+    const map = e.state.run.exploration.activeMap;
+    const [nodeId] = map.rows[0];
+
+    expect(e.hasFleet()).toBe(false);
+    expect(e.chooseNode(nodeId)).toBe(false);
+    expect(map.nodes[nodeId].resolved).toBe(false);
+
+    e.state.ships.fighters.count = 1000; // assez pour tout résoudre
+    expect(e.hasFleet()).toBe(true);
+    expect(e.chooseNode(nodeId)).toBe(true);
+    expect(map.nodes[nodeId].resolved).toBe(true);
+  });
+
   it('parcours complet : sélection -> cartes à nœuds -> objectif -> ascension', () => {
     const e = new Engine(createInitialState());
+    e.state.prestige.factions.ironLegion.level = 3; // objectif conquerAll (sinon niveau 0 = gatherResources)
     e.state.ships.fighters.count = 1_000_000; // flotte énorme : tout se résout
     e.selectFaction('ironLegion');
     e.state.resources.quantumEnergy = CONFIG.ascension.quantumCost; // pour pouvoir ascender
@@ -170,12 +188,12 @@ describe('Engine — faction & run', () => {
     expect(e.state.run.exploration.targets).toHaveLength(0);
     expect(e.state.run.exploration.activeMap).toBeNull();
     expect(e.state.run.exploration.conquered.length).toBe(
-      CONFIG.run.baseSystems
+      CONFIG.run.baseSystems + Math.floor(3 * CONFIG.run.systemsPerLevel)
     );
 
     e.ascend();
     expect(e.state.run.factionId).toBeNull();
-    expect(e.state.prestige.factions.ironLegion.level).toBe(1);
+    expect(e.state.prestige.factions.ironLegion.level).toBe(4);
   });
 });
 

@@ -322,9 +322,18 @@ export class Engine {
     return true;
   }
 
+  /** Possède-t-on au moins un vaisseau ? Condition d'accès à l'exploration
+   * (voir `chooseNode` — un joueur sans flotte ne devrait pas pouvoir
+   * résoudre le moindre nœud, même un nœud « gratuit » type bonus). */
+  hasFleet() {
+    return Object.values(this.state.ships).some((s) => s.count > 0);
+  }
+
   /** Choisit le nœud `nodeId` sur la carte active (voir `run.exploration.
-   * activeMap`, parmi les nœuds accessibles). */
+   * activeMap`, parmi les nœuds accessibles). Exige de posséder au moins un
+   * vaisseau — l'exploration n'est pas jouable à flotte nulle. */
   chooseNode(nodeId) {
+    if (!this.hasFleet()) return false;
     const map = this.state.run.exploration.activeMap;
     if (!map) return false;
 

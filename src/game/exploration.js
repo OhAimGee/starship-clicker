@@ -8,7 +8,10 @@ import {
   ADVANCED_ARCHETYPES,
   EXPLORATION,
 } from '../data/systems.js';
+import { CONFIG } from '../data/config.js';
 import { generateSystemMap } from './nodemap.js';
+
+const CONQUEST_OBJECTIVE_TYPES = new Set(['conquerAll', 'conquerOne']);
 
 function buildSystem(
   index,
@@ -41,13 +44,23 @@ function buildSystem(
 }
 
 /**
- * Construit la file des systèmes-objectif de la run en cours (un par
- * système à conquérir, `state.run.objective.target` au total), alternant
+ * Construit la file des systèmes-objectif de la run en cours, alternant
  * systèmes de base et avancés une fois `advancedUnlocked`. Stockée dans
- * `state.run.exploration.targets` ; consommée par `startNextMap`.
+ * `state.run.exploration.targets` ; consommée par `startNextMap`. Pour un
+ * objectif de conquête (`conquerAll`/`conquerOne`), la file compte
+ * `state.run.objective.target` systèmes (c'est un nombre de systèmes).
+ * Pour les autres types d'objectif (puissance de flotte, ressources — voir
+ * `data/objectives.js`), `target` n'est PAS un nombre de systèmes : on
+ * génère quand même une file de taille normale, pour que l'exploration
+ * reste possible (bonus, points de compétence) même si elle n'est pas
+ * requise pour compléter l'objectif.
  */
 export function generateRunTargets(state) {
-  const n = state.run.objective?.target ?? 0;
+  const obj = state.run.objective;
+  const n =
+    obj && CONQUEST_OBJECTIVE_TYPES.has(obj.type)
+      ? obj.target
+      : CONFIG.run.baseSystems;
   const advancedOn = state.run.exploration.advancedUnlocked;
   const targets = [];
   for (let i = 0; i < n; i++) {

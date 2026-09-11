@@ -65,7 +65,8 @@ export function ascend(state) {
   state.run.exploration.activeMap = null;
   // Les technos sont conservées : les systèmes avancés restent débloqués si
   // warpDrive a déjà été recherché.
-  state.run.exploration.advancedUnlocked = !!state.technologies.warpDrive?.unlocked;
+  state.run.exploration.advancedUnlocked =
+    !!state.technologies.warpDrive?.unlocked;
 
   // Progression méta de la faction active (survit à ascend()) : le niveau
   // monte à chaque ascension, objectif atteint ou non — l'ascension

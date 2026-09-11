@@ -21,23 +21,43 @@ function pickNodeType(rng) {
   return 'skillPoint';
 }
 
-function scaleRewards(rewards, fraction) {
+/**
+ * Récompense randomisée : un sous-ensemble de 1-2 ressources parmi celles du
+ * système, chacune avec une variance ±30 % — deux nœuds `bonus`/`invade` de
+ * la même rangée (même système) affichent donc des récompenses réellement
+ * différentes, au lieu d'être des copies l'une de l'autre.
+ */
+function randomizedRewards(rewards, fraction, rng) {
+  const entries = Object.entries(rewards);
+  if (entries.length === 0) return {};
+  const shuffled = [...entries].sort(() => rng() - 0.5);
+  const count = Math.max(
+    1,
+    Math.min(entries.length, 1 + Math.floor(rng() * 2))
+  );
   const out = {};
-  for (const [res, amount] of Object.entries(rewards)) {
-    out[res] = Math.max(1, Math.floor(amount * fraction));
+  for (const [res, amount] of shuffled.slice(0, count)) {
+    const variance = 0.7 + rng() * 0.6; // x0.7 à x1.3
+    out[res] = Math.max(1, Math.floor(amount * fraction * variance));
   }
   return out;
 }
 
-function buildNodeData(type, systemDef, row) {
+function buildNodeData(type, systemDef, row, rng) {
   if (type === 'invade') {
     return {
       defenseRating: Math.round(systemDef.defenseRating * 0.25 * (row + 1)),
-      rewards: scaleRewards(systemDef.rewards, REWARD_FRACTION.invade),
+      rewards: randomizedRewards(
+        systemDef.rewards,
+        REWARD_FRACTION.invade,
+        rng
+      ),
     };
   }
   if (type === 'bonus') {
-    return { rewards: scaleRewards(systemDef.rewards, REWARD_FRACTION.bonus) };
+    return {
+      rewards: randomizedRewards(systemDef.rewards, REWARD_FRACTION.bonus, rng),
+    };
   }
   return {}; // skillPoint : rien de plus à stocker
 }
@@ -48,7 +68,12 @@ function buildNodeData(type, systemDef, row) {
  * unique au sein de la run (sert de préfixe aux ids de nœuds).
  * `rng` est injectable pour les tests (déterministe par défaut : `Math.random`).
  */
-export function generateSystemMap(state, systemDef, queueIndex, rng = Math.random) {
+export function generateSystemMap(
+  state,
+  systemDef,
+  queueIndex,
+  rng = Math.random
+) {
   const rowSizes = CONFIG.run.map.rows;
   const defenseMult = state.run.objective?.defenseMult ?? 1;
   const rows = [];
@@ -59,7 +84,13 @@ export function generateSystemMap(state, systemDef, queueIndex, rng = Math.rando
     for (let col = 0; col < size; col++) {
       const id = `sys${queueIndex}-r${row}n${col}`;
       const type = pickNodeType(rng);
-      nodes[id] = { id, type, row, resolved: false, data: buildNodeData(type, systemDef, row) };
+      nodes[id] = {
+        id,
+        type,
+        row,
+        resolved: false,
+        data: buildNodeData(type, systemDef, row, rng),
+      };
       ids.push(id);
     }
     rows.push(ids);

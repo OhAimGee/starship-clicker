@@ -30,9 +30,10 @@ const KNOWN_LEVELED_EFFECTS = new Set([
 ]);
 
 function assertLeveledEffect(effect, label) {
-  expect(KNOWN_LEVELED_EFFECTS.has(effect.type), `${label}: effet ${effect.type}`).toBe(
-    true
-  );
+  expect(
+    KNOWN_LEVELED_EFFECTS.has(effect.type),
+    `${label}: effet ${effect.type}`
+  ).toBe(true);
   expect(effect.perLevel, label).toBeGreaterThan(0);
   if (effect.resources) {
     for (const res of effect.resources) {

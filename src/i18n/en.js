@@ -60,8 +60,15 @@ export const en = {
       level: 'Level {n}',
       new: 'New',
     },
+    objective: {
+      conquerAll: 'Conquer systems',
+      conquerOne: 'Conquer one system',
+      reachFleetPower: 'Reach a fleet power',
+      gatherResources: 'Gather resources',
+    },
     nodeMap: {
       none: 'No active map.',
+      noFleet: 'Buy a ship to start exploring.',
       invade: 'Invade',
       bonus: 'Bonus',
       skillPoint: 'Skill point',

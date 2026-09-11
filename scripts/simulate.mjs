@@ -187,7 +187,8 @@ function playRun(engine) {
 
   return {
     simTime,
-    completed: !engine.state.run.exploration.activeMap && canAscend(engine.state),
+    completed:
+      !engine.state.run.exploration.activeMap && canAscend(engine.state),
     iterations,
   };
 }
@@ -235,7 +236,9 @@ function spendAscensionPoints(engine) {
 // préalable. Isole l'effet du seul objectif (plus de systèmes, défense plus
 // haute) de l'effet cumulatif des compétences achetées au fil des runs.
 
-console.log("=== Rapport 1 : difficulté de l'objectif par niveau de faction ===\n");
+console.log(
+  "=== Rapport 1 : difficulté de l'objectif par niveau de faction ===\n"
+);
 
 for (const faction of FACTIONS) {
   console.log(`-- ${faction.id} --`);
@@ -244,9 +247,9 @@ for (const faction of FACTIONS) {
     engine.state.prestige.factions[faction.id].level = level;
     engine.selectFaction(faction.id);
     const { simTime, completed, iterations } = playRun(engine);
-    const target = engine.state.run.objective?.target ?? '?';
+    const obj = engine.state.run.objective;
     console.log(
-      `  niveau ${level} (objectif ${target} systèmes) : ` +
+      `  niveau ${level} (objectif ${obj?.type ?? '?'} : ${obj?.target ?? '?'}) : ` +
         `${completed ? fmtTime(simTime) : `BLOQUÉ après ${fmtTime(simTime)} (${iterations} itérations)`}`
     );
   }
@@ -257,7 +260,9 @@ for (const faction of FACTIONS) {
 // PA gagnés sur les compétences les moins chères entre chaque run. Doit
 // montrer une accélération nette (bonus permanents qui s'accumulent).
 
-console.log("\n=== Rapport 2 : enchaînement de runs (accumulation de compétences) ===\n");
+console.log(
+  '\n=== Rapport 2 : enchaînement de runs (accumulation de compétences) ===\n'
+);
 
 {
   const faction = FACTIONS[0];

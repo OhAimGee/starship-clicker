@@ -14,6 +14,7 @@ const rewardLine = (rewards, factor = 1) =>
 
 export function createExplorationPanel(engine) {
   const root = el('section', { class: 'panel' });
+  let objectiveLabelEl;
   let objectiveValue;
   let mapHost;
   let arrivals;
@@ -31,12 +32,14 @@ export function createExplorationPanel(engine) {
   };
 
   const mapSig = () => {
+    if (!engine.hasFleet()) return 'locked';
     const map = engine.state.run.exploration.activeMap;
     return `${map?.id ?? ''}|${map?.currentRow ?? -1}|${engine.fleetPower}`;
   };
 
   function refresh() {
     clear(root);
+    objectiveLabelEl = el('span', { text: t('ui.stats.runObjective') });
     objectiveValue = el('b');
     mapHost = el('div', { class: 'node-map-host' });
     arrivals = el('ul', { class: 'board-list arrivals' });
@@ -46,10 +49,7 @@ export function createExplorationPanel(engine) {
     root.append(
       el('h2', { text: t('ui.panels.exploration') }),
       el('ul', { class: 'stat-grid' }, [
-        el('li', {}, [
-          el('span', { text: t('ui.stats.runObjective') }),
-          objectiveValue,
-        ]),
+        el('li', {}, [objectiveLabelEl, objectiveValue]),
       ]),
       sectionHead(
         t('ui.sections.explorationMap'),
@@ -97,18 +97,41 @@ export function createExplorationPanel(engine) {
     }
   }
 
+  function objectiveLabel(obj) {
+    return `${t('ui.stats.runObjective')} — ${t(`ui.objective.${obj.type}`)}`;
+  }
+
+  function objectiveProgressText(state, obj) {
+    if (obj.type === 'reachFleetPower') {
+      return `${formatNumber(engine.fleetPower)} / ${formatNumber(obj.target)} ${t('ui.stats.fleetPower')}`;
+    }
+    if (obj.type === 'gatherResources') {
+      const produced = state.totalProduced[obj.resource] ?? 0;
+      return `${formatNumber(produced)} / ${formatNumber(obj.target)} ${resourceCode(obj.resource)}`;
+    }
+    // conquerAll / conquerOne
+    return `${formatNumber(state.run.exploration.conquered.length)} / ${formatNumber(obj.target)}`;
+  }
+
   function update() {
     if (sig() !== signature) return refresh();
     const state = engine.state;
     const obj = state.run.objective;
-    objectiveValue.textContent = obj
-      ? `${formatNumber(state.run.exploration.conquered.length)} / ${formatNumber(obj.target)}`
-      : '—';
+    objectiveLabelEl.textContent = obj
+      ? objectiveLabel(obj)
+      : t('ui.stats.runObjective');
+    objectiveValue.textContent = obj ? objectiveProgressText(state, obj) : '—';
 
     const currentMapSig = mapSig();
     if (currentMapSig !== mapSignature) {
       clear(mapHost);
-      mapHost.append(renderNodeMap(engine));
+      if (!engine.hasFleet()) {
+        mapHost.append(
+          el('p', { class: 'panel-note', text: t('ui.nodeMap.noFleet') })
+        );
+      } else {
+        mapHost.append(renderNodeMap(engine));
+      }
       mapSignature = currentMapSig;
     }
   }

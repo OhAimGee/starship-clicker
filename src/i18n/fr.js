@@ -62,8 +62,15 @@ export const fr = {
       level: 'Niveau {n}',
       new: 'Nouvelle',
     },
+    objective: {
+      conquerAll: 'Conquérir des systèmes',
+      conquerOne: 'Conquérir un système',
+      reachFleetPower: 'Atteindre une puissance de flotte',
+      gatherResources: 'Amasser des ressources',
+    },
     nodeMap: {
       none: 'Aucune carte active.',
+      noFleet: 'Achetez un vaisseau pour commencer l’exploration.',
       invade: 'Envahir',
       bonus: 'Bonus',
       skillPoint: 'Point de compétence',

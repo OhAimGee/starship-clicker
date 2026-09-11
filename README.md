@@ -16,19 +16,19 @@ Refonte 2026 (architecture + design) puis refonte rogue-like terminées.
 Vision produit : `PRODUCT.md` · système visuel : `DESIGN.md` · plan :
 `.claude/plans/`.
 
-| Refonte | Phase | Contenu                                                     | État |
-| ------- | ----- | ------------------------------------------------------------ | ---- |
-| 2026    | 0     | Socle : git, Vite, lint, CI, nettoyage                        | ✅   |
-| 2026    | 1     | Réparer la boucle de jeu (prestige, progression hors-ligne)   | ✅   |
-| 2026    | 2     | Architecture modulaire pilotée par les données + i18n         | ✅   |
-| 2026    | 3     | Refonte visuelle — « tableau des départs à palettes »         | ✅   |
-| 2026    | 4     | Finition, équilibrage, déploiement                            | ✅   |
-| Rogue-like | 0-1 | Factions, méta/run, sauvegarde v3                          | ✅   |
-| Rogue-like | 2   | Sélection de faction & cycle de run                        | ✅   |
-| Rogue-like | 3-4 | Carte d'exploration à nœuds + câblage moteur                | ✅   |
-| Rogue-like | 5   | UI faction / carte / compétences                            | ✅   |
-| Rogue-like | 6   | Contenu (générateurs, systèmes, arbres de faction)           | ✅   |
-| Rogue-like | 7   | Outillage d'équilibrage (`npm run simulate`)                 | ✅   |
+| Refonte    | Phase | Contenu                                                     | État |
+| ---------- | ----- | ----------------------------------------------------------- | ---- |
+| 2026       | 0     | Socle : git, Vite, lint, CI, nettoyage                      | ✅   |
+| 2026       | 1     | Réparer la boucle de jeu (prestige, progression hors-ligne) | ✅   |
+| 2026       | 2     | Architecture modulaire pilotée par les données + i18n       | ✅   |
+| 2026       | 3     | Refonte visuelle — « tableau des départs à palettes »       | ✅   |
+| 2026       | 4     | Finition, équilibrage, déploiement                          | ✅   |
+| Rogue-like | 0-1   | Factions, méta/run, sauvegarde v3                           | ✅   |
+| Rogue-like | 2     | Sélection de faction & cycle de run                         | ✅   |
+| Rogue-like | 3-4   | Carte d'exploration à nœuds + câblage moteur                | ✅   |
+| Rogue-like | 5     | UI faction / carte / compétences                            | ✅   |
+| Rogue-like | 6     | Contenu (générateurs, systèmes, arbres de faction)          | ✅   |
+| Rogue-like | 7     | Outillage d'équilibrage (`npm run simulate`)                | ✅   |
 
 ## Développement
 

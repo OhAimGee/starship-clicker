@@ -61,6 +61,7 @@ client-side with no account, no backend, and no external dependencies.
 ## Capabilities and Constraints
 
 Confirmed capabilities:
+
 - Click-to-earn mothership with an energy-per-click value and a displayed
   "Civilization Level".
 - 16 automated generators across 5 tiers, each costing one resource to
@@ -95,6 +96,7 @@ Confirmed capabilities:
   switcher; FR is the default.
 
 Constraints:
+
 - Vite-built ES modules (`src/{data,game,i18n,ui}`), no UI framework. `data/`
   holds pure content definitions, `game/` a pure economy engine + stateful
   orchestrator, `ui/` the data-driven rendering layer. Any dependency beyond

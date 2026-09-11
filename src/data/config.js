@@ -47,5 +47,11 @@ export const CONFIG = {
     systemsPerLevel: 1, // systèmes supplémentaires par niveau de faction
     defenseGrowthPerLevel: 0.12, // multiplicateur de défense par niveau de faction
     skillPointToApBonus: 0.5, // PA bonus par point de compétence de run à l'ascension
+    // Objectifs "rapides" des premiers niveaux de faction (voir data/objectives.js)
+    fleetPowerObjectiveBase: 20,
+    fleetPowerObjectivePerLevel: 15,
+    resourceObjectiveResource: 'energy',
+    resourceObjectiveBase: 500,
+    resourceObjectivePerLevel: 200,
   },
 };

@@ -62,7 +62,8 @@ export function clickUpgradeCost(state, id) {
   const entry = state.clickUpgrades[id];
   // autoClicker s'achète en exemplaires (`count`), clickPower en niveaux
   // (`level`) — voir Engine#buyClickUpgrade.
-  const owned = id === 'autoClicker' ? (entry?.count ?? 0) : (entry?.level ?? 0);
+  const owned =
+    id === 'autoClicker' ? (entry?.count ?? 0) : (entry?.level ?? 0);
   return round(def.baseCost * def.costGrowth ** owned);
 }
 

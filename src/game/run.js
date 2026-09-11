@@ -4,14 +4,30 @@
 
 import { FACTION_BY_ID } from '../data/factions.js';
 import { OBJECTIVES } from '../data/objectives.js';
-import { factionSkillCost } from './economy.js';
+import { factionSkillCost, fleetPower } from './economy.js';
+
+/**
+ * Choisit le type d'objectif selon le niveau de faction — une rampe
+ * pédagogique plutôt qu'un tirage aléatoire : niveau 0 ne demande ni
+ * vaisseau ni exploration (amasser une ressource), niveau 1 introduit la
+ * flotte (atteindre une puissance donnée), niveau 2 introduit la carte à
+ * nœuds avec un objectif minimal (conquérir 1 seul système), niveau 3+
+ * bascule sur l'objectif complet (conquérir plusieurs systèmes).
+ */
+export function pickObjective(level) {
+  if (level === 0) return OBJECTIVES.gatherResources;
+  if (level === 1) return OBJECTIVES.reachFleetPower;
+  if (level === 2) return OBJECTIVES.conquerOne;
+  return OBJECTIVES.conquerAll;
+}
 
 /**
  * Démarre une run avec la faction `factionId` : réinitialise les bonus/
- * points de compétence de run, construit l'objectif (difficulté dépendant
- * du niveau actuel de la faction). Ne construit PAS la file de systèmes ni
- * la première carte à nœuds : c'est `Engine#selectFaction` qui enchaîne
- * `exploration.generateRunTargets` + `exploration.startNextMap` juste après.
+ * points de compétence de run, construit l'objectif (type + difficulté
+ * dépendant du niveau actuel de la faction, voir `pickObjective`). Ne
+ * construit PAS la file de systèmes ni la première carte à nœuds : c'est
+ * `Engine#selectFaction` qui enchaîne `exploration.generateRunTargets` +
+ * `exploration.startNextMap` juste après.
  * @returns {boolean} succès (faux si `factionId` est invalide)
  */
 export function startRun(state, factionId) {
@@ -19,15 +35,16 @@ export function startRun(state, factionId) {
   if (!def) return false;
 
   const level = state.prestige.factions[factionId]?.level ?? 0;
-  const objective = OBJECTIVES.conquerAll;
+  const objective = pickObjective(level);
 
   state.run.factionId = factionId;
   state.run.buffs = [];
   state.run.skillPoints = 0;
   state.run.objective = {
     type: objective.id,
-    target: objective.systemCount(level),
-    defenseMult: objective.defenseGrowth(level),
+    target: objective.target(level),
+    resource: objective.resource ?? null,
+    defenseMult: objective.defenseGrowth ? objective.defenseGrowth(level) : 1,
   };
 
   return true;
@@ -37,7 +54,17 @@ export function startRun(state, factionId) {
 export function isObjectiveComplete(state) {
   const obj = state.run.objective;
   if (!obj) return false;
-  return state.run.exploration.conquered.length >= obj.target;
+  switch (obj.type) {
+    case 'conquerAll':
+    case 'conquerOne':
+      return state.run.exploration.conquered.length >= obj.target;
+    case 'reachFleetPower':
+      return fleetPower(state) >= obj.target;
+    case 'gatherResources':
+      return (state.totalProduced[obj.resource] ?? 0) >= obj.target;
+    default:
+      return false;
+  }
 }
 
 /**
