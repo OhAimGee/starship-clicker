@@ -14,6 +14,7 @@ import { formatNumber, formatBoard } from './format.js';
 import { resourceCode } from '../data/resources.js';
 import { icon, iconMarkup } from './icons.js';
 import { createResourcesBoard } from './resources-board.js';
+import { objectiveLabel, objectiveProgressText } from './objective-text.js';
 import { createNotifier } from './notifications.js';
 import { notifyText } from './notify-text.js';
 import { showOfflineReport, confirmDialog } from './modal.js';
@@ -33,6 +34,30 @@ export function mountApp(host, engine, { offlineReport } = {}) {
   host.replaceChildren();
 
   const resources = createResourcesBoard(engine);
+
+  // — Barre latérale desktop (≥1280px, voir styles.css) — ressources +
+  // statut de run persistants. `display: contents` par défaut : en dessous
+  // du seuil, ce conteneur ne génère aucune boîte et `resources.root` reste
+  // exactement à sa place actuelle dans le flux (rien ne change visuellement
+  // avant 1280px) ; `runStatus` reste masqué (`display: none`) jusque-là.
+  const runObjectiveLabel = el('span', { text: t('ui.stats.runObjective') });
+  const runObjectiveValue = el('b');
+  const runFleetLabel = el('span', { text: t('ui.stats.fleetPower') });
+  const runFleetValue = el('b');
+  const runStatus = el(
+    'div',
+    { class: 'run-status', 'aria-label': t('ui.a11y.runStatus') },
+    [
+      el('ul', { class: 'stat-grid' }, [
+        el('li', {}, [runObjectiveLabel, runObjectiveValue]),
+        el('li', {}, [runFleetLabel, runFleetValue]),
+      ]),
+    ]
+  );
+  const sidebar = el('div', { class: 'app-sidebar' }, [
+    resources.root,
+    runStatus,
+  ]);
 
   // — En-tête acier : deux relevés à l'échelle d'affichage (l'ancre de la page) —
   const wordmark = el('div', { class: 'wordmark' });
@@ -130,7 +155,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
 
   host.append(
     header,
-    resources.root,
+    sidebar,
     launchBay,
     el('main', { class: 'app-main' }, [panelHost]),
     footer,
@@ -179,6 +204,8 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     resetBtn.textContent = t('ui.buttons.reset');
     footNote.textContent = t('ui.footer');
     langSelect.setAttribute('aria-label', t('ui.language'));
+    runFleetLabel.textContent = t('ui.stats.fleetPower');
+    runStatus.setAttribute('aria-label', t('ui.a11y.runStatus'));
     resources.refresh();
     showTab(activeKey);
     updateDynamic();
@@ -187,6 +214,16 @@ export function mountApp(host, engine, { offlineReport } = {}) {
   // — Rafraîchissement par frame —
   function updateDynamic() {
     resources.update();
+
+    const obj = engine.state.run.objective;
+    runObjectiveLabel.textContent = obj
+      ? objectiveLabel(obj)
+      : t('ui.stats.runObjective');
+    runObjectiveValue.textContent = obj
+      ? objectiveProgressText(engine, engine.state, obj)
+      : '—';
+    runFleetValue.textContent = formatNumber(engine.fleetPower);
+
     launchFlap.set(formatNumber(engine.clickPower));
     civValue.textContent = engine.state.civilizationLevel.toFixed(1);
     totalValue.textContent = formatBoard(engine.state.totalProduced.energy);

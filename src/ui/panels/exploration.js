@@ -7,6 +7,7 @@ import { RUN_SKILLS } from '../../data/runSkills.js';
 import { formatNumber, timeCode } from '../format.js';
 import { boardRow, sectionHead, setFacts } from '../board-row.js';
 import { runSkillIconId } from '../icon-map.js';
+import { objectiveLabel, objectiveProgressText } from '../objective-text.js';
 import { renderNodeMap } from '../node-map.js';
 
 const rewardLine = (rewards, factor = 1) =>
@@ -124,22 +125,6 @@ export function createExplorationPanel(engine) {
     }
   }
 
-  function objectiveLabel(obj) {
-    return `${t('ui.stats.runObjective')} — ${t(`ui.objective.${obj.type}`)}`;
-  }
-
-  function objectiveProgressText(state, obj) {
-    if (obj.type === 'reachFleetPower') {
-      return `${formatNumber(engine.fleetPower)} / ${formatNumber(obj.target)} ${t('ui.stats.fleetPower')}`;
-    }
-    if (obj.type === 'gatherResources') {
-      const produced = state.totalProduced[obj.resource] ?? 0;
-      return `${formatNumber(produced)} / ${formatNumber(obj.target)} ${resourceCode(obj.resource)}`;
-    }
-    // conquerAll / conquerOne
-    return `${formatNumber(state.run.exploration.conquered.length)} / ${formatNumber(obj.target)}`;
-  }
-
   function update() {
     if (sig() !== signature) return refresh();
     const state = engine.state;
@@ -147,7 +132,9 @@ export function createExplorationPanel(engine) {
     objectiveLabelEl.textContent = obj
       ? objectiveLabel(obj)
       : t('ui.stats.runObjective');
-    objectiveValue.textContent = obj ? objectiveProgressText(state, obj) : '—';
+    objectiveValue.textContent = obj
+      ? objectiveProgressText(engine, state, obj)
+      : '—';
     skillPointsValue.textContent = formatNumber(state.run.skillPoints);
 
     for (const [id, row] of skillRows) {

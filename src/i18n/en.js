@@ -12,6 +12,7 @@ export const en = {
     a11y: {
       resources: 'Resource board',
       terminals: 'Terminals',
+      runStatus: 'Run status',
     },
     tabs: {
       shop: 'Shop',

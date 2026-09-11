@@ -14,6 +14,7 @@ export const fr = {
     a11y: {
       resources: 'Panneau des ressources',
       terminals: 'Terminaux',
+      runStatus: 'Statut de la run',
     },
     tabs: {
       shop: 'Boutique',
