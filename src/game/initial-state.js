@@ -71,7 +71,9 @@ export function createInitialState() {
       buffs: [], // effets temporaires accumulés cette run (nœuds bonus/conquête)
       skillPoints: 0, // points de compétence de run (nœuds "skillPoint")
       exploration: {
-        available: [],
+        available: [], // @deprecated liste plate pré-carte-à-nœuds (Phase 5 la retire)
+        targets: [], // file des systèmes-objectif de la run (carte à nœuds)
+        activeMap: null, // carte à nœuds en cours (voir game/nodemap.js)
         conquered: [],
         advancedUnlocked: false,
       },
