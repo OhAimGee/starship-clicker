@@ -101,6 +101,7 @@ export function endRun(state) {
   state.run.skillTree = Object.fromEntries(
     RUN_SKILLS.map((s) => [s.id, { level: 0 }])
   );
+  state.run.combatLog = [];
 
   state.events = { lastAt: 0, accumMs: 0 };
 

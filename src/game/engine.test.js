@@ -200,6 +200,38 @@ describe('Engine — faction & run', () => {
     expect(e.state.prestige.factions.ironLegion.level).toBe(4);
   });
 
+  it('chooseNode(nodeId, allocation) : une allocation partielle peut ' +
+    'perdre le combat, journaliser l’entrée et laisser le nœud retentable', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 1000;
+    const map = e.state.run.exploration.activeMap;
+    const [nodeId] = map.rows[0];
+    // Force le type du nœud (la génération de carte n'est pas seedable
+    // depuis l'API publique de l'Engine) pour un scénario déterministe.
+    map.nodes[nodeId].type = 'invade';
+    map.nodes[nodeId].data = { defenseRating: 100, rewards: {} };
+
+    const battles = [];
+    e.on('battle-resolved', (entry) => battles.push(entry));
+
+    const weak = e.chooseNode(nodeId, { fighters: 1 });
+    expect(weak).toBe(false);
+    expect(map.nodes[nodeId].resolved).toBe(false);
+    expect(e.state.run.combatLog).toHaveLength(1);
+    expect(e.state.run.combatLog[0].victory).toBe(false);
+    expect(battles).toHaveLength(1);
+    expect(e.state.ships.fighters.count).toBeLessThan(1000);
+
+    const strong = e.chooseNode(nodeId, {
+      fighters: e.state.ships.fighters.count,
+    });
+    expect(strong).toBe(true);
+    expect(map.nodes[nodeId].resolved).toBe(true);
+    expect(e.state.run.combatLog).toHaveLength(2);
+    expect(e.state.run.combatLog[0].victory).toBe(true);
+  });
+
   it('objectif gatherResources : détecté sans passer par chooseNode, notifié une seule fois', () => {
     const e = new Engine(createInitialState()); // niveau 0 -> gatherResources
     e.selectFaction('miningCollective');

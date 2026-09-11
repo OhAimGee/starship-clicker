@@ -18,7 +18,8 @@ import { RUN_SKILLS } from '../data/runSkills.js';
 // purement additif, `mergeIntoShape` comble les nouveaux champs sur une
 // sauvegarde v3 existante sans y toucher (pas de reset forcé).
 // v5 = arbre de compétences de run (run.skillTree) — additif également.
-export const SCHEMA_VERSION = 5;
+// v6 = combat réel (run.combatLog) — additif également.
+export const SCHEMA_VERSION = 6;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -90,6 +91,9 @@ export function createInitialState() {
       skillTree: Object.fromEntries(
         RUN_SKILLS.map((s) => [s.id, { level: 0 }])
       ),
+      // Journal de combat de la run en cours — liste bornée (voir
+      // Engine#chooseNode), remise à zéro comme le reste de `run`.
+      combatLog: [],
       exploration: {
         targets: [], // file des systèmes-objectif de la run (carte à nœuds)
         activeMap: null, // carte à nœuds en cours (voir game/nodemap.js)

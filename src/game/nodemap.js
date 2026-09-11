@@ -1,15 +1,18 @@
 // Mini-jeu d'exploration à nœuds : chaque système-objectif de la run se joue
 // comme une petite carte à rangées (voir CONFIG.run.map.rows). Le joueur
 // choisit un nœud accessible (toute la rangée suivante) à chaque étape ;
-// atteindre le nœud final (`conquest`) conquiert le système. Résolution
-// automatique selon les stats : aucun hasard, aucun état d'échec permanent
-// (voir DÉCISIONS du plan — un nœud `invade`/`conquest` hors de portée reste
-// simplement tentable plus tard).
+// atteindre le nœud final (`conquest`) conquiert le système. Un nœud
+// `invade`/`conquest` se résout par un vrai combat (voir `combat.js`,
+// déterministe — aucun hasard) : la flotte allouée peut perdre des
+// vaisseaux même en cas de victoire, davantage en cas d'échec. Un échec ne
+// bloque jamais durablement la progression : le nœud reste simplement non
+// résolu, tentable plus tard avec une flotte reconstituée.
 //
 // Fonctions pures sur l'état (même convention que `economy.js`).
 
 import { CONFIG } from '../data/config.js';
-import { fleetPower, gain } from './economy.js';
+import { gain } from './economy.js';
+import { resolveBattle } from './combat.js';
 
 // Combat = récompense : `invade` paie nettement mieux que l'ancien `bonus`
 // gratuit (voir `generateSystemMap` — un `bonus` co-présent avec un `invade`
@@ -155,26 +158,52 @@ function conquestBuff(systemDef) {
   };
 }
 
+/** Flotte entière possédée, sous la forme attendue par `resolveBattle` —
+ * l'allocation par défaut quand l'appelant n'en fournit pas (comportement
+ * historique : engager toute la flotte). */
+function fullFleetAllocation(state) {
+  const out = {};
+  for (const [id, s] of Object.entries(state.ships)) {
+    if (s.count > 0) out[id] = s.count;
+  }
+  return out;
+}
+
+function applyLosses(state, losses) {
+  for (const [id, n] of Object.entries(losses)) {
+    const ship = state.ships[id];
+    if (ship) ship.count = Math.max(0, ship.count - n);
+  }
+}
+
 /**
  * Résout le nœud `nodeId` de `map` (doit faire partie de
- * `reachableNodeIds(map)`). Mute `state`/`map`.
+ * `reachableNodeIds(map)`). `allocation` (optionnelle, `{ shipId: nombre
+ * engagé }`) ne s'applique qu'aux nœuds `invade`/`conquest` — à défaut,
+ * toute la flotte possédée est engagée (comportement historique). Mute
+ * `state`/`map` ; sur un nœud de combat, les pertes s'appliquent que le
+ * combat soit gagné ou perdu.
  * @returns {{ ok: boolean, node?: object, type?: string, required?: number,
- *   reward?: object, system?: object }}
+ *   reward?: object, system?: object, battle?: object }}
  */
-export function resolveNode(state, map, nodeId) {
+export function resolveNode(state, map, nodeId, allocation) {
   const node = map.nodes[nodeId];
   if (!node || node.resolved || !reachableNodeIds(map).includes(nodeId)) {
     return { ok: false };
   }
 
+  let battle = null;
   if (node.type === 'invade' || node.type === 'conquest') {
-    const power = fleetPower(state);
-    if (power < node.data.defenseRating) {
+    const engaged = allocation ?? fullFleetAllocation(state);
+    battle = resolveBattle(state, engaged, node.data.defenseRating);
+    applyLosses(state, battle.losses);
+    if (!battle.victory) {
       return {
         ok: false,
         node,
         type: node.type,
         required: node.data.defenseRating,
+        battle,
       };
     }
   }
@@ -184,7 +213,13 @@ export function resolveNode(state, map, nodeId) {
 
   if (node.type === 'invade' || node.type === 'bonus') {
     gain(state, node.data.rewards);
-    return { ok: true, node, type: node.type, reward: node.data.rewards };
+    return {
+      ok: true,
+      node,
+      type: node.type,
+      reward: node.data.rewards,
+      battle,
+    };
   }
 
   if (node.type === 'skillPoint') {
@@ -197,5 +232,5 @@ export function resolveNode(state, map, nodeId) {
   state.run.exploration.conquered.push(systemDef);
   const buff = conquestBuff(systemDef);
   if (buff) state.run.buffs.push(buff);
-  return { ok: true, node, type: 'conquest', system: systemDef, buff };
+  return { ok: true, node, type: 'conquest', system: systemDef, buff, battle };
 }

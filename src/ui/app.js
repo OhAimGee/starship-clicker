@@ -20,6 +20,8 @@ import { notifyText } from './notify-text.js';
 import { showOfflineReport, confirmDialog } from './modal.js';
 import { showFactionSelect } from './faction-select.js';
 import { showAscensionReward } from './ascension-reward.js';
+import { showFleetAllocation } from './fleet-allocation.js';
+import { showBattleReport } from './battle-report.js';
 import { bindHold } from './motion.js';
 import { createFlap } from './flap.js';
 import { createShopPanel } from './panels/shop.js';
@@ -279,6 +281,12 @@ export function mountApp(host, engine, { offlineReport } = {}) {
       case 'choose-node':
         engine.chooseNode(id);
         break;
+      case 'open-combat': {
+        const map = engine.state.run.exploration.activeMap;
+        const node = map?.nodes[id];
+        if (node) showFleetAllocation(engine, id, node);
+        break;
+      }
       case 'buy-prestige-upgrade':
         engine.buyPrestigeUpgrade(id);
         break;
@@ -310,6 +318,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     notifier.push(notifyText(msg, engine), msg.level)
   );
   engine.on('unlock', () => panels[activeKey].refresh());
+  engine.on('battle-resolved', (entry) => showBattleReport(entry));
   engine.on('run-ended', () => {
     renderStatic();
     maybeShowFactionSelect();

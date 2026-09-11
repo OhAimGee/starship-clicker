@@ -1127,6 +1127,53 @@ h3 {
 .arrivals .board-row-main {
   cursor: default;
 }
+
+/* ── Allocation de flotte (modal avant combat) ────────────────────────────── */
+
+.allocation-row {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--row-h);
+  padding: 0.45rem 0.5rem 0.45rem var(--pad);
+}
+.allocation-input {
+  width: 4.5rem;
+  flex-shrink: 0;
+  background: var(--face-raised);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  font: inherit;
+  font-family: var(--face-display);
+  text-align: right;
+  padding: 0.35rem 0.5rem;
+}
+.allocation-input:focus {
+  outline: 1px solid var(--signal);
+  outline-offset: -1px;
+}
+
+/* ── Rapport de combat (modal après combat) ───────────────────────────────── */
+
+.battle-report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.battle-report-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem var(--pad);
+  border-bottom: 1px solid var(--rule);
+  color: var(--signal);
+  font-family: var(--face-display);
+}
 .foot-stats {
   padding: 0;
   margin: 0;

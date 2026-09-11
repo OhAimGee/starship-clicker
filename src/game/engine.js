@@ -363,21 +363,49 @@ export class Engine {
 
   /** Choisit le nœud `nodeId` sur la carte active (voir `run.exploration.
    * activeMap`, parmi les nœuds accessibles). Exige de posséder au moins un
-   * vaisseau — l'exploration n'est pas jouable à flotte nulle. */
-  chooseNode(nodeId) {
+   * vaisseau — l'exploration n'est pas jouable à flotte nulle. `allocation`
+   * (optionnelle, `{ shipId: nombre engagé }`) ne s'applique qu'aux nœuds
+   * `invade`/`conquest` — voir `src/ui/fleet-allocation.js` ; à défaut, toute
+   * la flotte possédée est engagée. */
+  chooseNode(nodeId, allocation) {
     if (!this.hasFleet()) return false;
     const map = this.state.run.exploration.activeMap;
     if (!map) return false;
 
-    const result = resolveNode(this.state, map, nodeId);
+    const result = resolveNode(this.state, map, nodeId, allocation);
+
+    // Nœud de combat (invade/conquest) : un journal + un événement dédié,
+    // que le combat soit gagné ou perdu — les pertes s'appliquent dans les
+    // deux cas (voir `resolveNode`/`combat.js`).
+    if (result.battle) {
+      const entry = {
+        nodeId,
+        systemName: map.systemDef.name,
+        nodeType: result.type,
+        victory: result.battle.victory,
+        committedPower: result.battle.committedPower,
+        defenseRating: result.required ?? map.nodes[nodeId]?.data.defenseRating,
+        losses: result.battle.losses,
+        rewards: result.ok ? (result.reward ?? null) : null,
+      };
+      this.state.run.combatLog = [entry, ...this.state.run.combatLog].slice(
+        0,
+        20
+      );
+      this._emit('battle-resolved', entry);
+    }
+
     if (!result.ok) {
       if (result.required !== undefined) {
         this._notify(
-          'notify.fleetTooWeak',
+          result.battle ? 'notify.battleLost' : 'notify.fleetTooWeak',
           { required: result.required },
           'error'
         );
       }
+      // Un échec de combat mute quand même l'état (pertes de flotte) —
+      // contrairement à un simple refus (nœud déjà résolu, inaccessible…).
+      if (result.battle) this._afterChange();
       return false;
     }
 

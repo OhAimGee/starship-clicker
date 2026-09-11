@@ -42,6 +42,7 @@ export const en = {
       ascensionRewards: 'Ascension rewards owned',
       endRun: 'End the run',
       runSkillTree: 'Run skills',
+      combatLog: 'Combat log',
     },
     cols: {
       cost: 'Fare',
@@ -94,6 +95,7 @@ export const en = {
       launch: 'Launch',
       details: 'Details',
       cancel: 'Cancel',
+      engage: 'Engage',
     },
     labels: {
       owned: 'Owned: {n}',
@@ -135,6 +137,19 @@ export const en = {
       intro:
         'Ascension! Choose a permanent reward — every faction drops back ' +
         'to level 0, a New Game+ begins.',
+    },
+    fleetAllocation: {
+      title: 'Engage the fleet',
+      intro:
+        'Choose how many ships of each type to commit to this fight — ' +
+        'losses only affect the committed fleet, win or lose.',
+    },
+    battleReport: {
+      titleWon: 'Battle won',
+      titleLost: 'Assault repelled',
+      power: 'Power committed {committed} — defence {required}',
+      losses: 'Losses',
+      noLosses: 'No losses.',
     },
     runSkillTree: {
       intro:
@@ -522,6 +537,8 @@ export const en = {
       'Run objective complete! You can end the run for the bonus.',
     systemConquered: '{name} conquered!',
     fleetTooWeak: 'Fleet too weak (power required: {required}).',
+    battleLost:
+      'Assault repelled (defence: {required}) — ships were lost.',
     cannotEndRun: "You need to complete the run's objective first.",
     runEnded: 'Run complete! +{points} ✨ and your faction levels up.',
     cannotAscend: 'Your faction needs to reach level {level} to ascend.',

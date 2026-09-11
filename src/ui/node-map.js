@@ -1,7 +1,10 @@
 // Rendu de la carte à nœuds (mini-jeu d'exploration) — un empilement
 // vertical de rangées réglées, pas un canevas libre (cohérent avec le
 // tableau ; voir DESIGN.md). Chaque nœud est un vrai <button>, la rangée
-// accessible est mise en évidence.
+// accessible est mise en évidence. Un nœud invade/conquest ouvre le modal
+// d'allocation de flotte (`open-combat`, voir app.js#fleet-allocation.js) —
+// ce n'est pas un vrai combat sans préparation ; bonus/skillPoint se
+// résolvent immédiatement (`choose-node`), ce ne sont pas des combats.
 
 import { el } from './dom.js';
 import { t } from '../i18n/index.js';
@@ -65,7 +68,11 @@ export function renderNodeMap(engine) {
             class: `node-btn node-btn-${node.type}`,
             type: 'button',
             disabled: !isReachable,
-            dataset: { action: 'choose-node', id, state },
+            dataset: {
+              action: gated ? 'open-combat' : 'choose-node',
+              id,
+              state,
+            },
           },
           [
             icon(nodeTypeIconId(node.type), 'node-icon'),

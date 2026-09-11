@@ -60,4 +60,19 @@ export const CONFIG = {
     resourceObjectiveBase: 500,
     resourceObjectivePerLevel: 200,
   },
+
+  // Combat réel (voir game/combat.js) : allocation de flotte par type de
+  // vaisseau avant un nœud invade/conquest, pertes déterministes (aucun
+  // hasard) selon le ratio marge/puissance. Une victoire de justesse coûte
+  // presque autant que `winLossMax` ; une victoire écrasante retombe au
+  // plancher `winLossMin`. Un échec suit la même logique mais avec des
+  // bornes plus punitives (`loseLossMin`/`loseLossMax`), et n'est jamais
+  // sans conséquence même à très faible engagement.
+  combat: {
+    winLossMin: 0.05, // pertes minimales même en écrasante victoire
+    winLossMax: 0.25, // pertes maximales pour une victoire de justesse
+    loseLossMin: 0.2, // pertes minimales d'un assaut raté
+    loseLossMax: 0.5, // pertes maximales d'un assaut très mal engagé
+    minLossThreshold: 0.03, // au-delà, au moins 1 perte par type engagé
+  },
 };

@@ -44,6 +44,7 @@ export const fr = {
       ascensionRewards: "Récompenses d'Ascension possédées",
       endRun: 'Terminer la run',
       runSkillTree: 'Compétences de run',
+      combatLog: 'Journal de combat',
     },
     cols: {
       cost: 'Coût',
@@ -96,6 +97,7 @@ export const fr = {
       launch: 'Lancer',
       details: 'Détails',
       cancel: 'Annuler',
+      engage: 'Engager',
     },
     labels: {
       owned: 'Possédés : {n}',
@@ -137,6 +139,20 @@ export const fr = {
       intro:
         'Ascension ! Choisissez une récompense permanente — toutes les ' +
         'factions retombent au niveau 0, un New Game+ commence.',
+    },
+    fleetAllocation: {
+      title: 'Engager la flotte',
+      intro:
+        'Choisissez combien de vaisseaux de chaque type engager sur ce ' +
+        'combat — les pertes ne toucheront que la flotte engagée, en cas ' +
+        'de victoire comme d’échec.',
+    },
+    battleReport: {
+      titleWon: 'Combat remporté',
+      titleLost: 'Assaut repoussé',
+      power: 'Puissance engagée {committed} — défense {required}',
+      losses: 'Pertes',
+      noLosses: 'Aucune perte.',
     },
     runSkillTree: {
       intro:
@@ -534,6 +550,8 @@ export const fr = {
       'Objectif de run atteint ! Tu peux terminer la run pour le bonus.',
     systemConquered: '{name} conquis !',
     fleetTooWeak: 'Flotte trop faible (puissance requise : {required}).',
+    battleLost:
+      'Assaut repoussé (défense : {required}) — des vaisseaux ont été perdus.',
     cannotEndRun: "Il faut d'abord remplir l'objectif de la run.",
     runEnded: 'Run terminée ! +{points} ✨ et la faction monte de niveau.',
     cannotAscend: 'Il faut atteindre le niveau {level} avec ta faction pour ascendre.',

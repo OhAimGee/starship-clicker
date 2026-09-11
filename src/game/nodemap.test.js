@@ -144,6 +144,32 @@ describe('resolveNode', () => {
     expect(JSON.stringify(s.run.exploration)).toBe(before);
   });
 
+  it('un combat perdu avec une allocation partielle inflige des pertes ' +
+    'mais laisse le nœud retentable', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    s.ships.fighters.count = 1000; // largement de quoi gagner...
+    const map = makeMap(s, [0.1]); // 0.1 -> 'invade'
+    const [firstId] = reachableNodeIds(map);
+
+    // ... mais on n'engage volontairement qu'une poignée de vaisseaux.
+    const result = resolveNode(s, map, firstId, { fighters: 1 });
+
+    expect(result.ok).toBe(false);
+    expect(result.battle.victory).toBe(false);
+    expect(map.nodes[firstId].resolved).toBe(false);
+    expect(reachableNodeIds(map)).toContain(firstId);
+    // Les pertes s'appliquent quand même à la flotte engagée.
+    expect(s.ships.fighters.count).toBeLessThan(1000);
+
+    // Le nœud reste tentable avec une allocation suffisante.
+    const retry = resolveNode(s, map, firstId, {
+      fighters: s.ships.fighters.count,
+    });
+    expect(retry.ok).toBe(true);
+    expect(map.nodes[firstId].resolved).toBe(true);
+  });
+
   it('refuse un nœud qui n’est pas accessible', () => {
     const s = createInitialState();
     startRun(s, 'ironLegion');

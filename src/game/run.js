@@ -47,6 +47,7 @@ export function startRun(state, factionId) {
   state.run.skillTree = Object.fromEntries(
     RUN_SKILLS.map((s) => [s.id, { level: 0 }])
   );
+  state.run.combatLog = [];
   state.run.objective = {
     type: objective.id,
     target: objective.target(level),

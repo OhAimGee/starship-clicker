@@ -24,8 +24,10 @@ export function createExplorationPanel(engine) {
   let arrivals;
   let skillList;
   let skillRows = new Map();
+  let combatLogList;
   let signature = '';
   let mapSignature = '';
+  let combatLogSignature = -1;
 
   // Refresh complet : nouvelle carte ou système conquis (liste des arrivées
   // à reconstruire). `currentRow` seul (progression au sein de la même
@@ -51,6 +53,7 @@ export function createExplorationPanel(engine) {
     mapHost = el('div', { class: 'node-map-host' });
     arrivals = el('ul', { class: 'board-list arrivals' });
     skillList = el('ul', { class: 'board-list' });
+    combatLogList = el('ul', { class: 'board-list arrivals' });
     skillRows = new Map();
     RUN_SKILLS.forEach((def, i) => {
       const row = boardRow({
@@ -91,11 +94,15 @@ export function createExplorationPanel(engine) {
       arrivals,
       sectionHead(t('ui.sections.runSkillTree'), ''),
       el('p', { class: 'panel-note', text: t('ui.runSkillTree.intro') }),
-      skillList
+      skillList,
+      sectionHead(t('ui.sections.combatLog'), ''),
+      combatLogList
     );
     buildArrivals();
+    buildCombatLog();
     signature = sig();
     mapSignature = '';
+    combatLogSignature = engine.state.run.combatLog.length;
     update();
   }
 
@@ -121,6 +128,44 @@ export function createExplorationPanel(engine) {
             ]),
           ]),
         ])
+      );
+    }
+  }
+
+  function buildCombatLog() {
+    clear(combatLogList);
+    const log = engine.state.run.combatLog;
+    if (log.length === 0) {
+      combatLogList.append(el('li', { class: 'row-empty', text: '—' }));
+      return;
+    }
+    for (const entry of log) {
+      const lossText =
+        Object.entries(entry.losses)
+          .map(([id, n]) => `-${formatNumber(n)} ${t(`ship.${id}.name`)}`)
+          .join('  ·  ') || t('ui.battleReport.noLosses');
+      combatLogList.append(
+        el(
+          'li',
+          {
+            class: 'board-row',
+            dataset: { state: entry.victory ? 'done' : 'cant' },
+          },
+          [
+            el('div', { class: 'board-row-line' }, [
+              el('div', { class: 'board-row-main is-static' }, [
+                el('span', {
+                  class: 'row-code',
+                  text: entry.victory ? '✓' : '✕',
+                }),
+                el('span', { class: 'row-label' }, [
+                  el('span', { class: 'row-name', text: entry.systemName }),
+                  el('span', { class: 'row-sub', text: lossText }),
+                ]),
+              ]),
+            ]),
+          ]
+        )
       );
     }
   }
@@ -165,6 +210,12 @@ export function createExplorationPanel(engine) {
         mapHost.append(renderNodeMap(engine));
       }
       mapSignature = currentMapSig;
+    }
+
+    const currentCombatLogSig = state.run.combatLog.length;
+    if (currentCombatLogSig !== combatLogSignature) {
+      buildCombatLog();
+      combatLogSignature = currentCombatLogSig;
     }
   }
 
