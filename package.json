@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run --passWithNoTests",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "simulate": "node scripts/simulate.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
