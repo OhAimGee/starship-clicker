@@ -1290,6 +1290,14 @@ h3 {
     max-width: 1360px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 300px;
+    /* Lignes explicites : sans elles, `min-height: 100dvh` pousse la
+       grille à étirer TOUTES les lignes "auto" à parts égales dès qu'un
+       onglet a moins de contenu que la fenêtre — la barre d'onglets
+       (ligne "terminal") se retrouvait alors décalée différemment selon
+       la hauteur du panneau actif. Seule "main" (le contenu qui varie
+       réellement d'un onglet à l'autre) absorbe l'espace restant ; les
+       autres lignes gardent la taille de leur propre contenu. */
+    grid-template-rows: auto auto auto 1fr auto;
     grid-template-areas:
       'header   header'
       'terminal terminal'
