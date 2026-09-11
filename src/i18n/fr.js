@@ -195,6 +195,14 @@ export const fr = {
       name: 'Moteur de réalité',
       desc: 'Réécrit les lois locales pour cristalliser la matière.',
     },
+    hypermatterCondenser: {
+      name: 'Condensateur d’hypermatière',
+      desc: 'Condense l’énergie quantique en antimatière pure.',
+    },
+    voidLoom: {
+      name: 'Métier du vide',
+      desc: 'Tisse la matière noire à partir de l’énergie quantique.',
+    },
   },
 
   ship: {
@@ -332,6 +340,14 @@ export const fr = {
       name: 'Production de masse',
       desc: '+15 % de production globale par niveau.',
     },
+    stellarSmelting: {
+      name: 'Fonderie stellaire',
+      desc: '+25 % de production d’énergie par niveau.',
+    },
+    bulkFreight: {
+      name: 'Fret en gros',
+      desc: '-10 % de coût des vaisseaux par niveau.',
+    },
     shipyards: {
       name: 'Chantiers navals',
       desc: '+25 % de puissance de flotte par niveau.',
@@ -344,6 +360,14 @@ export const fr = {
       name: 'Assemblage rapide',
       desc: '-12 % de coût des vaisseaux par niveau.',
     },
+    ironDiscipline: {
+      name: 'Discipline de fer',
+      desc: '+20 % de pouvoir de clic par niveau.',
+    },
+    warReserves: {
+      name: 'Réserves de guerre',
+      desc: '+25 % de production de métal par niveau.',
+    },
     entangledFields: {
       name: 'Champs intriqués',
       desc: '+40 % de production d’énergie quantique par niveau.',
@@ -355,6 +379,14 @@ export const fr = {
     ascendantMinds: {
       name: 'Esprits ascendants',
       desc: '+15 % de production globale par niveau.',
+    },
+    darkResonance: {
+      name: 'Résonance noire',
+      desc: '+35 % de production de matière noire par niveau.',
+    },
+    fleetSingularity: {
+      name: 'Singularité de flotte',
+      desc: '+15 % de puissance de flotte par niveau.',
     },
   },
 
@@ -377,6 +409,8 @@ export const fr = {
     galacticFortress: 'Forteresse galactique',
     tradeHub: 'Nœud commercial',
     cosmicLab: 'Laboratoire cosmique',
+    diplomatic: 'Système diplomatique',
+    voidBastion: 'Bastion du vide',
     legacy: 'Système',
   },
 

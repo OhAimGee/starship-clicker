@@ -192,6 +192,14 @@ export const en = {
       name: 'Reality engine',
       desc: 'Rewrites local law to crystallise matter.',
     },
+    hypermatterCondenser: {
+      name: 'Hypermatter condenser',
+      desc: 'Condenses quantum energy into pure antimatter.',
+    },
+    voidLoom: {
+      name: 'Void loom',
+      desc: 'Weaves dark matter out of quantum energy.',
+    },
   },
 
   ship: {
@@ -323,6 +331,14 @@ export const en = {
       name: 'Mass Production',
       desc: '+15% overall production per level.',
     },
+    stellarSmelting: {
+      name: 'Stellar Smelting',
+      desc: '+25% energy production per level.',
+    },
+    bulkFreight: {
+      name: 'Bulk Freight',
+      desc: '-10% ship cost per level.',
+    },
     shipyards: {
       name: 'Shipyards',
       desc: '+25% fleet power per level.',
@@ -335,6 +351,14 @@ export const en = {
       name: 'Rapid Assembly',
       desc: '-12% ship cost per level.',
     },
+    ironDiscipline: {
+      name: 'Iron Discipline',
+      desc: '+20% click power per level.',
+    },
+    warReserves: {
+      name: 'War Reserves',
+      desc: '+25% metal production per level.',
+    },
     entangledFields: {
       name: 'Entangled Fields',
       desc: '+40% quantum energy production per level.',
@@ -346,6 +370,14 @@ export const en = {
     ascendantMinds: {
       name: 'Ascendant Minds',
       desc: '+15% overall production per level.',
+    },
+    darkResonance: {
+      name: 'Dark Resonance',
+      desc: '+35% dark matter production per level.',
+    },
+    fleetSingularity: {
+      name: 'Fleet Singularity',
+      desc: '+15% fleet power per level.',
     },
   },
 
@@ -368,6 +400,8 @@ export const en = {
     galacticFortress: 'Galactic fortress',
     tradeHub: 'Trade hub',
     cosmicLab: 'Cosmic laboratory',
+    diplomatic: 'Diplomatic system',
+    voidBastion: 'Void bastion',
     legacy: 'System',
   },
 

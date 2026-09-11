@@ -48,6 +48,23 @@ export const FACTIONS = [
         costGrowth: 2.5,
         effect: { type: 'productionMultiplier', perLevel: 0.15 },
       },
+      {
+        id: 'stellarSmelting',
+        baseCost: 3,
+        costGrowth: 2.3,
+        effect: {
+          type: 'resourceProductionMultiplier',
+          resources: ['energy'],
+          perLevel: 0.25,
+        },
+      },
+      {
+        id: 'bulkFreight',
+        baseCost: 4,
+        costGrowth: 2.4,
+        // réduit le coût des vaisseaux : perLevel = fraction retirée par niveau
+        effect: { type: 'shipCost', perLevel: 0.1 },
+      },
     ],
   },
   {
@@ -74,6 +91,22 @@ export const FACTIONS = [
         costGrowth: 2.4,
         // réduit le coût des vaisseaux : perLevel = fraction retirée par niveau
         effect: { type: 'shipCost', perLevel: 0.12 },
+      },
+      {
+        id: 'ironDiscipline',
+        baseCost: 3,
+        costGrowth: 2.3,
+        effect: { type: 'clickMultiplier', perLevel: 0.2 },
+      },
+      {
+        id: 'warReserves',
+        baseCost: 4,
+        costGrowth: 2.4,
+        effect: {
+          type: 'resourceProductionMultiplier',
+          resources: ['metal'],
+          perLevel: 0.25,
+        },
       },
     ],
   },
@@ -109,6 +142,22 @@ export const FACTIONS = [
         baseCost: 3,
         costGrowth: 2.5,
         effect: { type: 'productionMultiplier', perLevel: 0.15 },
+      },
+      {
+        id: 'darkResonance',
+        baseCost: 3,
+        costGrowth: 2.3,
+        effect: {
+          type: 'resourceProductionMultiplier',
+          resources: ['darkMatter'],
+          perLevel: 0.35,
+        },
+      },
+      {
+        id: 'fleetSingularity',
+        baseCost: 4,
+        costGrowth: 2.4,
+        effect: { type: 'fleetMultiplier', perLevel: 0.15 },
       },
     ],
   },

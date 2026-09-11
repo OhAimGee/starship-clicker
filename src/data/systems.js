@@ -63,6 +63,10 @@ export const SYSTEM_ARCHETYPES = [
     bonus: { energy: 1.8, metal: 1.8, crystals: 1.8, antimatter: 1.5 },
     defenseMult: 1.5,
   },
+  {
+    id: 'diplomatic',
+    bonus: { influence: 2.4, energy: 0.9, metal: 0.9 },
+  },
 ];
 
 export const ADVANCED_ARCHETYPES = [
@@ -90,6 +94,11 @@ export const ADVANCED_ARCHETYPES = [
     id: 'cosmicLab',
     bonus: { crystals: 4, antimatter: 3, darkMatter: 0.5 },
     defenseMult: 1.5,
+  },
+  {
+    id: 'voidBastion',
+    bonus: { darkMatter: 3, quantumEnergy: 2, antimatter: 1.5 },
+    defenseMult: 2.2,
   },
 ];
 

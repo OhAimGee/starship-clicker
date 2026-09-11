@@ -41,6 +41,8 @@ export function createExplorationPanel(engine) {
     mapHost = el('div', { class: 'node-map-host' });
     arrivals = el('ul', { class: 'board-list arrivals' });
 
+    const activeSystem = engine.state.run.exploration.activeMap?.systemDef;
+
     root.append(
       el('h2', { text: t('ui.panels.exploration') }),
       el('ul', { class: 'stat-grid' }, [
@@ -49,7 +51,16 @@ export function createExplorationPanel(engine) {
           objectiveValue,
         ]),
       ]),
-      sectionHead(t('ui.sections.explorationMap'), ''),
+      sectionHead(
+        t('ui.sections.explorationMap'),
+        activeSystem ? activeSystem.name : ''
+      ),
+      activeSystem
+        ? el('p', {
+            class: 'panel-note',
+            text: t(`systemArchetype.${activeSystem.archetype}`),
+          })
+        : null,
       mapHost,
       sectionHead(t('ui.sections.conqueredSystems'), ''),
       arrivals

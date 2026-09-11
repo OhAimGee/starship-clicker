@@ -161,6 +161,28 @@ export const GENERATORS = [
     tier: 4,
     unlock: { resource: 'quantumEnergy', total: 25 },
   },
+
+  // — Palier 5 : conversion de pointe (boucle fermée post-ascension) ————
+  {
+    id: 'hypermatterCondenser',
+    resource: 'antimatter',
+    costResource: 'quantumEnergy',
+    baseCost: 8_000_000,
+    costGrowth: 1.15,
+    rate: 3000,
+    tier: 5,
+    unlock: { resource: 'quantumEnergy', total: 500 },
+  },
+  {
+    id: 'voidLoom',
+    resource: 'darkMatter',
+    costResource: 'quantumEnergy',
+    baseCost: 12_000_000,
+    costGrowth: 1.15,
+    rate: 40,
+    tier: 5,
+    unlock: { resource: 'quantumEnergy', total: 800 },
+  },
 ];
 
 export const GENERATOR_IDS = GENERATORS.map((g) => g.id);
