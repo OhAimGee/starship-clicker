@@ -39,8 +39,15 @@ export function createInitialState() {
       GENERATOR_IDS.map((id) => [id, { count: 0 }])
     ),
     ships: Object.fromEntries(SHIP_IDS.map((id) => [id, { count: 0 }])),
+    // autoClicker s'achète en exemplaires (`count`), les autres en niveaux
+    // (`level`) — voir Engine#buyClickUpgrade. La forme doit suivre : sinon
+    // `mergeIntoShape` (save.js), qui ne recopie que les clés présentes dans
+    // le gabarit, jette silencieusement `count` à chaque sauvegarde/rechargement.
     clickUpgrades: Object.fromEntries(
-      CLICK_UPGRADES.map((u) => [u.id, { level: 0 }])
+      CLICK_UPGRADES.map((u) => [
+        u.id,
+        u.id === 'autoClicker' ? { count: 0 } : { level: 0 },
+      ])
     ),
     technologies: Object.fromEntries(
       TECH_IDS.map((id) => [id, { unlocked: false }])

@@ -86,6 +86,17 @@ describe('loadState', () => {
     expect(state.run.objectiveAnnounced).toBe(false);
   });
 
+  it('conserve clickUpgrades.autoClicker.count au rechargement (forme ' +
+    '`{ count }`, pas `{ level }` — sinon mergeIntoShape le jette)', () => {
+    const saved = createInitialState();
+    saved.clickUpgrades.autoClicker.count = 7;
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(saved) });
+
+    const { state, status } = loadState(storage);
+    expect(status).toBe('loaded');
+    expect(state.clickUpgrades.autoClicker.count).toBe(7);
+  });
+
   it('archive une sauvegarde corrompue dans .bak et repart proprement', () => {
     const storage = memoryStorage({ [STORAGE_KEY]: '{{{ pas du JSON' });
     const { state, status } = loadState(storage);
