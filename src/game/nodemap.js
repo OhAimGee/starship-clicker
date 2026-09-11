@@ -11,7 +11,11 @@
 import { CONFIG } from '../data/config.js';
 import { fleetPower, gain } from './economy.js';
 
-const REWARD_FRACTION = { invade: 0.15, bonus: 0.08 };
+// Combat = récompense : `invade` paie nettement mieux que l'ancien `bonus`
+// gratuit (voir `generateSystemMap` — un `bonus` co-présent avec un `invade`
+// dans la même rangée est reconverti en `skillPoint`, le combat garde le
+// monopole du butin de cette rangée).
+const REWARD_FRACTION = { invade: 0.28, bonus: 0.08 };
 
 /** Répartition des types de nœuds intérieurs (hors nœud final). */
 function pickNodeType(rng) {
@@ -43,10 +47,15 @@ function randomizedRewards(rewards, fraction, rng) {
   return out;
 }
 
-function buildNodeData(type, systemDef, row, rng) {
+function buildNodeData(type, systemDef, row, rng, defenseMult = 1) {
   if (type === 'invade') {
     return {
-      defenseRating: Math.round(systemDef.defenseRating * 0.25 * (row + 1)),
+      // Scalé par `defenseMult` (progression liée au niveau de faction),
+      // comme le nœud `conquest` final — sinon les combats intérieurs
+      // restent plats d'une run à l'autre.
+      defenseRating: Math.round(
+        systemDef.defenseRating * 0.25 * (row + 1) * defenseMult
+      ),
       rewards: randomizedRewards(
         systemDef.rewards,
         REWARD_FRACTION.invade,
@@ -81,15 +90,25 @@ export function generateSystemMap(
 
   rowSizes.forEach((size, row) => {
     const ids = [];
+    const types = Array.from({ length: size }, () => pickNodeType(rng));
+    // Combat = récompense : si la rangée contient un `invade`, aucun nœud
+    // gratuit ne doit lui faire directement concurrence — les `bonus` de
+    // cette rangée deviennent des `skillPoint` (le combat garde le monopole
+    // du butin ; `bonus` ne survit que dans une rangée sans combat).
+    if (types.includes('invade') && types.includes('bonus')) {
+      for (let i = 0; i < types.length; i++) {
+        if (types[i] === 'bonus') types[i] = 'skillPoint';
+      }
+    }
     for (let col = 0; col < size; col++) {
       const id = `sys${queueIndex}-r${row}n${col}`;
-      const type = pickNodeType(rng);
+      const type = types[col];
       nodes[id] = {
         id,
         type,
         row,
         resolved: false,
-        data: buildNodeData(type, systemDef, row, rng),
+        data: buildNodeData(type, systemDef, row, rng, defenseMult),
       };
       ids.push(id);
     }

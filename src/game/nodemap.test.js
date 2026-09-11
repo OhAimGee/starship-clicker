@@ -47,6 +47,66 @@ describe('generateSystemMap', () => {
     expect(conquestNodes).toHaveLength(1);
     expect(map.rows.flat().sort()).toEqual(Object.keys(map.nodes).sort());
   });
+
+  it('combat = récompense : aucune rangée générée ne mélange `invade` et ' +
+    '`bonus` (un `bonus` co-présent avec un `invade` devient `skillPoint`)', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    for (let trial = 0; trial < 200; trial++) {
+      const map = generateSystemMap(s, TEST_SYSTEM, trial, Math.random);
+      for (const row of map.rows) {
+        const types = new Set(row.map((id) => map.nodes[id].type));
+        expect(types.has('invade') && types.has('bonus')).toBe(false);
+      }
+    }
+  });
+
+  it('les récompenses `invade` sont nettement supérieures à l’ancienne ' +
+    'fraction (0.15 -> 0.28)', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    // rng constant : pickNodeType -> 'invade' (0.1 < 0.6), et la même
+    // constante alimente randomizedRewards de façon déterministe.
+    const map = generateSystemMap(s, TEST_SYSTEM, 0, fixedRng([0.1]));
+    const invadeNode = Object.values(map.nodes).find(
+      (n) => n.type === 'invade' && n.row === 0
+    );
+    expect(invadeNode).toBeDefined();
+    // Avec cette rng constante, une seule ressource est retenue (`count` =
+    // 1) ; peu importe laquelle (l'ordre du mélange dépend de l'algorithme
+    // de tri), sa valeur de base est 500 ou 200 — dans les deux cas la
+    // nouvelle fraction (0.28) doit dépasser nettement l'ancienne (0.15) à
+    // variance égale (0.7 + 0.1*0.6 = 0.76).
+    const rewardEntries = Object.entries(invadeNode.data.rewards);
+    expect(rewardEntries).toHaveLength(1);
+    const [res, amount] = rewardEntries[0];
+    const base = TEST_SYSTEM.rewards[res];
+    const oldFractionAmount = Math.max(1, Math.floor(base * 0.15 * 0.76));
+    expect(amount).toBe(Math.max(1, Math.floor(base * 0.28 * 0.76)));
+    expect(amount).toBeGreaterThan(oldFractionAmount);
+  });
+
+  it('la difficulté des nœuds `invade` intérieurs suit `defenseMult`, comme ' +
+    'le nœud `conquest` final', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    s.run.objective.defenseMult = 1;
+    const mapBase = generateSystemMap(s, TEST_SYSTEM, 0, fixedRng([0.1]));
+    const invadeBase = Object.values(mapBase.nodes).find(
+      (n) => n.type === 'invade' && n.row === 0
+    );
+
+    s.run.objective.defenseMult = 2;
+    const mapScaled = generateSystemMap(s, TEST_SYSTEM, 1, fixedRng([0.1]));
+    const invadeScaled = Object.values(mapScaled.nodes).find(
+      (n) => n.type === 'invade' && n.row === 0
+    );
+
+    expect(invadeBase.data.defenseRating).toBe(25);
+    expect(invadeScaled.data.defenseRating).toBe(
+      invadeBase.data.defenseRating * 2
+    );
+  });
 });
 
 describe('reachableNodeIds', () => {
