@@ -18,11 +18,24 @@ in-game language switcher.
 ## Product Purpose
 
 Starship Clicker is a browser-based incremental game about growing a spacefaring
-civilization. The player clicks a mothership to generate energy, then reinvests
-resources into automated generators, a combat fleet, stellar exploration,
-a technology tree, and a prestige ("Ascension") reset that grants permanent
-multipliers. Success means players return across multiple sessions, progress
-through each unlock tier, and reach at least one prestige.
+civilization, with a rogue-lite layer on top of the prestige loop: before each
+"run" the player picks a **faction**, which alone progresses that run (its own
+start bonuses, and its own skill tree unlocked between runs with ascension
+points). Within a run, the player clicks a mothership to generate energy, then
+reinvests resources into automated generators, a combat fleet, a technology
+tree, and a **node-based exploration map** per star system (a small branching
+path of invasion/bonus/skill-point nodes, resolved automatically against
+current stats — no separate combat mini-game). Reaching a system's final node
+conquers it and grants a temporary run-scoped bonus. Each run has an
+**objective** (currently: conquer a target number of systems, scaling with the
+chosen faction's meta level) whose completion grants a bonus-points payout at
+Ascension; the player can also always ascend early once the quantum-energy
+threshold is met. Ascension resets the run, levels up the active faction, and
+requires selecting a faction again (the same one, or a different one) to
+start the next run. Success means players return across multiple runs,
+progress each faction's meta level and skill tree, and see later runs resolve
+markedly faster than the first (verified by simulation: ~3h to a first
+ascension, 10-15 min for the next once skills are purchased).
 
 ## Positioning
 
@@ -50,21 +63,34 @@ client-side with no account, no backend, and no external dependencies.
 Confirmed capabilities:
 - Click-to-earn mothership with an energy-per-click value and a displayed
   "Civilization Level".
-- 14 automated generators across 4 tiers, each costing one resource to
+- 16 automated generators across 5 tiers, each costing one resource to
   produce another (a legible conversion chain, not a single currency).
-- Upgrades: click power, auto-clicker, and 4 permanent (prestige) upgrades.
+- Upgrades: click power, auto-clicker, and 4 permanent common (prestige)
+  upgrades, plus a 5-node skill tree per faction (see below).
 - Space fleet (8 ship classes, fighters through reality-shifters) with attack
   and energy-upkeep costs.
-- Stellar-system exploration (basic + advanced tiers) gated by fleet power.
+- 3 selectable factions (Mining Collective, Iron Legion, Quantum Order), each
+  with a start-of-run bonus and its own 5-node skill tree, bought between runs
+  with ascension points; a faction's meta level rises on every ascension and
+  scales its run objective's difficulty.
+- Node-based exploration: each run-objective system is a small branching map
+  (invade / bonus / skill-point nodes, one final conquest node) resolved
+  automatically against fleet power — no separate combat mini-game, no
+  randomness, no permanent run-failure state.
+- Run objective ("conquer N systems", N scaling with faction level) whose
+  completion grants a bonus ascension-point payout; voluntary early ascension
+  (quantum-energy threshold) always remains available.
 - Technology tree (12 nodes) unlocking systems and applying cost/production
-  modifiers.
-- Prestige / Ascension: reset for Ascension Points and permanent bonuses;
-  each ascension compounds (verified by simulation: first ascension in ~2h20
-  of optimal play, the second in ~40 min).
+  modifiers, persists across ascensions (shared "civilisational" research,
+  not faction-scoped).
+- Ascension: resets the run, levels up the active faction, grants Ascension
+  Points; later runs compound sharply once skills are purchased (verified by
+  simulation: ~3h to a first ascension, 10-15 min for the next).
 - Random timed events with an in-game notification banner.
-- Tabbed UI: Boutique (shop), Flotte (fleet), Exploration, Technologies,
-  Ascension — all rendered from `src/data/*` definitions, not hand-written
-  HTML.
+- Tabbed UI: Boutique (shop), Flotte (fleet), Exploration (node map),
+  Technologies, Ascension (faction + common skill trees) — all rendered from
+  `src/data/*` definitions, not hand-written HTML. A mandatory faction-select
+  screen gates play at the start of each run.
 - Full FR/EN localization (`src/i18n/`, key-parity tested) with a language
   switcher; FR is the default.
 
@@ -93,9 +119,11 @@ Constraints:
 ## Evidence on Hand
 
 - A complete, playable implementation is the primary evidence of intended
-  behavior and content, backed by 77 Vitest tests (economy formulas, save
-  migration, offline calculation, i18n key parity, data-integrity invariants)
-  and a headless balance simulation used to validate ascension pacing.
+  behavior and content, backed by 107 Vitest tests (economy formulas, save
+  migration/archival, offline calculation, i18n key parity, data-integrity
+  invariants, node-map generation/resolution, run lifecycle) and a committed
+  headless balance simulation (`npm run simulate`, `scripts/simulate.mjs`)
+  used to validate ascension pacing per faction and level.
 - `README.md` and `DESIGN.md` reflect the current architecture and visual
   system. `docs/archive/` holds pre-refonte French cleanup reports
   (`CORRECTION_FORMATNUMBER.md`, `VALIDATION_REPORT.md`) as historical record
