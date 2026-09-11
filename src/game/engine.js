@@ -46,6 +46,8 @@ import {
 import {
   startRun,
   buyFactionSkill as buyFactionSkillRun,
+  runSkillCost,
+  buyRunSkill as buyRunSkillRun,
   isObjectiveComplete,
 } from './run.js';
 import { tickEvents } from './events.js';
@@ -99,6 +101,9 @@ export class Engine {
   }
   factionSkillCost(skillId) {
     return factionSkillCost(this.state, this.state.run.factionId, skillId);
+  }
+  runSkillCost(skillId) {
+    return runSkillCost(this.state, skillId);
   }
   isUnlocked(unlock) {
     return isUnlocked(this.state, unlock);
@@ -317,6 +322,19 @@ export class Engine {
       return false;
     }
     this._notify('notify.factionSkillBought', { id: skillId }, 'success');
+    this._afterChange();
+    return true;
+  }
+
+  /** Achète (ou monte d'un niveau) une compétence de l'arbre de RUN — payée
+   * en `run.skillPoints` (nœuds "skillPoint" de la carte), effet temporaire
+   * qui ne dure que la run en cours (voir `data/runSkills.js`). */
+  buyRunSkill(skillId) {
+    if (!buyRunSkillRun(this.state, skillId)) {
+      this._notify('notify.cantAffordRunSkill', {}, 'error');
+      return false;
+    }
+    this._notify('notify.runSkillBought', { id: skillId }, 'success');
     this._afterChange();
     return true;
   }

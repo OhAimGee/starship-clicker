@@ -5,8 +5,12 @@ import {
   pickObjective,
   isObjectiveComplete,
   buyFactionSkill,
+  runSkillCost,
+  buyRunSkill,
 } from './run.js';
 import { CONFIG } from '../data/config.js';
+import { endRun } from './prestige.js';
+import { fleetPower } from './economy.js';
 
 describe('pickObjective', () => {
   it('rampe pédagogique : ressources -> flotte -> 1 système -> conquête complète', () => {
@@ -75,13 +79,15 @@ describe('startRun', () => {
     expect(s.run.exploration.activeMap).toBeNull();
   });
 
-  it('réinitialise les bonus/points de compétence de run', () => {
+  it('réinitialise les bonus/points de compétence/arbre de run', () => {
     const s = createInitialState();
     s.run.buffs = [{ type: 'fleetMultiplier', perLevel: 1 }];
     s.run.skillPoints = 5;
+    s.run.skillTree.overclockedThrusters.level = 3;
     startRun(s, 'ironLegion');
     expect(s.run.buffs).toEqual([]);
     expect(s.run.skillPoints).toBe(0);
+    expect(s.run.skillTree.overclockedThrusters.level).toBe(0);
   });
 });
 
@@ -142,5 +148,51 @@ describe('buyFactionSkill', () => {
     s.resources.ascensionPoints = 1000;
     expect(buyFactionSkill(s, 'quantumOrder', 'nope')).toBe(false);
     expect(buyFactionSkill(s, 'nope', 'entangledFields')).toBe(false);
+  });
+});
+
+describe('buyRunSkill', () => {
+  it('achète et monte le niveau avec run.skillPoints ; échoue si insuffisants', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    s.run.skillPoints = 0;
+    expect(buyRunSkill(s, 'overclockedThrusters')).toBe(false);
+
+    s.run.skillPoints = 10;
+    expect(buyRunSkill(s, 'overclockedThrusters')).toBe(true);
+    expect(s.run.skillTree.overclockedThrusters.level).toBe(1);
+    expect(s.run.skillPoints).toBeLessThan(10);
+  });
+
+  it('refuse une compétence inconnue', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    s.run.skillPoints = 1000;
+    expect(buyRunSkill(s, 'nope')).toBe(false);
+  });
+
+  it('le coût grandit avec le niveau (comme les compétences de faction)', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    const base = runSkillCost(s, 'overclockedThrusters');
+    s.run.skillTree.overclockedThrusters.level = 3;
+    expect(runSkillCost(s, 'overclockedThrusters')).toBeGreaterThan(base);
+  });
+
+  it('l’effet est mesurable sur la run active et disparaît après endRun()', () => {
+    const s = createInitialState();
+    startRun(s, 'ironLegion');
+    s.ships.fighters.count = 10;
+    const before = fleetPower(s);
+
+    s.run.skillPoints = 10;
+    expect(buyRunSkill(s, 'overclockedThrusters')).toBe(true);
+    expect(fleetPower(s)).toBeGreaterThan(before);
+
+    endRun(s);
+    // endRun() lui-même remet déjà l'arbre à zéro (pas seulement startRun()).
+    expect(s.run.skillTree.overclockedThrusters.level).toBe(0);
+    startRun(s, 'ironLegion');
+    expect(s.run.skillTree.overclockedThrusters.level).toBe(0);
   });
 });

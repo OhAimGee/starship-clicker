@@ -48,6 +48,12 @@ export function notifyText({ key, params = {} }, engine) {
     return t(key, { name, level });
   }
 
+  if (key === 'notify.runSkillBought') {
+    const name = t(`runSkill.${params.id}.name`);
+    const level = engine?.state?.run?.skillTree?.[params.id]?.level;
+    return t(key, { name, level });
+  }
+
   if (key === 'notify.ascensionRewardChosen') {
     const name = t(`ascensionReward.${params.id}.name`);
     const level = engine?.state?.ascension?.rewards?.[params.id]?.level;

@@ -248,6 +248,9 @@ export function mountApp(host, engine, { offlineReport } = {}) {
       case 'buy-faction-skill':
         engine.buyFactionSkill(id);
         break;
+      case 'buy-run-skill':
+        engine.buyRunSkill(id);
+        break;
       case 'end-run':
         engine.endRun();
         break;

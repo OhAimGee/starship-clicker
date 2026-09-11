@@ -9,6 +9,7 @@ import { TECH_IDS } from '../data/technologies.js';
 import { CLICK_UPGRADES, PRESTIGE_UPGRADES } from '../data/upgrades.js';
 import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
 import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
+import { RUN_SKILLS } from '../data/runSkills.js';
 
 // v1 = schéma monolithique d'avant la refonte (généré par l'ancien script.js).
 // v2 = schéma piloté par les données.
@@ -16,7 +17,8 @@ import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
 // v4 = fin de run vs Ascension (state.ascension, run.objectiveAnnounced) —
 // purement additif, `mergeIntoShape` comble les nouveaux champs sur une
 // sauvegarde v3 existante sans y toucher (pas de reset forcé).
-export const SCHEMA_VERSION = 4;
+// v5 = arbre de compétences de run (run.skillTree) — additif également.
+export const SCHEMA_VERSION = 5;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -82,6 +84,12 @@ export function createInitialState() {
       objectiveAnnounced: false, // notifié une seule fois par run (voir Engine#_afterChange)
       buffs: [], // effets temporaires accumulés cette run (nœuds bonus/conquête)
       skillPoints: 0, // points de compétence de run (nœuds "skillPoint")
+      // Arbre de compétences de run (temporaire, dépensé avec skillPoints
+      // ci-dessus) — remis à zéro par startRun()/endRun(), comme le reste de
+      // `run` (voir data/runSkills.js).
+      skillTree: Object.fromEntries(
+        RUN_SKILLS.map((s) => [s.id, { level: 0 }])
+      ),
       exploration: {
         targets: [], // file des systèmes-objectif de la run (carte à nœuds)
         activeMap: null, // carte à nœuds en cours (voir game/nodemap.js)

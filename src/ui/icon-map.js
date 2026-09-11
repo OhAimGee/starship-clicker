@@ -42,6 +42,16 @@ export const factionIconId = (id) => FACTION_ICON[id] ?? 'ascension';
 export const factionSkillIconId = () => 'ascension';
 export const nodeTypeIconId = (type) => NODE_TYPE_ICON[type] ?? 'exploration';
 
+const RUN_SKILL_ICON = {
+  overclockedThrusters: 'fleet',
+  scavengerProtocols: 'metal',
+  rapidFire: 'bolt',
+  fieldRepairs: 'fleet',
+  streamlinedLogistics: 'fleet',
+  energyFocus: 'energy',
+};
+export const runSkillIconId = (id) => RUN_SKILL_ICON[id] ?? 'ascensionPoints';
+
 const ASCENSION_REWARD_ICON = {
   hyperProduction: 'trendUp',
   overcharge: 'bolt',

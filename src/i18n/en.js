@@ -40,6 +40,7 @@ export const en = {
       ascension: 'Ascension — the ultimate goal',
       ascensionRewards: 'Ascension rewards owned',
       endRun: 'End the run',
+      runSkillTree: 'Run skills',
     },
     cols: {
       cost: 'Fare',
@@ -56,6 +57,7 @@ export const en = {
       permanentBonus: 'Permanent production bonus',
       owned: 'Owned',
       runObjective: 'Run objective',
+      runSkillPoints: 'Skill points',
     },
     factionSelect: {
       title: 'Choose a faction',
@@ -132,6 +134,11 @@ export const en = {
       intro:
         'Ascension! Choose a permanent reward — every faction drops back ' +
         'to level 0, a New Game+ begins.',
+    },
+    runSkillTree: {
+      intro:
+        'Spend your run skill points (earned on the exploration map) on ' +
+        'temporary bonuses — they only last this run.',
     },
     offline: {
       title: 'Welcome back, Commander',
@@ -407,6 +414,33 @@ export const en = {
     },
   },
 
+  runSkill: {
+    overclockedThrusters: {
+      name: 'Overclocked Thrusters',
+      desc: '+8% fleet power per level (this run only).',
+    },
+    scavengerProtocols: {
+      name: 'Scavenger Protocols',
+      desc: '+10% metal and crystal production per level (this run only).',
+    },
+    rapidFire: {
+      name: 'Rapid Fire',
+      desc: '+10% click power per level (this run only).',
+    },
+    fieldRepairs: {
+      name: 'Field Repairs',
+      desc: '-8% fleet upkeep per level (this run only).',
+    },
+    streamlinedLogistics: {
+      name: 'Streamlined Logistics',
+      desc: '-6% ship cost per level (this run only).',
+    },
+    energyFocus: {
+      name: 'Energy Focus',
+      desc: '+6% overall production per level (this run only).',
+    },
+  },
+
   ascensionReward: {
     hyperProduction: {
       name: 'Production Overcharge',
@@ -472,6 +506,7 @@ export const en = {
     welcome: 'Welcome! Click the mothership to begin.',
     cantAfford: 'Not enough resources.',
     cantAffordPrestige: 'Not enough ascension points.',
+    cantAffordRunSkill: 'Not enough run skill points.',
     missingResources: 'Missing: {list}',
     generatorBought: '{name} built.',
     shipBuilt: '{name} commissioned.',
@@ -479,6 +514,7 @@ export const en = {
     techResearched: 'Technology acquired: {name}.',
     prestigeUpgraded: '{name} — level {level}.',
     factionSkillBought: '{name} — level {level}.',
+    runSkillBought: '{name} — level {level}.',
     nodeReward: 'Loot: {list}',
     skillPointGained: '+1 run skill point.',
     objectiveComplete:

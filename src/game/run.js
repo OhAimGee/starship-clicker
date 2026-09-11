@@ -4,7 +4,10 @@
 
 import { FACTION_BY_ID } from '../data/factions.js';
 import { OBJECTIVES } from '../data/objectives.js';
+import { RUN_SKILLS, RUN_SKILL_BY_ID } from '../data/runSkills.js';
 import { factionSkillCost, fleetPower } from './economy.js';
+
+const round = Math.round;
 
 /**
  * Choisit le type d'objectif selon le niveau de faction — une rampe
@@ -41,6 +44,9 @@ export function startRun(state, factionId) {
   state.run.objectiveAnnounced = false;
   state.run.buffs = [];
   state.run.skillPoints = 0;
+  state.run.skillTree = Object.fromEntries(
+    RUN_SKILLS.map((s) => [s.id, { level: 0 }])
+  );
   state.run.objective = {
     type: objective.id,
     target: objective.target(level),
@@ -82,5 +88,29 @@ export function buyFactionSkill(state, factionId, skillId) {
 
   state.resources.ascensionPoints -= cost;
   state.prestige.factions[factionId].skills[skillId].level += 1;
+  return true;
+}
+
+/** Coût du prochain niveau d'une compétence de l'arbre de run (payé en
+ * `run.skillPoints`, pas en points d'ascension). */
+export function runSkillCost(state, skillId) {
+  const skill = RUN_SKILL_BY_ID[skillId];
+  if (!skill) return Infinity;
+  const level = state.run.skillTree[skillId]?.level ?? 0;
+  return round(skill.baseCost * skill.costGrowth ** level);
+}
+
+/**
+ * Achète (ou monte d'un niveau) une compétence de l'arbre de run — effet
+ * temporaire, ne dure que la run en cours (voir `startRun`/`endRun`).
+ * @returns {boolean} succès (faux si compétence inconnue ou points insuffisants)
+ */
+export function buyRunSkill(state, skillId) {
+  if (!RUN_SKILL_BY_ID[skillId]) return false;
+  const cost = runSkillCost(state, skillId);
+  if (state.run.skillPoints < cost) return false;
+
+  state.run.skillPoints -= cost;
+  state.run.skillTree[skillId].level += 1;
   return true;
 }

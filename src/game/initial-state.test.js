@@ -8,10 +8,10 @@ import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
 import { ASCENSION_REWARD_IDS } from '../data/ascensionRewards.js';
 
 describe('createInitialState', () => {
-  it('produit un état taggé v4 avec horodatages', () => {
+  it('produit un état taggé v5 avec horodatages', () => {
     const s = createInitialState();
     expect(s.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(s.schemaVersion).toBe(4);
+    expect(s.schemaVersion).toBe(5);
     expect(typeof s.savedAt).toBe('number');
     expect(typeof s.createdAt).toBe('number');
   });

@@ -14,6 +14,7 @@ import { SHIP_IDS } from '../data/fleet.js';
 import { RESOURCE_IDS } from '../data/resources.js';
 import { FACTION_IDS } from '../data/factions.js';
 import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
+import { RUN_SKILLS } from '../data/runSkills.js';
 import { isObjectiveComplete } from './run.js';
 
 // ─── Terminer la run (fréquent) ─────────────────────────────────────────────
@@ -97,6 +98,9 @@ export function endRun(state) {
   state.run.objectiveAnnounced = false;
   state.run.buffs = [];
   state.run.skillPoints = 0;
+  state.run.skillTree = Object.fromEntries(
+    RUN_SKILLS.map((s) => [s.id, { level: 0 }])
+  );
 
   state.events = { lastAt: 0, accumMs: 0 };
 

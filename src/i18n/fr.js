@@ -42,6 +42,7 @@ export const fr = {
       ascension: 'Ascension — objectif ultime',
       ascensionRewards: "Récompenses d'Ascension possédées",
       endRun: 'Terminer la run',
+      runSkillTree: 'Compétences de run',
     },
     cols: {
       cost: 'Coût',
@@ -58,6 +59,7 @@ export const fr = {
       permanentBonus: 'Bonus de production permanent',
       owned: 'Possédés',
       runObjective: 'Objectif de la run',
+      runSkillPoints: 'Points de compétence',
     },
     factionSelect: {
       title: 'Choisir une faction',
@@ -134,6 +136,12 @@ export const fr = {
       intro:
         'Ascension ! Choisissez une récompense permanente — toutes les ' +
         'factions retombent au niveau 0, un New Game+ commence.',
+    },
+    runSkillTree: {
+      intro:
+        'Dépensez vos points de compétence de run (gagnés sur la carte ' +
+        'd’exploration) pour des bonus temporaires — ils ne durent que ' +
+        'cette run.',
     },
     offline: {
       title: 'Bon retour, Commandant',
@@ -416,6 +424,35 @@ export const fr = {
     },
   },
 
+  runSkill: {
+    overclockedThrusters: {
+      name: 'Propulseurs surchargés',
+      desc: '+8 % de puissance de flotte par niveau (cette run seulement).',
+    },
+    scavengerProtocols: {
+      name: 'Protocoles de récupération',
+      desc:
+        '+10 % de production de métal et de cristaux par niveau (cette ' +
+        'run seulement).',
+    },
+    rapidFire: {
+      name: 'Tir rapide',
+      desc: '+10 % de pouvoir de clic par niveau (cette run seulement).',
+    },
+    fieldRepairs: {
+      name: 'Réparations de campagne',
+      desc: '-8 % de maintenance de flotte par niveau (cette run seulement).',
+    },
+    streamlinedLogistics: {
+      name: 'Logistique allégée',
+      desc: '-6 % de coût des vaisseaux par niveau (cette run seulement).',
+    },
+    energyFocus: {
+      name: 'Focalisation énergétique',
+      desc: '+6 % de production globale par niveau (cette run seulement).',
+    },
+  },
+
   ascensionReward: {
     hyperProduction: {
       name: 'Surcharge de production',
@@ -481,6 +518,7 @@ export const fr = {
     welcome: 'Bienvenue ! Cliquez sur le vaisseau mère pour commencer.',
     cantAfford: 'Ressources insuffisantes.',
     cantAffordPrestige: "Pas assez de points d'ascension.",
+    cantAffordRunSkill: 'Pas assez de points de compétence de run.',
     missingResources: 'Il manque : {list}',
     generatorBought: '{name} construit.',
     shipBuilt: '{name} mis en service.',
@@ -488,6 +526,7 @@ export const fr = {
     techResearched: 'Technologie acquise : {name}.',
     prestigeUpgraded: '{name} — niveau {level}.',
     factionSkillBought: '{name} — niveau {level}.',
+    runSkillBought: '{name} — niveau {level}.',
     nodeReward: 'Butin : {list}',
     skillPointGained: '+1 point de compétence de run.',
     objectiveComplete:
