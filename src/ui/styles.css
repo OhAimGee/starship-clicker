@@ -868,15 +868,15 @@ h3 {
   font-size: 0.9rem;
 }
 
-/* ── Liste de systèmes / sous-menu de planètes (exploration) ─────────────── */
-/* Réutilise le motif .board-row/.board-row-main existant. Grilles dédiées
-   (comme .faction-row) : ces lignes n'ont pas la même arité d'enfants que
-   .board-row-main par défaut (code + icône + libellé + queue). */
+/* ── Liste de systèmes (exploration) ──────────────────────────────────────── */
+/* Réutilise le motif .board-row/.board-row-main existant. Grille dédiée
+   (comme .faction-row) : cette ligne n'a pas la même arité d'enfants que
+   .board-row-main par défaut (code + icône + libellé + queue) — voir aussi
+   sa re-déclaration dans le bloc Desktop plus bas (même raison que
+   .faction-row). Le détail d'un système (planètes) s'affiche dans une
+   popup (voir system-detail.js), pas ici. */
 .system-row {
   grid-template-columns: 2.6rem minmax(0, 1fr);
-}
-.planet-row {
-  grid-template-columns: 1.4rem minmax(0, 1fr) auto;
 }
 .row-portrait {
   width: 2.2rem;
@@ -894,10 +894,6 @@ h3 {
 }
 .board-row[data-state='done'] .row-name {
   color: var(--go);
-}
-.planet-menu {
-  display: flex;
-  flex-direction: column;
 }
 
 /* ── Sélection de faction ────────────────────────────────────────────────── */
@@ -1271,6 +1267,14 @@ h3 {
   .row-sub {
     flex-shrink: 0;
     white-space: nowrap;
+  }
+
+  /* .system-row n'a que 2 enfants (portrait + libellé), pas les 4 de la
+     grille générique ci-dessus — même re-déclaration que .faction-row
+     juste après, pour la même raison (sinon le libellé est écrasé dans
+     une colonne de 1.5rem prévue pour une icône). */
+  .system-row {
+    grid-template-columns: 2.6rem minmax(0, 1fr);
   }
 
   .announcements {

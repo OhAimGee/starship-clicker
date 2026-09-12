@@ -6,8 +6,16 @@ import { formatNumber, formatDuration } from './format.js';
 import { resourceCode } from '../data/resources.js';
 
 /** `dismissable: false` retire la fermeture par clic sur le fond / Échap
- *  (utilisé pour un choix obligatoire, ex. sélection de faction). */
-export function openPanel(headline, body, { dismissable = true } = {}) {
+ *  (utilisé pour un choix obligatoire, ex. sélection de faction).
+ *  `onClose`, si fourni, est appelé quel que soit le déclencheur de la
+ *  fermeture (bouton dédié, clic sur le fond, Échap) — utile quand fermer
+ *  la modale doit aussi remettre à jour un état côté moteur (voir
+ *  `system-detail.js#showSystemDetail`). */
+export function openPanel(
+  headline,
+  body,
+  { dismissable = true, onClose } = {}
+) {
   const panel = el('div', {
     class: 'board-modal',
     role: 'dialog',
@@ -19,7 +27,10 @@ export function openPanel(headline, body, { dismissable = true } = {}) {
     el('div', { class: 'board-modal-body' }, body)
   );
   const scrim = el('div', { class: 'board-modal-scrim' }, [panel]);
-  const close = () => scrim.remove();
+  const close = () => {
+    scrim.remove();
+    onClose?.();
+  };
   if (dismissable) {
     scrim.addEventListener('click', (e) => e.target === scrim && close());
     scrim.addEventListener('keydown', (e) => e.key === 'Escape' && close());

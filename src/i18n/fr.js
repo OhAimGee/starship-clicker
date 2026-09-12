@@ -94,6 +94,8 @@ export const fr = {
       conquered: 'Conquise',
       pending: 'À faire',
       phaseProgress: 'Phase {won}/{total}',
+      noReward: 'Aucune récompense.',
+      needsResearch: 'Nécessite une recherche',
     },
     planetType: {
       invaded: 'Envahie',
@@ -115,7 +117,7 @@ export const fr = {
       details: 'Détails',
       cancel: 'Annuler',
       engage: 'Engager',
-      back: 'Retour',
+      close: 'Fermer',
     },
     labels: {
       owned: 'Possédés : {n}',

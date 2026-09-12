@@ -9,7 +9,7 @@ import { formatNumber, timeCode } from '../format.js';
 import { boardRow, sectionHead, setFacts } from '../board-row.js';
 import { runSkillIconId } from '../icon-map.js';
 import { objectiveLabel, objectiveProgressText } from '../objective-text.js';
-import { renderSystemList, renderPlanetMenu } from '../system-map.js';
+import { renderSystemList } from '../system-map.js';
 
 const rewardLine = (rewards, factor = 1) =>
   Object.entries(rewards)
@@ -36,11 +36,7 @@ export function createExplorationPanel(engine) {
   // panneau à chaque frame.
   const sig = () => {
     const s = engine.state;
-    // Inclut activeSystemIndex : ouvrir/fermer le sous-menu d'un système
-    // change le libellé de droite de la section (nom du système) —
-    // reconstruire tout le panneau à ce moment précis est sans risque de
-    // performance (action ponctuelle du joueur, pas une boucle par frame).
-    return `${s.run.factionId}|${s.run.exploration.conquered.length}|${s.run.exploration.activeSystemIndex}`;
+    return `${s.run.factionId}|${s.run.exploration.conquered.length}`;
   };
 
   const mapSig = () => {
@@ -48,16 +44,16 @@ export function createExplorationPanel(engine) {
     const s = engine.state;
     const exploration = s.run.exploration;
     // Progression par planète (comptes conquis) + niveau de joueur (règle
-    // le verrouillage des systèmes) + système actif — suffisant pour
-    // détecter tout changement pertinent à l'affichage sans comparer les
-    // objets en profondeur.
+    // le verrouillage des systèmes) — la popup de détail (voir
+    // `system-detail.js`) vit hors du panneau et se rafraîchit elle-même ;
+    // ici, seule la liste des systèmes doit refléter les changements.
     const progress = exploration.systems
       .map(
         (sys) =>
           `${sys.planets.filter((p) => p.conquered).length}/${sys.planets.length}${sys.conquered ? 'C' : ''}`
       )
       .join(',');
-    return `${exploration.activeSystemIndex}|${s.prestige.player.level}|${progress}`;
+    return `${s.prestige.player.level}|${progress}`;
   };
 
   function refresh() {
@@ -83,8 +79,6 @@ export function createExplorationPanel(engine) {
       skillRows.set(def.id, row);
     });
 
-    const activeSystem = engine.activeSystem();
-
     root.append(
       el('h2', { text: t('ui.panels.exploration') }),
       el('ul', { class: 'stat-grid' }, [
@@ -94,10 +88,7 @@ export function createExplorationPanel(engine) {
           skillPointsValue,
         ]),
       ]),
-      sectionHead(
-        t('ui.sections.explorationMap'),
-        activeSystem ? activeSystem.name : ''
-      ),
+      sectionHead(t('ui.sections.explorationMap'), ''),
       mapHost,
       sectionHead(t('ui.sections.conqueredSystems'), ''),
       arrivals,
@@ -216,12 +207,7 @@ export function createExplorationPanel(engine) {
           el('p', { class: 'panel-note', text: t('ui.nodeMap.noFleet') })
         );
       } else {
-        const activeSystem = engine.activeSystem();
-        mapHost.append(
-          activeSystem
-            ? renderPlanetMenu(engine, activeSystem)
-            : renderSystemList(engine)
-        );
+        mapHost.append(renderSystemList(engine));
       }
       mapSignature = currentMapSig;
     }

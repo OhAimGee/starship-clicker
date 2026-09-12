@@ -20,8 +20,8 @@ import { notifyText } from './notify-text.js';
 import { showOfflineReport, confirmDialog } from './modal.js';
 import { showFactionSelect } from './faction-select.js';
 import { showAscensionReward } from './ascension-reward.js';
-import { showFleetAllocation } from './fleet-allocation.js';
 import { showBattleReport } from './battle-report.js';
+import { showSystemDetail } from './system-detail.js';
 import { bindHold } from './motion.js';
 import { createFlap } from './flap.js';
 import { createShopPanel } from './panels/shop.js';
@@ -279,21 +279,8 @@ export function mountApp(host, engine, { offlineReport } = {}) {
         engine.research(id);
         break;
       case 'open-system':
-        engine.openSystem(Number(id));
+        showSystemDetail(engine, Number(id));
         break;
-      case 'close-system':
-        engine.closeSystemMenu();
-        break;
-      case 'open-planet-combat': {
-        const system = engine.activeSystem();
-        const planet = system?.planets.find((p) => p.id === id);
-        if (planet) {
-          showFleetAllocation(engine, planet.defenseRating, (allocation) => {
-            engine.resolvePlanetCombat(planet.id, allocation);
-          });
-        }
-        break;
-      }
       case 'buy-prestige-upgrade':
         engine.buyPrestigeUpgrade(id);
         break;
