@@ -189,8 +189,100 @@ export const en = {
         'Start a fresh game? All progress will be lost (other browser saves ' +
         'are unaffected).',
     },
+    achievements: {
+      title: 'Achievements',
+    },
+    quit: {
+      cannotClose:
+        'The browser will not close this tab automatically — you can close it yourself.',
+    },
+    pauseMenu: {
+      button: 'Menu',
+      title: 'Menu',
+      achievements: 'Achievements',
+      options: 'Options',
+      mainMenu: 'Main menu',
+    },
     language: 'Language',
     footer: 'Automatic local save · no data leaves your machine.',
+  },
+
+  mainMenu: {
+    continue: 'Continue',
+    newGame: 'New Game',
+    tutorial: 'Tutorial',
+    achievements: 'Achievements',
+    options: 'Options',
+    quit: 'Quit',
+    tutorialSoon: 'The tutorial is in the works — check back soon!',
+    overwriteWarning:
+      'Creating a new Commander will overwrite the current save. Continue?',
+    defaultCommanderName: 'Commander',
+  },
+
+  commanderCreation: {
+    title: 'Create a Commander',
+    intro:
+      'Choose a name and a faction to begin — the chosen faction ' +
+      'progresses during this game.',
+    nameLabel: 'Commander name',
+    namePlaceholder: 'Commander',
+  },
+
+  options: {
+    title: 'Options',
+    theme: 'Theme',
+    themeName: {
+      cyberspace: 'CyberSpace (blue)',
+    },
+    moreThemesSoon: 'More themes are coming later.',
+  },
+
+  achievement: {
+    firstClick: {
+      name: 'First Contact',
+      desc: 'Click the mothership for the first time.',
+    },
+    hundredClicks: {
+      name: 'Nimble Finger',
+      desc: 'Click 100 times in total.',
+    },
+    firstGenerator: {
+      name: 'First Gears',
+      desc: 'Build a first generator.',
+    },
+    firstShip: {
+      name: 'First Ship',
+      desc: 'Build a first ship.',
+    },
+    firstTech: {
+      name: 'Scientific Awakening',
+      desc: 'Complete a first piece of research.',
+    },
+    firstSystemConquered: {
+      name: 'First Flag Planted',
+      desc: 'Conquer a first system.',
+    },
+    firstEndRun: {
+      name: 'First Return to Port',
+      desc: 'Complete a first run.',
+    },
+    firstAscension: {
+      name: 'Rebirth',
+      desc: 'Ascend for the first time.',
+    },
+    fleetOf1000: {
+      name: 'Armada',
+      desc: 'Own 1000 ships in total.',
+    },
+    allGeneratorTypes: {
+      name: 'Full Industry',
+      desc: 'Own at least one of every generator type.',
+    },
+    playerLevel10: {
+      name: 'Seasoned Commander',
+      desc: 'Reach player level 10.',
+    },
   },
 
   resource: {
@@ -572,6 +664,7 @@ export const en = {
     ascensionRewardChosen: '{name} — Ascension reward gained (level {level}).',
     maintenanceLoss: 'Insufficient upkeep: ships were lost.',
     unlocked: 'New: {name}',
+    achievementUnlocked: 'Achievement unlocked: {name}',
     systemLocked: 'Level {level} required to access this system.',
     levelUp: 'Level {level} reached!',
     planetConquered: 'Planet conquered!',

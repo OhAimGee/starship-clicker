@@ -990,10 +990,81 @@ h3 {
   flex-direction: column;
   gap: 0.75rem;
 }
+.foot-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
 .foot-note {
   font-size: var(--fs-label);
   letter-spacing: 0.04em;
   color: var(--ink-faint);
+}
+
+/* ── Écran d'accueil / fiche de Commandant ────────────────────────────────── */
+/* `.menu-screen` remplace `.app` sur `#app` tant qu'aucune partie n'est
+   chargée (voir src/main.js#bootMenu) — évite la grille nommée du bloc
+   "Desktop large" plus bas (pensée pour le chrome de jeu, pas un écran à
+   un seul panneau) tout en gardant le même fond/la même largeur max. */
+.menu-screen {
+  min-height: 100dvh;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+}
+.main-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: var(--pad);
+  text-align: center;
+}
+.main-menu-wordmark {
+  font-size: 1.6rem;
+}
+.main-menu-wordmark svg {
+  width: 26px;
+  height: 26px;
+}
+.main-menu-tagline {
+  color: var(--ink-dim);
+  max-width: 32ch;
+}
+.main-menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(100%, 22rem);
+}
+.commander-name-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: min(100%, 22rem);
+  text-align: left;
+  font-family: var(--face-display);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.commander-name-input {
+  background: var(--face-raised);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  font: inherit;
+  font-family: var(--face-text);
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0.55rem 0.7rem;
+}
+.commander-name-input:focus {
+  outline: 1px solid var(--focus);
+  outline-offset: -1px;
 }
 
 /* ── Annonces (toasts, style bandeau) ────────────────────────────────────── */

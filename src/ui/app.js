@@ -22,6 +22,9 @@ import { showFactionSelect } from './faction-select.js';
 import { showAscensionReward } from './ascension-reward.js';
 import { showBattleReport } from './battle-report.js';
 import { showSystemDetail } from './system-detail.js';
+import { showAchievements } from './achievements-screen.js';
+import { showOptions } from './options-screen.js';
+import { showPauseMenu } from './pause-menu.js';
 import { bindHold } from './motion.js';
 import { createFlap } from './flap.js';
 import { createShopPanel } from './panels/shop.js';
@@ -32,7 +35,7 @@ import { createAscensionPanel } from './panels/ascension.js';
 
 const TABS = ['shop', 'fleet', 'exploration', 'technology', 'ascension'];
 
-export function mountApp(host, engine, { offlineReport } = {}) {
+export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
   host.replaceChildren();
 
   const resources = createResourcesBoard(engine);
@@ -143,10 +146,15 @@ export function mountApp(host, engine, { offlineReport } = {}) {
     type: 'button',
     dataset: { action: 'reset' },
   });
+  const menuBtn = el('button', {
+    class: 'btn',
+    type: 'button',
+    dataset: { action: 'pause-menu' },
+  });
   const footNote = el('p', { class: 'foot-note' });
   const footer = el('footer', { class: 'foot' }, [
     footStats,
-    resetBtn,
+    el('div', { class: 'foot-actions' }, [resetBtn, menuBtn]),
     footNote,
   ]);
 
@@ -204,6 +212,7 @@ export function mountApp(host, engine, { offlineReport } = {}) {
       btn.querySelector('.terminal-label').textContent = t(`ui.tabs.${key}`);
     }
     resetBtn.textContent = t('ui.buttons.reset');
+    menuBtn.textContent = t('ui.pauseMenu.button');
     footNote.textContent = t('ui.footer');
     langSelect.setAttribute('aria-label', t('ui.language'));
     runFleetLabel.textContent = t('ui.stats.fleetPower');
@@ -300,6 +309,16 @@ export function mountApp(host, engine, { offlineReport } = {}) {
         confirmDialog(t('ui.reset.confirm'), () => {
           engine.reset();
           saver.flushNow();
+        });
+        break;
+      case 'pause-menu':
+        showPauseMenu({
+          onAchievements: () => showAchievements(engine.state),
+          onOptions: () => showOptions(),
+          onMainMenu: () => {
+            saver.flushNow();
+            onReturnToMenu?.();
+          },
         });
         break;
       default:

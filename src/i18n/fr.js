@@ -193,9 +193,101 @@ export const fr = {
         'Recommencer une partie neuve ? Toute progression sera perdue ' +
         '(sans effet sur les autres sauvegardes du navigateur).',
     },
+    achievements: {
+      title: 'Succès',
+    },
+    quit: {
+      cannotClose:
+        'Le navigateur ne permet pas de fermer cet onglet automatiquement — vous pouvez le fermer vous-même.',
+    },
+    pauseMenu: {
+      button: 'Menu',
+      title: 'Menu',
+      achievements: 'Succès',
+      options: 'Options',
+      mainMenu: "Menu principal",
+    },
     language: 'Langue',
     footer:
       'Sauvegarde automatique locale · aucune donnée ne quitte la machine.',
+  },
+
+  mainMenu: {
+    continue: 'Continuer',
+    newGame: 'Nouveau',
+    tutorial: 'Tutoriel',
+    achievements: 'Succès',
+    options: 'Options',
+    quit: 'Quitter',
+    tutorialSoon: 'Le tutoriel est en préparation — reviens bientôt !',
+    overwriteWarning:
+      'Créer un nouveau Commandant écrasera la partie en cours. Continuer ?',
+    defaultCommanderName: 'Commandant',
+  },
+
+  commanderCreation: {
+    title: 'Créer un Commandant',
+    intro:
+      'Choisis un nom et une faction pour débuter — la faction choisie ' +
+      'progresse pendant cette partie.',
+    nameLabel: 'Nom du Commandant',
+    namePlaceholder: 'Commandant',
+  },
+
+  options: {
+    title: 'Options',
+    theme: 'Thème',
+    themeName: {
+      cyberspace: 'CyberSpace (bleu)',
+    },
+    moreThemesSoon: "D'autres thèmes arriveront plus tard.",
+  },
+
+  achievement: {
+    firstClick: {
+      name: 'Premier contact',
+      desc: 'Cliquez sur le vaisseau mère pour la première fois.',
+    },
+    hundredClicks: {
+      name: 'Doigt agile',
+      desc: 'Cliquez 100 fois au total.',
+    },
+    firstGenerator: {
+      name: 'Premiers rouages',
+      desc: 'Construisez un premier générateur.',
+    },
+    firstShip: {
+      name: 'Premier vaisseau',
+      desc: 'Construisez un premier vaisseau.',
+    },
+    firstTech: {
+      name: 'Éveil scientifique',
+      desc: 'Achevez une première recherche.',
+    },
+    firstSystemConquered: {
+      name: 'Premier drapeau planté',
+      desc: 'Conquérez un premier système.',
+    },
+    firstEndRun: {
+      name: 'Premier retour au port',
+      desc: 'Terminez une première run.',
+    },
+    firstAscension: {
+      name: 'Renaissance',
+      desc: 'Ascendez pour la première fois.',
+    },
+    fleetOf1000: {
+      name: 'Armada',
+      desc: 'Possédez 1000 vaisseaux au total.',
+    },
+    allGeneratorTypes: {
+      name: 'Industrie complète',
+      desc: 'Possédez au moins un exemplaire de chaque générateur.',
+    },
+    playerLevel10: {
+      name: 'Commandant aguerri',
+      desc: 'Atteignez le niveau de joueur 10.',
+    },
   },
 
   resource: {
@@ -585,6 +677,7 @@ export const fr = {
     ascensionRewardChosen: '{name} — récompense d’Ascension obtenue (niveau {level}).',
     maintenanceLoss: 'Maintenance insuffisante : des vaisseaux ont été perdus.',
     unlocked: 'Nouveau : {name}',
+    achievementUnlocked: 'Succès débloqué : {name}',
     systemLocked: 'Niveau {level} requis pour accéder à ce système.',
     levelUp: 'Niveau {level} atteint !',
     planetConquered: 'Planète conquise !',
