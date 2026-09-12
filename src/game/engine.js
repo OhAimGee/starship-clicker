@@ -14,6 +14,7 @@ import {
   PRESTIGE_UPGRADE_BY_ID,
 } from '../data/upgrades.js';
 import { FACTION_BY_ID } from '../data/factions.js';
+import { ACHIEVEMENTS } from '../data/achievements.js';
 import { createInitialState } from './initial-state.js';
 import {
   isUnlocked,
@@ -196,6 +197,7 @@ export class Engine {
     );
 
     this._scanUnlocks();
+    this._scanAchievements();
   }
 
   _applyAttrition(seconds) {
@@ -631,6 +633,22 @@ export class Engine {
       }
     }
     this._seen = now;
+  }
+
+  /** Succès (voir data/achievements.js) — contrairement à `_scanUnlocks()`,
+   * pas besoin d'un Set-diff en mémoire : `state.achievements[id].unlocked`
+   * porte déjà le verrou de façon persistante (survit à la sauvegarde), il
+   * suffit de ne (re)vérifier que les succès pas encore débloqués. */
+  _scanAchievements() {
+    for (const def of ACHIEVEMENTS) {
+      const entry = this.state.achievements[def.id];
+      if (entry.unlocked) continue;
+      if (def.check(this.state)) {
+        entry.unlocked = true;
+        this._notify('notify.achievementUnlocked', { id: def.id }, 'success');
+        this._emit('achievement', { id: def.id });
+      }
+    }
   }
 }
 

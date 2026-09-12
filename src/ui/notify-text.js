@@ -32,6 +32,10 @@ export function notifyText({ key, params = {} }, engine) {
     return t(key, { name, level });
   }
 
+  if (key === 'notify.achievementUnlocked') {
+    return t(key, { name: t(`achievement.${params.id}.name`) });
+  }
+
   if (key === 'notify.nodeReward') {
     const list = Object.entries(params.reward ?? {})
       .map(([res, amt]) => `+${formatNumber(amt)} ${resourceCode(res)}`)

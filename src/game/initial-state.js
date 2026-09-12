@@ -10,6 +10,7 @@ import { CLICK_UPGRADES, PRESTIGE_UPGRADES } from '../data/upgrades.js';
 import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
 import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
 import { RUN_SKILLS } from '../data/runSkills.js';
+import { ACHIEVEMENT_IDS } from '../data/achievements.js';
 
 // v1 = schéma monolithique d'avant la refonte (généré par l'ancien script.js).
 // v2 = schéma piloté par les données.
@@ -23,7 +24,13 @@ import { RUN_SKILLS } from '../data/runSkills.js';
 // run.exploration.systems/activeSystemIndex remplacent targets/activeMap)
 // — additif également : mergeIntoShape comble les nouveaux champs, les
 // anciens (targets/activeMap) sont simplement ignorés (clés inconnues).
-export const SCHEMA_VERSION = 7;
+// v8 = écran d'accueil : commander (nom choisi à la création) + achievements
+// (succès, voir data/achievements.js) — additif également. Une sauvegarde
+// v7 qui passe par `mergeIntoShape` reçoit `commander.name: ''` et tous ses
+// succès à `unlocked: false`, puis `Engine#_scanAchievements` les débloque
+// dès le prochain tick si leur condition est déjà remplie (ex. une run déjà
+// terminée avant cette mise à jour débloque `firstEndRun` immédiatement).
+export const SCHEMA_VERSION = 8;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -35,6 +42,24 @@ export function createInitialState() {
     savedAt: now,
     createdAt: now,
     lang: 'fr',
+
+    // Nom choisi à la création de la partie (fiche de Commandant, voir
+    // ui/commander-creation.js). Comme le reste de cet état, ne survit
+    // qu'à `endRun()`/`ascend()` (run-scoped) — une remise à zéro complète
+    // (`reset()`/nouvelle fiche de Commandant) en repart à vide, comme pour
+    // le niveau de faction ou le compte d'Ascensions.
+    commander: { name: '' },
+
+    // Succès — jalons purement informatifs, voir data/achievements.js. Une
+    // fois débloqué, un succès le reste pour toujours au sein d'une même
+    // partie (voir Engine#_scanAchievements) : `endRun()`/`ascend()` ne les
+    // réinitialisent jamais, même si le compteur sous-jacent (ex. systèmes
+    // conquis cette run) retombe à zéro. Comme `commander` ci-dessus, une
+    // remise à zéro complète (`reset()`/nouvelle fiche de Commandant) les
+    // efface : ce sont des jalons de LA partie en cours, pas du navigateur.
+    achievements: Object.fromEntries(
+      ACHIEVEMENT_IDS.map((id) => [id, { unlocked: false }])
+    ),
 
     resources: zeroMap(RESOURCE_IDS),
     totalProduced: zeroMap(RESOURCE_IDS), // cumul « à vie » (sert aux déblocages)

@@ -139,6 +139,17 @@ export function clearSave(storage = safeStorage()) {
   }
 }
 
+/** Une sauvegarde existe-t-elle (présence brute, sans parsing/migration) ?
+ * Sert à l'écran d'accueil (`ui/main-menu.js`) pour activer/griser
+ * "Continuer" sans charger un état complet à chaque affichage du menu. */
+export function hasSave(storage = safeStorage()) {
+  try {
+    return !!storage?.getItem(STORAGE_KEY);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Sauvegarde regroupée : `request()` note qu'une écriture est due, `flush()`
  * écrit immédiatement si due. À appeler périodiquement + sur
