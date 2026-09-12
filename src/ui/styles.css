@@ -5,8 +5,9 @@
    matière de terminal néon 80's/espace profond. Voir DESIGN.md.)
 
    Le jeu reste un tableau de lignes réglées, mais diffusé comme un signal
-   depuis l'espace profond : fond indigo quasi-noir, néon magenta/cyan/violet
-   qui COMMANDE des régions entières (plus seulement des liserés), lueur
+   depuis l'espace profond : fond bleu nuit quasi-noir, chrome bleu-acier qui
+   COMMANDE des régions entières (plus seulement des liserés), touches de
+   mauve/magenta réservées aux accents (statut « inabordable », lueurs), lueur
    (glow) comme matière à part entière, fond étoilé procédural discret
    derrière les panneaux. Chiffres tabulaires partout, inchangé.
    ============================================================================ */
@@ -14,17 +15,17 @@
 :root {
   color-scheme: dark;
 
-  /* — Matière — (indigo/noir spatial, pas de noir mat tiède) */
-  --face: #0c0818; /* face de palette */
-  --face-raised: #170f2c;
+  /* — Matière — (bleu nuit spatial, pas de noir mat tiède) */
+  --face: #050810; /* face de palette */
+  --face-raised: #10203f;
   --face-hinge: rgba(0, 0, 0, 0.6); /* la charnière au milieu d'une palette */
-  --steel-1: #4a3a7a; /* cadre « chrome » violet brossé, lit au néon */
-  --steel-2: #322459;
-  --steel-3: #1e1640;
+  --steel-1: #2f5aa0; /* cadre « chrome » bleu-acier brossé, lit au néon */
+  --steel-2: #1e3f74;
+  --steel-3: #16294f;
 
-  --ink: #f1ecff; /* blanc légèrement lavande, lisible sous lueur */
-  --ink-dim: #b7a9e2;
-  --ink-faint: #9384c0; /* >= 4.5:1 sur le fond spatial (petits textes) */
+  --ink: #eaf1ff; /* blanc légèrement bleuté, lisible sous lueur */
+  --ink-dim: #a7bce3;
+  --ink-faint: #7f95c4; /* >= 4.5:1 sur le fond spatial (petits textes) */
 
   /* Bruit anisotrope (brossage du métal) et grain fin (peinture des palettes).
      Textures réellement générées, pas de faux biseau CSS. */
@@ -48,8 +49,8 @@
   --glow-signal: 0 0 10px rgba(255, 71, 87, 0.6), 0 0 24px rgba(255, 71, 87, 0.3);
   --glow-focus: 0 0 8px rgba(108, 140, 255, 0.55);
 
-  --rule: rgba(241, 236, 255, 0.14);
-  --rule-strong: rgba(241, 236, 255, 0.26);
+  --rule: rgba(234, 241, 255, 0.14);
+  --rule-strong: rgba(234, 241, 255, 0.26);
 
   /* — Type — une seule famille, désormais lue comme un terminal de signal.
      Barlow Condensed : grotesque condensée, reste la seule voix d'affichage. */
@@ -82,7 +83,7 @@
 }
 
 html {
-  background: #060410;
+  background: #03040a;
 }
 
 body {
@@ -92,7 +93,7 @@ body {
   letter-spacing: 0.01em;
   color: var(--ink);
   background:
-    var(--grain), var(--starfield), linear-gradient(180deg, #120b28, #060410 60%), #060410;
+    var(--grain), var(--starfield), linear-gradient(180deg, #0a1626, #03040a 60%), #03040a;
   background-size:
     90px 90px,
     240px 240px,
@@ -105,7 +106,7 @@ body {
 
 ::selection {
   background: var(--lamp);
-  color: #0a0616;
+  color: #05070f;
 }
 :focus-visible {
   outline: 2px solid var(--focus);
@@ -122,7 +123,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--steel-2);
   border-radius: 6px;
-  border: 2px solid #060410;
+  border: 2px solid #03040a;
 }
 
 h1,
@@ -347,7 +348,7 @@ h3 {
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 50%;
-  background: #241a3d;
+  background: #1c3054;
   justify-self: end;
 }
 .res-row[data-trend='up'] .res-lamp {
@@ -374,7 +375,7 @@ h3 {
   min-width: 0.68em;
   padding: 0.05em 0.03em;
   background:
-    var(--grain), linear-gradient(180deg, #241a3d 0 50%, #100a20 50% 100%);
+    var(--grain), linear-gradient(180deg, #1c3054 0 50%, #081324 50% 100%);
   background-size:
     46px 46px,
     auto;
@@ -439,7 +440,7 @@ h3 {
   justify-content: space-between;
   gap: 1rem;
   background:
-    var(--grain), linear-gradient(180deg, #241a3d, #170f2c 45%, #120b28);
+    var(--grain), linear-gradient(180deg, #1c3054, #10203f 45%, #0a1626);
   background-size:
     64px 64px,
     auto;
@@ -966,7 +967,7 @@ h3 {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink);
-  background: linear-gradient(180deg, #241a3d, #170f2c);
+  background: linear-gradient(180deg, #1c3054, #10203f);
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
   padding: 0.6rem 1rem;
@@ -981,7 +982,7 @@ h3 {
   opacity: 0.6;
 }
 .btn-go {
-  color: #0a0616;
+  color: #05070f;
   background: var(--go);
   border-color: var(--go);
 }
