@@ -17,7 +17,6 @@ export const fr = {
       runStatus: 'Statut de la run',
     },
     tabs: {
-      click: 'Clic',
       shop: 'Boutique',
       fleet: 'Flotte',
       exploration: 'Exploration',
@@ -25,7 +24,6 @@ export const fr = {
       ascension: 'Ascension',
     },
     panels: {
-      click: 'Poste de pilotage',
       shop: 'Centre de commande',
       fleet: 'Chantier naval',
       exploration: 'Carte galactique',
