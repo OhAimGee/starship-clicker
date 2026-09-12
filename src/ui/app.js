@@ -278,13 +278,20 @@ export function mountApp(host, engine, { offlineReport } = {}) {
       case 'research':
         engine.research(id);
         break;
-      case 'choose-node':
-        engine.chooseNode(id);
+      case 'open-system':
+        engine.openSystem(Number(id));
         break;
-      case 'open-combat': {
-        const map = engine.state.run.exploration.activeMap;
-        const node = map?.nodes[id];
-        if (node) showFleetAllocation(engine, id, node);
+      case 'close-system':
+        engine.closeSystemMenu();
+        break;
+      case 'open-planet-combat': {
+        const system = engine.activeSystem();
+        const planet = system?.planets.find((p) => p.id === id);
+        if (planet) {
+          showFleetAllocation(engine, planet.defenseRating, (allocation) => {
+            engine.resolvePlanetCombat(planet.id, allocation);
+          });
+        }
         break;
       }
       case 'buy-prestige-upgrade':

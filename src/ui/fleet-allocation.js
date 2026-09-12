@@ -1,8 +1,8 @@
-// Modal d'allocation de flotte avant un combat (nœud invade/conquest) —
-// même motif que `ascension-reward.js` (panneau plein cadre de `modal.js`)
-// mais `dismissable: true` : contrairement à un choix obligatoire (faction,
-// récompense d'Ascension), le joueur peut annuler et revenir plus tard avec
-// une flotte différente.
+// Modal d'allocation de flotte avant un combat de planète (invaded/
+// hostile) — même motif que `ascension-reward.js` (panneau plein cadre de
+// `modal.js`) mais `dismissable: true` : contrairement à un choix
+// obligatoire (faction, récompense d'Ascension), le joueur peut annuler et
+// revenir plus tard avec une flotte différente.
 
 import { el } from './dom.js';
 import { t } from '../i18n/index.js';
@@ -12,7 +12,13 @@ import { formatNumber } from './format.js';
 import { openPanel } from './modal.js';
 import { committedFleetPower } from '../game/combat.js';
 
-export function showFleetAllocation(engine, nodeId, node) {
+/**
+ * @param {import('../game/engine.js').Engine} engine
+ * @param {number} defenseRating défense de la phase de combat à venir
+ * @param {(allocation: Record<string, number>) => void} onEngage appelé
+ *   avec l'allocation choisie quand le joueur confirme
+ */
+export function showFleetAllocation(engine, defenseRating, onEngage) {
   const state = engine.state;
   const ownedShips = Object.entries(state.ships).filter(
     ([, s]) => s.count > 0
@@ -79,7 +85,7 @@ export function showFleetAllocation(engine, nodeId, node) {
       el('ul', { class: 'stat-grid' }, [
         el('li', {}, [
           el('span', { text: t('ui.labels.defense') }),
-          el('b', { text: formatNumber(node.data.defenseRating) }),
+          el('b', { text: formatNumber(defenseRating) }),
         ]),
         el('li', {}, [
           el('span', { text: t('ui.stats.fleetPower') }),
@@ -95,7 +101,7 @@ export function showFleetAllocation(engine, nodeId, node) {
   cancelBtn.addEventListener('click', close);
   engageBtn.addEventListener('click', () => {
     close();
-    engine.chooseNode(nodeId, allocation);
+    onEngage(allocation);
   });
 
   updatePower();

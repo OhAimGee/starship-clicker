@@ -1,94 +1,92 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialState } from './initial-state.js';
 import { startRun } from './run.js';
-import { generateRunTargets, startNextMap } from './exploration.js';
-import { CONFIG } from '../data/config.js';
+import {
+  initExploration,
+  ensureSystemsUpTo,
+  ensureVisibleSystems,
+} from './exploration.js';
 
-describe('generateRunTargets', () => {
-  it('construit une file de `objective.target` systèmes', () => {
+describe('initExploration', () => {
+  it('génère une fenêtre de systèmes visibles au niveau de joueur 0', () => {
     const s = createInitialState();
     startRun(s, 'miningCollective');
-    generateRunTargets(s);
-    expect(s.run.exploration.targets).toHaveLength(CONFIG.run.baseSystems);
+    initExploration(s);
+    expect(s.run.exploration.systems.length).toBeGreaterThan(0);
+    expect(s.run.exploration.activeSystemIndex).toBeNull();
+  });
+
+  it('chaque système généré a un niveau requis et des planètes', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    initExploration(s);
+    for (const system of s.run.exploration.systems) {
+      expect(typeof system.requiredLevel).toBe('number');
+      expect(system.planets.length).toBeGreaterThan(0);
+      expect(system.conquered).toBe(false);
+    }
   });
 });
 
-describe('startNextMap', () => {
-  it('dépile un système et construit sa carte active', () => {
+describe('ensureSystemsUpTo', () => {
+  it('génère paresseusement, jamais moins que demandé', () => {
     const s = createInitialState();
     startRun(s, 'miningCollective');
-    generateRunTargets(s);
-    const before = s.run.exploration.targets.length;
-
-    const map = startNextMap(s);
-
-    expect(map).not.toBeNull();
-    expect(s.run.exploration.targets).toHaveLength(before - 1);
-    expect(s.run.exploration.activeMap).toBe(map);
+    initExploration(s);
+    const before = s.run.exploration.systems.length;
+    ensureSystemsUpTo(s, before + 10);
+    expect(s.run.exploration.systems.length).toBe(before + 11);
   });
 
-  it('génère un nouveau système à la volée au lieu de s’arrêter (objectif non-conquête)', () => {
-    const s = createInitialState();
-    startRun(s, 'miningCollective'); // niveau 0 -> gatherResources (non-conquête)
-    s.run.exploration.targets = [];
-    s.run.exploration.conquered = Array.from(
-      { length: CONFIG.run.baseSystems },
-      () => ({})
-    );
-
-    const map = startNextMap(s);
-
-    expect(map).not.toBeNull();
-    expect(s.run.exploration.activeMap).toBe(map);
-  });
-
-  it('renvoie null et vide activeMap quand un objectif de conquête est déjà atteint', () => {
+  it('idempotent : rappeler avec un index déjà couvert ne régénère rien', () => {
     const s = createInitialState();
     startRun(s, 'miningCollective');
-    s.run.objective = {
-      type: 'conquerOne',
-      target: 1,
-      resource: null,
-      defenseMult: 1,
-    };
-    s.run.exploration.targets = [];
-    s.run.exploration.conquered = [{ name: 'Test' }];
-
-    const map = startNextMap(s);
-
-    expect(map).toBeNull();
-    expect(s.run.exploration.activeMap).toBeNull();
+    initExploration(s);
+    const before = [...s.run.exploration.systems];
+    ensureSystemsUpTo(s, 0);
+    expect(s.run.exploration.systems).toEqual(before);
   });
 
-  it('relit advancedUnlocked à chaque génération : warpDrive en cours de run '
-    + 'donne accès aux systèmes avancés dès le système suivant', () => {
+  it('un système déjà généré garde sa composition (même index -> même contenu)', () => {
     const s = createInitialState();
     startRun(s, 'miningCollective');
-    s.run.exploration.targets = [];
-    s.run.exploration.conquered = [{}]; // index suivant impair -> avancé éligible
-    // Effet de Engine#research('warpDrive') simulé directement (voir
-    // engine.js#research) : pas besoin de la machinerie complète du moteur
-    // pour ce test au niveau des fonctions pures d'exploration.js.
+    initExploration(s);
+    const first = s.run.exploration.systems[0];
+    ensureSystemsUpTo(s, 5);
+    expect(s.run.exploration.systems[0]).toBe(first);
+  });
+});
+
+describe('ensureVisibleSystems', () => {
+  it('la fenêtre visible grandit avec le niveau du joueur', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    initExploration(s);
+    const atLevel0 = s.run.exploration.systems.length;
+    ensureVisibleSystems(s, 10);
+    expect(s.run.exploration.systems.length).toBeGreaterThan(atLevel0);
+  });
+
+  it('relit advancedUnlocked à chaque système généré : warpDrive en cours '
+    + 'de run donne accès à des systèmes avancés parmi les suivants', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    initExploration(s);
+    const before = s.run.exploration.systems.length;
     s.technologies.warpDrive.unlocked = true;
     s.run.exploration.advancedUnlocked = true;
-
-    const map = startNextMap(s);
-
-    expect(map.systemDef.advanced).toBe(true);
+    ensureSystemsUpTo(s, before + 10);
+    const newOnes = s.run.exploration.systems.slice(before);
+    expect(newOnes.some((sys) => sys.advanced)).toBe(true);
   });
 
-  it('la difficulté continue de grimper bien au-delà de l’ancienne file fixe', () => {
+  it('la défense/le nombre de planètes continue de grimper avec l’index', () => {
     const s = createInitialState();
     startRun(s, 'miningCollective');
-    const defenses = [];
-    for (let i = 0; i < 20; i++) {
-      s.run.exploration.targets = [];
-      s.run.exploration.conquered.push({});
-      const map = startNextMap(s);
-      defenses.push(map.systemDef.defenseRating);
-    }
-
-    expect(defenses[19]).toBeGreaterThan(defenses[4]);
-    expect(defenses[19]).toBeGreaterThan(defenses[0]);
+    initExploration(s);
+    ensureSystemsUpTo(s, 20);
+    const systems = s.run.exploration.systems;
+    expect(systems[20].defenseRating).toBeGreaterThan(systems[0].defenseRating);
+    expect(systems[20].requiredLevel).toBeGreaterThan(systems[0].requiredLevel);
   });
 });

@@ -31,16 +31,16 @@ const FACTION_ICON = {
   ironLegion: 'fleet',
   quantumOrder: 'quantumEnergy',
 };
-const NODE_TYPE_ICON = {
-  invade: 'fleet',
-  bonus: 'trendUp',
-  skillPoint: 'ascensionPoints',
-  conquest: 'exploration',
+const PLANET_TYPE_ICON = {
+  invaded: 'fleet',
+  hostile: 'fleet',
+  uninhabited: 'exploration',
+  gas: 'trendUp',
 };
 
 export const factionIconId = (id) => FACTION_ICON[id] ?? 'ascension';
 export const factionSkillIconId = () => 'ascension';
-export const nodeTypeIconId = (type) => NODE_TYPE_ICON[type] ?? 'exploration';
+export const planetTypeIconId = (type) => PLANET_TYPE_ICON[type] ?? 'exploration';
 
 const RUN_SKILL_ICON = {
   overclockedThrusters: 'fleet',

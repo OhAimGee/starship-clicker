@@ -143,52 +143,207 @@ describe('Engine — faction & run', () => {
     expect(e.fleetPower).toBe(Math.floor(20 * 1.2));
   });
 
-  it('selectFaction amorce une file de cibles et une première carte', () => {
+  it('selectFaction amorce une liste de systèmes explorables', () => {
     const e = new Engine(createInitialState());
     e.selectFaction('miningCollective');
     expect(e.state.run.objective).not.toBeNull();
-    expect(e.state.run.exploration.activeMap).not.toBeNull();
+    expect(e.explorationSystems().length).toBeGreaterThan(0);
   });
 
-  it('chooseNode échoue sans flotte, réussit une fois un vaisseau acheté', () => {
+  it('openSystem échoue sans flotte, réussit une fois un vaisseau acheté', () => {
     const e = new Engine(createInitialState());
-    e.state.prestige.factions.ironLegion.level = 3; // objectif conquerAll
     e.selectFaction('ironLegion');
-    const map = e.state.run.exploration.activeMap;
-    const [nodeId] = map.rows[0];
 
     expect(e.hasFleet()).toBe(false);
-    expect(e.chooseNode(nodeId)).toBe(false);
-    expect(map.nodes[nodeId].resolved).toBe(false);
+    expect(e.openSystem(0)).toBe(false);
+    expect(e.activeSystem()).toBeNull();
 
-    e.state.ships.fighters.count = 1000; // assez pour tout résoudre
+    e.state.ships.fighters.count = 1000;
     expect(e.hasFleet()).toBe(true);
-    expect(e.chooseNode(nodeId)).toBe(true);
-    expect(map.nodes[nodeId].resolved).toBe(true);
+    expect(e.openSystem(0)).toBe(true);
+    expect(e.activeSystem()).not.toBeNull();
   });
 
-  it('parcours complet : sélection -> cartes à nœuds -> objectif -> fin de run', () => {
+  it('openSystem refuse un système dont le niveau requis dépasse le niveau du joueur', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 1000;
+    // Le niveau requis grandit avec l'index (voir data/systems.js) : un
+    // index assez lointain dépasse forcément le niveau de joueur 0.
+    const systems = e.explorationSystems();
+    const farIndex = systems.findIndex((s) => s.requiredLevel > 0);
+    expect(farIndex).toBeGreaterThan(-1);
+
+    expect(e.openSystem(farIndex)).toBe(false);
+    expect(e.activeSystem()).toBeNull();
+  });
+
+  it('openSystem résout automatiquement les planètes uninhabited/gas à la première ouverture', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 1000;
+    const system = e.explorationSystems()[0];
+    const freebies = system.planets.filter(
+      (p) => p.type === 'uninhabited' || p.type === 'gas'
+    );
+
+    e.openSystem(0);
+
+    for (const p of freebies) expect(p.conquered).toBe(true);
+  });
+
+  it('resolvePlanetCombat : une allocation faible perd, laisse la planète ' +
+    'retentable et journalise l’entrée ; une flotte massive finit toutes les phases', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 100000;
+    e.openSystem(0);
+    const system = e.activeSystem();
+    const planet = system.planets.find(
+      (p) => p.type === 'invaded' || p.type === 'hostile'
+    );
+    expect(planet).toBeDefined();
+
+    const battles = [];
+    e.on('battle-resolved', (entry) => battles.push(entry));
+
+    const weak = e.resolvePlanetCombat(planet.id, { fighters: 1 });
+    expect(weak).toBe(false);
+    expect(planet.conquered).toBe(false);
+    expect(e.state.run.combatLog).toHaveLength(1);
+    expect(e.state.run.combatLog[0].victory).toBe(false);
+    expect(battles).toHaveLength(1);
+
+    let guard = 0;
+    while (!planet.conquered && guard++ < 10) {
+      e.resolvePlanetCombat(planet.id, {
+        fighters: e.state.ships.fighters.count,
+      });
+    }
+    expect(planet.conquered).toBe(true);
+    expect(guard).toBeLessThan(10);
+  });
+
+  // Trouve, parmi une fenêtre de systèmes largement débloquée (niveau de
+  // joueur élevé), l'index du premier système contenant une planète
+  // hostile — évite de dépendre du hasard des tout premiers systèmes.
+  function findHostileSystemIndex(engine) {
+    engine.state.prestige.player.level = 50;
+    const systems = engine.explorationSystems();
+    const index = systems.findIndex((s) =>
+      s.planets.some((p) => p.type === 'hostile')
+    );
+    expect(index).toBeGreaterThan(-1);
+    return index;
+  }
+
+  it('planète hostile : conquise sans la recherche mais sans récompense ; ' +
+    'avec la recherche, la récompense (buff) est accordée', () => {
+    const withTech = new Engine(createInitialState());
+    withTech.selectFaction('ironLegion');
+    withTech.state.ships.fighters.count = 1_000_000;
+    withTech.state.technologies.xenoColonization.unlocked = true;
+    withTech.openSystem(findHostileSystemIndex(withTech));
+    const system = withTech.activeSystem();
+    const hostileWith = system.planets.find((p) => p.type === 'hostile');
+    let guard = 0;
+    while (!hostileWith.conquered && guard++ < 10) {
+      withTech.resolvePlanetCombat(hostileWith.id, {
+        fighters: withTech.state.ships.fighters.count,
+      });
+    }
+    expect(hostileWith.conquered).toBe(true);
+    expect(withTech.state.run.buffs.length).toBeGreaterThan(0);
+
+    const withoutTech = new Engine(createInitialState());
+    withoutTech.selectFaction('ironLegion');
+    withoutTech.state.ships.fighters.count = 1_000_000;
+    withoutTech.openSystem(findHostileSystemIndex(withoutTech));
+    const system2 = withoutTech.activeSystem();
+    const hostileWithout = system2.planets.find((p) => p.type === 'hostile');
+    guard = 0;
+    while (!hostileWithout.conquered && guard++ < 10) {
+      withoutTech.resolvePlanetCombat(hostileWithout.id, {
+        fighters: withoutTech.state.ships.fighters.count,
+      });
+    }
+    expect(hostileWithout.conquered).toBe(true);
+    expect(withoutTech.state.run.buffs).toHaveLength(0);
+  });
+
+  it('système entièrement conquis : buff, XP et conquered.length incrémentés', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 1_000_000;
+    e.openSystem(0);
+    const system = e.activeSystem();
+    const levelBefore = e.state.prestige.player.level;
+    const xpBefore = e.state.prestige.player.xp;
+
+    let guard = 0;
+    while (!system.conquered && guard++ < 100) {
+      const planet = system.planets.find(
+        (p) => (p.type === 'invaded' || p.type === 'hostile') && !p.conquered
+      );
+      if (!planet) break;
+      e.resolvePlanetCombat(planet.id, {
+        fighters: e.state.ships.fighters.count,
+      });
+    }
+
+    expect(system.conquered).toBe(true);
+    expect(e.state.run.exploration.conquered).toHaveLength(1);
+    expect(e.state.run.exploration.conquered[0]).toBe(system);
+    expect(
+      e.state.prestige.player.level > levelBefore ||
+        e.state.prestige.player.xp > xpBefore
+    ).toBe(true);
+  });
+
+  it('chaque combat gagné ajoute aussi un point de compétence de run', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 1_000_000;
+    e.openSystem(0);
+    const system = e.activeSystem();
+    const planet = system.planets.find(
+      (p) => p.type === 'invaded' || p.type === 'hostile'
+    );
+    const before = e.state.run.skillPoints;
+    e.resolvePlanetCombat(planet.id, { fighters: e.state.ships.fighters.count });
+    expect(e.state.run.skillPoints).toBeGreaterThan(before);
+  });
+
+  it('parcours complet : sélection -> systèmes à planètes -> objectif -> fin de run', () => {
     const e = new Engine(createInitialState());
     e.state.prestige.factions.ironLegion.level = 3; // objectif conquerAll (sinon niveau 0 = gatherResources)
     e.state.ships.fighters.count = 1_000_000; // flotte énorme : tout se résout
     e.selectFaction('ironLegion');
     e.state.resources.quantumEnergy = CONFIG.ascension.quantumCost; // bonus de PA optionnel
 
+    const target = e.state.run.objective.target;
     let guard = 0;
-    while (e.state.run.exploration.activeMap && guard < 1000) {
+    let systemIndex = 0;
+    while (e.state.run.exploration.conquered.length < target && guard < 2000) {
       guard++;
-      const map = e.state.run.exploration.activeMap;
-      const nextRow = map.currentRow + 1;
-      if (nextRow >= map.rows.length) break; // carte terminée, en attente de la suivante
-      const [nodeId] = map.rows[nextRow];
-      e.chooseNode(nodeId);
+      e.openSystem(systemIndex);
+      const system = e.activeSystem();
+      let innerGuard = 0;
+      while (!system.conquered && innerGuard++ < 20) {
+        const planet = system.planets.find(
+          (p) => (p.type === 'invaded' || p.type === 'hostile') && !p.conquered
+        );
+        if (!planet) break;
+        e.resolvePlanetCombat(planet.id, {
+          fighters: e.state.ships.fighters.count,
+        });
+      }
+      systemIndex++;
     }
-    expect(guard).toBeLessThan(1000); // pas de boucle infinie
+    expect(guard).toBeLessThan(2000); // pas de boucle infinie
 
-    expect(e.state.run.exploration.targets).toHaveLength(0);
-    expect(e.state.run.exploration.activeMap).toBeNull();
-    expect(e.state.run.exploration.conquered.length).toBe(
-      CONFIG.run.baseSystems + Math.floor(3 * CONFIG.run.systemsPerLevel)
+    expect(e.state.run.exploration.conquered.length).toBeGreaterThanOrEqual(
+      target
     );
     // Détection centralisée (Engine#_afterChange) : notifiée dès que l'objectif
     // est rempli, sans attendre un `endRun()` explicite.
@@ -198,38 +353,6 @@ describe('Engine — faction & run', () => {
     e.endRun();
     expect(e.state.run.factionId).toBeNull();
     expect(e.state.prestige.factions.ironLegion.level).toBe(4);
-  });
-
-  it('chooseNode(nodeId, allocation) : une allocation partielle peut ' +
-    'perdre le combat, journaliser l’entrée et laisser le nœud retentable', () => {
-    const e = new Engine(createInitialState());
-    e.selectFaction('ironLegion');
-    e.state.ships.fighters.count = 1000;
-    const map = e.state.run.exploration.activeMap;
-    const [nodeId] = map.rows[0];
-    // Force le type du nœud (la génération de carte n'est pas seedable
-    // depuis l'API publique de l'Engine) pour un scénario déterministe.
-    map.nodes[nodeId].type = 'invade';
-    map.nodes[nodeId].data = { defenseRating: 100, rewards: {} };
-
-    const battles = [];
-    e.on('battle-resolved', (entry) => battles.push(entry));
-
-    const weak = e.chooseNode(nodeId, { fighters: 1 });
-    expect(weak).toBe(false);
-    expect(map.nodes[nodeId].resolved).toBe(false);
-    expect(e.state.run.combatLog).toHaveLength(1);
-    expect(e.state.run.combatLog[0].victory).toBe(false);
-    expect(battles).toHaveLength(1);
-    expect(e.state.ships.fighters.count).toBeLessThan(1000);
-
-    const strong = e.chooseNode(nodeId, {
-      fighters: e.state.ships.fighters.count,
-    });
-    expect(strong).toBe(true);
-    expect(map.nodes[nodeId].resolved).toBe(true);
-    expect(e.state.run.combatLog).toHaveLength(2);
-    expect(e.state.run.combatLog[0].victory).toBe(true);
   });
 
   it('objectif gatherResources : détecté sans passer par chooseNode, notifié une seule fois', () => {

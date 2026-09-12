@@ -1,4 +1,5 @@
-// Terminal CARTES : objectif de run + carte d'exploration à nœuds.
+// Terminal CARTES : objectif de run + liste des systèmes explorables
+// (verrouillés par niveau) + sous-menu des planètes d'un système ouvert.
 
 import { el, clear } from '../dom.js';
 import { t } from '../../i18n/index.js';
@@ -8,8 +9,7 @@ import { formatNumber, timeCode } from '../format.js';
 import { boardRow, sectionHead, setFacts } from '../board-row.js';
 import { runSkillIconId } from '../icon-map.js';
 import { objectiveLabel, objectiveProgressText } from '../objective-text.js';
-import { renderNodeMap } from '../node-map.js';
-import { planetArt } from '../planet-art.js';
+import { renderSystemList, renderPlanetMenu } from '../system-map.js';
 
 const rewardLine = (rewards, factor = 1) =>
   Object.entries(rewards)
@@ -30,20 +30,34 @@ export function createExplorationPanel(engine) {
   let mapSignature = '';
   let combatLogSignature = -1;
 
-  // Refresh complet : nouvelle carte ou système conquis (liste des arrivées
-  // à reconstruire). `currentRow` seul (progression au sein de la même
-  // carte) et `fleetPower` (affordabilité) sont gérés en aparté par
-  // `mapSig()`, sans reconstruire tout le panneau à chaque frame.
+  // Refresh complet : nouvelle faction/run ou système conquis (liste des
+  // arrivées à reconstruire). La liste des systèmes / le sous-menu de
+  // planètes est géré en aparté par `mapSig()`, sans reconstruire tout le
+  // panneau à chaque frame.
   const sig = () => {
     const s = engine.state;
-    const map = s.run.exploration.activeMap;
-    return `${s.run.factionId}|${map?.id ?? ''}|${s.run.exploration.conquered.length}`;
+    // Inclut activeSystemIndex : ouvrir/fermer le sous-menu d'un système
+    // change le libellé de droite de la section (nom du système) —
+    // reconstruire tout le panneau à ce moment précis est sans risque de
+    // performance (action ponctuelle du joueur, pas une boucle par frame).
+    return `${s.run.factionId}|${s.run.exploration.conquered.length}|${s.run.exploration.activeSystemIndex}`;
   };
 
   const mapSig = () => {
     if (!engine.hasFleet()) return 'locked';
-    const map = engine.state.run.exploration.activeMap;
-    return `${map?.id ?? ''}|${map?.currentRow ?? -1}|${engine.fleetPower}`;
+    const s = engine.state;
+    const exploration = s.run.exploration;
+    // Progression par planète (comptes conquis) + niveau de joueur (règle
+    // le verrouillage des systèmes) + système actif — suffisant pour
+    // détecter tout changement pertinent à l'affichage sans comparer les
+    // objets en profondeur.
+    const progress = exploration.systems
+      .map(
+        (sys) =>
+          `${sys.planets.filter((p) => p.conquered).length}/${sys.planets.length}${sys.conquered ? 'C' : ''}`
+      )
+      .join(',');
+    return `${exploration.activeSystemIndex}|${s.prestige.player.level}|${progress}`;
   };
 
   function refresh() {
@@ -51,7 +65,7 @@ export function createExplorationPanel(engine) {
     objectiveLabelEl = el('span', { text: t('ui.stats.runObjective') });
     objectiveValue = el('b');
     skillPointsValue = el('b');
-    mapHost = el('div', { class: 'node-map-host' });
+    mapHost = el('div', { class: 'exploration-host' });
     arrivals = el('ul', { class: 'board-list arrivals' });
     skillList = el('ul', { class: 'board-list' });
     combatLogList = el('ul', { class: 'board-list arrivals' });
@@ -69,7 +83,7 @@ export function createExplorationPanel(engine) {
       skillRows.set(def.id, row);
     });
 
-    const activeSystem = engine.state.run.exploration.activeMap?.systemDef;
+    const activeSystem = engine.activeSystem();
 
     root.append(
       el('h2', { text: t('ui.panels.exploration') }),
@@ -84,15 +98,6 @@ export function createExplorationPanel(engine) {
         t('ui.sections.explorationMap'),
         activeSystem ? activeSystem.name : ''
       ),
-      activeSystem
-        ? el('div', { class: 'system-portrait' }, [
-            planetArt(activeSystem.archetype, 'system-portrait-art'),
-            el('p', {
-              class: 'panel-note',
-              text: t(`systemArchetype.${activeSystem.archetype}`),
-            }),
-          ])
-        : null,
       mapHost,
       sectionHead(t('ui.sections.conqueredSystems'), ''),
       arrivals,
@@ -211,7 +216,12 @@ export function createExplorationPanel(engine) {
           el('p', { class: 'panel-note', text: t('ui.nodeMap.noFleet') })
         );
       } else {
-        mapHost.append(renderNodeMap(engine));
+        const activeSystem = engine.activeSystem();
+        mapHost.append(
+          activeSystem
+            ? renderPlanetMenu(engine, activeSystem)
+            : renderSystemList(engine)
+        );
       }
       mapSignature = currentMapSig;
     }

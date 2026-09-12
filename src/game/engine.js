@@ -33,8 +33,10 @@ import {
   spend,
   gain,
 } from './economy.js';
-import { generateRunTargets, startNextMap } from './exploration.js';
-import { resolveNode } from './nodemap.js';
+import { initExploration, ensureVisibleSystems } from './exploration.js';
+import { resolveBattle } from './combat.js';
+import { planetLoot, planetBuff, systemBuff } from './systems-map.js';
+import { grantXp } from './leveling.js';
 import {
   canEndRun,
   endRun as endRunState,
@@ -52,6 +54,24 @@ import {
 } from './run.js';
 import { tickEvents } from './events.js';
 import { computeOfflineGains } from './offline.js';
+
+/** Flotte entière possédée, sous la forme attendue par `resolveBattle` —
+ * l'allocation par défaut quand l'appelant n'en fournit pas (comportement
+ * historique : engager toute la flotte). */
+function fullFleetAllocation(state) {
+  const out = {};
+  for (const [id, s] of Object.entries(state.ships)) {
+    if (s.count > 0) out[id] = s.count;
+  }
+  return out;
+}
+
+function applyLosses(state, losses) {
+  for (const [id, n] of Object.entries(losses)) {
+    const ship = state.ships[id];
+    if (ship) ship.count = Math.max(0, ship.count - n);
+  }
+}
 
 export class Engine {
   constructor(state) {
@@ -340,95 +360,176 @@ export class Engine {
   }
 
   /** Démarre une run avec la faction `factionId` (uniquement si aucune run
-   * n'est déjà en cours — voir `ascend()`/`reset()`). Amorce la file de
-   * systèmes-objectif et sa première carte à nœuds. */
+   * n'est déjà en cours — voir `ascend()`/`reset()`). Amorce la liste de
+   * systèmes explorables. */
   selectFaction(factionId) {
     if (this.state.run.factionId) return false;
     if (!FACTION_BY_ID[factionId]) return false;
     if (!startRun(this.state, factionId)) return false;
-    generateRunTargets(this.state);
-    startNextMap(this.state);
+    initExploration(this.state);
     this._seen = this._currentUnlockSet();
     this._emit('run-started', { factionId });
     this._afterChange();
     return true;
   }
 
-  /** Possède-t-on au moins un vaisseau ? Condition d'accès à l'exploration
-   * (voir `chooseNode` — un joueur sans flotte ne devrait pas pouvoir
-   * résoudre le moindre nœud, même un nœud « gratuit » type bonus). */
+  /** Possède-t-on au moins un vaisseau ? Condition d'accès à l'exploration —
+   * un joueur sans flotte ne devrait pouvoir ni ouvrir un système, ni
+   * engager le moindre combat de planète. */
   hasFleet() {
     return Object.values(this.state.ships).some((s) => s.count > 0);
   }
 
-  /** Choisit le nœud `nodeId` sur la carte active (voir `run.exploration.
-   * activeMap`, parmi les nœuds accessibles). Exige de posséder au moins un
-   * vaisseau — l'exploration n'est pas jouable à flotte nulle. `allocation`
-   * (optionnelle, `{ shipId: nombre engagé }`) ne s'applique qu'aux nœuds
-   * `invade`/`conquest` — voir `src/ui/fleet-allocation.js` ; à défaut, toute
-   * la flotte possédée est engagée. */
-  chooseNode(nodeId, allocation) {
+  /** Liste des systèmes explorables de la run (génère la fenêtre visible à
+   * la volée en fonction du niveau du joueur — voir `exploration.js`). */
+  explorationSystems() {
+    ensureVisibleSystems(this.state, this.state.prestige.player.level);
+    return this.state.run.exploration.systems;
+  }
+
+  /** Système dont le sous-menu de planètes est actuellement ouvert, ou
+   * `null` (liste des systèmes affichée). */
+  activeSystem() {
+    const idx = this.state.run.exploration.activeSystemIndex;
+    if (idx === null || idx === undefined) return null;
+    return this.state.run.exploration.systems[idx] ?? null;
+  }
+
+  /** Ouvre le sous-menu de planètes du système `index` (vérifie le palier
+   * de niveau requis). Première ouverture : résout immédiatement les
+   * planètes `uninhabited`/`gas` (aucun combat requis pour elles — voir
+   * DÉCISIONS du plan « systèmes à planètes »). */
+  openSystem(index) {
     if (!this.hasFleet()) return false;
-    const map = this.state.run.exploration.activeMap;
-    if (!map) return false;
-
-    const result = resolveNode(this.state, map, nodeId, allocation);
-
-    // Nœud de combat (invade/conquest) : un journal + un événement dédié,
-    // que le combat soit gagné ou perdu — les pertes s'appliquent dans les
-    // deux cas (voir `resolveNode`/`combat.js`).
-    if (result.battle) {
-      const entry = {
-        nodeId,
-        systemName: map.systemDef.name,
-        nodeType: result.type,
-        victory: result.battle.victory,
-        committedPower: result.battle.committedPower,
-        defenseRating: result.required ?? map.nodes[nodeId]?.data.defenseRating,
-        losses: result.battle.losses,
-        rewards: result.ok ? (result.reward ?? null) : null,
-      };
-      this.state.run.combatLog = [entry, ...this.state.run.combatLog].slice(
-        0,
-        20
+    const system = this.explorationSystems()[index];
+    if (!system) return false;
+    if (system.requiredLevel > this.state.prestige.player.level) {
+      this._notify(
+        'notify.systemLocked',
+        { level: system.requiredLevel },
+        'error'
       );
-      this._emit('battle-resolved', entry);
-    }
-
-    if (!result.ok) {
-      if (result.required !== undefined) {
-        this._notify(
-          result.battle ? 'notify.battleLost' : 'notify.fleetTooWeak',
-          { required: result.required },
-          'error'
-        );
-      }
-      // Un échec de combat mute quand même l'état (pertes de flotte) —
-      // contrairement à un simple refus (nœud déjà résolu, inaccessible…).
-      if (result.battle) this._afterChange();
       return false;
     }
 
-    if (result.type === 'conquest') {
-      this._notify(
-        'notify.systemConquered',
-        { name: result.system.name },
-        'success'
-      );
-      // La complétion d'objectif (carte épuisée incluse) est détectée de
-      // façon centralisée dans `_afterChange()`, pour tous les types
-      // d'objectif — pas seulement la conquête.
-      startNextMap(this.state);
-    } else if (result.type === 'skillPoint') {
-      this._notify('notify.skillPointGained', {}, 'success');
-    } else {
-      this._notify('notify.nodeReward', { reward: result.reward }, 'success');
+    this.state.run.exploration.activeSystemIndex = index;
+    if (!system.opened) {
+      system.opened = true;
+      for (const planet of system.planets) {
+        if (planet.type === 'uninhabited' || planet.type === 'gas') {
+          planet.conquered = true;
+          if (planet.type === 'uninhabited') {
+            const buff = planetBuff(system.topResource, 'uninhabited');
+            if (buff) this.state.run.buffs.push(buff);
+          }
+        }
+      }
+      this._checkSystemComplete(system);
     }
-
-    this._seen = this._currentUnlockSet();
-    this._emit('node-resolved', result);
     this._afterChange();
     return true;
+  }
+
+  /** Referme le sous-menu de planètes (retour à la liste des systèmes). */
+  closeSystemMenu() {
+    this.state.run.exploration.activeSystemIndex = null;
+    this._afterChange();
+  }
+
+  /** Résout une phase de combat sur la planète `planetId` (`invaded`/
+   * `hostile`) du système actif. `allocation` (optionnelle, `{ shipId:
+   * nombre engagé }`) — à défaut, toute la flotte possédée est engagée
+   * (voir `src/ui/fleet-allocation.js`). Chaque victoire donne de l'XP et
+   * un point de compétence de run ; toutes les phases gagnées conquièrent
+   * la planète et versent sa récompense. */
+  resolvePlanetCombat(planetId, allocation) {
+    const system = this.activeSystem();
+    if (!system) return false;
+    const planet = system.planets.find((p) => p.id === planetId);
+    if (!planet || planet.conquered) return false;
+    if (planet.type !== 'invaded' && planet.type !== 'hostile') return false;
+
+    const engaged = allocation ?? fullFleetAllocation(this.state);
+    const battle = resolveBattle(this.state, engaged, planet.defenseRating);
+    applyLosses(this.state, battle.losses);
+
+    const entry = {
+      planetId,
+      systemName: system.name,
+      planetType: planet.type,
+      victory: battle.victory,
+      committedPower: battle.committedPower,
+      defenseRating: planet.defenseRating,
+      losses: battle.losses,
+      rewards: null,
+    };
+
+    if (battle.victory) {
+      planet.phasesWon += 1;
+      this._grantXp(CONFIG.player.xpPerCombatWin);
+      this.state.run.skillPoints += 1;
+      if (planet.phasesWon >= planet.phasesTotal) {
+        planet.conquered = true;
+        this._grantXp(CONFIG.player.xpPerPlanet);
+        if (planet.type === 'invaded') {
+          const loot = planetLoot(system);
+          gain(this.state, loot);
+          entry.rewards = loot;
+        } else if (
+          techMultipliers(this.state).unlockHostileColonization
+        ) {
+          const buff = planetBuff(system.topResource, 'hostile');
+          if (buff) this.state.run.buffs.push(buff);
+        }
+        this._checkSystemComplete(system);
+      }
+    }
+
+    this.state.run.combatLog = [entry, ...this.state.run.combatLog].slice(
+      0,
+      20
+    );
+    this._emit('battle-resolved', entry);
+
+    if (!battle.victory) {
+      this._notify(
+        'notify.battleLost',
+        { required: planet.defenseRating },
+        'error'
+      );
+      this._afterChange();
+      return false;
+    }
+    this._notify(
+      planet.conquered ? 'notify.planetConquered' : 'notify.battleWon',
+      {},
+      'success'
+    );
+    this._seen = this._currentUnlockSet();
+    this._afterChange();
+    return true;
+  }
+
+  /** Ajoute de l'XP de joueur, notifie un passage de niveau. */
+  _grantXp(amount) {
+    const { leveledUp, newLevel } = grantXp(this.state, amount);
+    if (leveledUp) this._notify('notify.levelUp', { level: newLevel }, 'success');
+  }
+
+  /** Système entièrement Conquis (toutes ses planètes) : récompense
+   * système (buff + XP), alimente `run.exploration.conquered` (compté par
+   * les objectifs `conquerOne`/`conquerAll`, voir `run.js#
+   * isObjectiveComplete`, et par le revenu passif, voir `economy.js#
+   * grossProduction`). */
+  _checkSystemComplete(system) {
+    if (system.conquered) return;
+    if (!system.planets.every((p) => p.conquered)) return;
+    system.conquered = true;
+    this.state.run.exploration.conquered.push(system);
+    this._grantXp(CONFIG.player.xpPerSystem);
+    const buff = systemBuff(system.topResource);
+    if (buff) this.state.run.buffs.push(buff);
+    this._notify('notify.systemConquered', { name: system.name }, 'success');
   }
 
   /** Termine la run en cours (fréquent) : gagné dès l'objectif de run rempli
