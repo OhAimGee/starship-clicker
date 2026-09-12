@@ -2,8 +2,9 @@
 // plan « combat réel ») : les pertes dépendent d'une formule déterministe
 // sur le ratio marge/puissance, pas d'un tirage. Un échec inflige aussi des
 // pertes (plus lourdes qu'une victoire à ratio comparable) mais ne bloque
-// jamais durablement la progression — c'est `nodemap.js#resolveNode` qui
-// garde le nœud non résolu (retentable), pas cette fonction.
+// jamais durablement la progression — c'est l'appelant (voir
+// `Engine#resolvePlanetCombat`) qui garde la planète non conquise
+// (retentable), pas cette fonction.
 
 import { CONFIG } from '../data/config.js';
 import { SHIP_BY_ID } from '../data/fleet.js';
