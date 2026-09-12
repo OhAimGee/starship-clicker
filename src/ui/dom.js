@@ -37,11 +37,16 @@ export function clear(node) {
 }
 
 /** Délègue les clics : appelle `handler(action, id, event)` pour tout élément
- *  portant `data-action` (l'`id` vient de `data-id`). */
+ *  portant `data-action` (l'`id` vient de `data-id`).
+ *  @returns {() => void} détache l'écouteur (voir `mountApp#dispose` — un
+ *  `host` réutilisé entre plusieurs `mountApp()` sinon accumulerait un
+ *  écouteur par appel). */
 export function delegate(root, handler) {
-  root.addEventListener('click', (e) => {
+  const listener = (e) => {
     const target = e.target.closest('[data-action]');
     if (!target || !root.contains(target)) return;
     handler(target.dataset.action, target.dataset.id, e);
-  });
+  };
+  root.addEventListener('click', listener);
+  return () => root.removeEventListener('click', listener);
 }

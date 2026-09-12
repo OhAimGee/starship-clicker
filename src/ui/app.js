@@ -264,7 +264,7 @@ export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
   }
 
   // — Interactions —
-  delegate(host, (action, id) => {
+  const detachDelegate = delegate(host, (action, id) => {
     switch (action) {
       case 'click-mothership':
         engine.click();
@@ -316,7 +316,7 @@ export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
           onAchievements: () => showAchievements(engine.state),
           onOptions: () => showOptions(),
           onMainMenu: () => {
-            saver.flushNow();
+            dispose();
             onReturnToMenu?.();
           },
         });
@@ -361,31 +361,55 @@ export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
     minIntervalMs: 10000,
   });
   for (const ev of ['click', 'changed']) engine.on(ev, () => saver.request());
-  window.addEventListener('beforeunload', () => saver.flushNow());
-  document.addEventListener('visibilitychange', () => {
+  const handleBeforeUnload = () => saver.flushNow();
+  const handleVisibilityChange = () => {
     if (document.visibilityState === 'hidden') saver.flushNow();
-  });
+  };
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  onLangChange(() => renderStatic());
+  const detachLangChange = onLangChange(() => renderStatic());
 
   // — Boucle de rendu —
+  // `host` (#app) est réutilisé d'une partie à l'autre (retour au menu
+  // principal puis Continuer/Nouveau relance `mountApp` sur le même
+  // élément) : sans `dispose()`, cette boucle (et les écouteurs
+  // window/document/i18n ci-dessus) continuerait indéfiniment en arrière-
+  // plan pour CHAQUE session passée, à sauvegarder l'état d'un moteur
+  // abandonné par-dessus la session active — voir `pause-menu`'s
+  // `onMainMenu` ci-dessus, seul point d'appel actuel.
+  let disposed = false;
+  let rafId = null;
   let last = performance.now();
   function frame(now) {
+    if (disposed) return;
     const dt = now - last;
     last = now;
     engine.advance(dt);
     updateDynamic();
     saver.flush();
-    requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    if (rafId != null) cancelAnimationFrame(rafId);
+    detachDelegate();
+    detachLangChange();
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    saver.flushNow();
   }
 
   renderStatic();
   maybeShowFactionSelect();
   if (offlineReport) showOfflineReport(offlineReport);
-  requestAnimationFrame(frame);
+  rafId = requestAnimationFrame(frame);
 
   return {
     showTab,
     notify: (message, level) => notifier.push(message, level),
+    dispose,
   };
 }
