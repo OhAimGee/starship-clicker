@@ -238,6 +238,14 @@ export class Engine {
     return power;
   }
 
+  /** Octroi direct de ressources — réservé au tutoriel (mise à niveau
+   * discrète des ressources juste avant une étape guidée, pour ne pas
+   * imposer de grind ; jamais utilisé par le jeu normal). */
+  grantResources(map) {
+    gain(this.state, map);
+    this._afterChange();
+  }
+
   buyGenerator(id) {
     const def = GENERATOR_BY_ID[id];
     if (!def || !isUnlocked(this.state, def.unlock)) return false;

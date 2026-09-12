@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialState } from './initial-state.js';
 import { startRun } from './run.js';
+import { SHIP_BY_ID } from '../data/fleet.js';
 import {
   initExploration,
   ensureSystemsUpTo,
@@ -88,5 +89,26 @@ describe('ensureVisibleSystems', () => {
     const systems = s.run.exploration.systems;
     expect(systems[20].defenseRating).toBeGreaterThan(systems[0].defenseRating);
     expect(systems[20].requiredLevel).toBeGreaterThan(systems[0].requiredLevel);
+  });
+});
+
+describe('système 0 (hypothèse du tutoriel guidé, voir ui/tutorial.js)', () => {
+  // Le tutoriel scripte "ouvrez le système 0, gagnez son unique combat avec
+  // 2 Chasseurs" — si un futur ajustement d'équilibrage change la
+  // composition du système 0, ce test échoue bruyamment plutôt que de
+  // casser le tutoriel en silence (voir DÉCISIONS du plan « tutoriel »).
+  it('a exactement 2 planètes : une auto-résolue, une combat gagnable avec 2 Chasseurs', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    initExploration(s);
+    const system0 = s.run.exploration.systems[0];
+    expect(system0.requiredLevel).toBe(0);
+    expect(system0.planets).toHaveLength(2);
+    expect(['uninhabited', 'gas']).toContain(system0.planets[0].type);
+    expect(system0.planets[1].type).toBe('invaded');
+    expect(system0.planets[1].phasesTotal).toBe(1);
+    expect(system0.planets[1].defenseRating).toBeLessThanOrEqual(
+      SHIP_BY_ID.fighters.attack * 2
+    );
   });
 });

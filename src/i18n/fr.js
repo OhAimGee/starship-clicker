@@ -219,7 +219,6 @@ export const fr = {
     achievements: 'Succès',
     options: 'Options',
     quit: 'Quitter',
-    tutorialSoon: 'Le tutoriel est en préparation — reviens bientôt !',
     overwriteWarning:
       'Créer un nouveau Commandant écrasera la partie en cours. Continuer ?',
     defaultCommanderName: 'Commandant',
@@ -232,6 +231,99 @@ export const fr = {
       'progresse pendant cette partie.',
     nameLabel: 'Nom du Commandant',
     namePlaceholder: 'Commandant',
+  },
+
+  tutorial: {
+    skip: 'Passer le tutoriel',
+    next: 'Suivant',
+    finish: 'Terminer',
+    stepCounter: 'Étape {n} / {total}',
+    steps: {
+      intro: {
+        title: 'Bienvenue, Commandant',
+        body1:
+          'Ce tutoriel te guide à travers une boucle de jeu complète : récolter de l’énergie, construire une flotte, conquérir un système, puis comprendre la progression à long terme.',
+        body2: 'Chaque étape indique un vrai bouton à cliquer — suis le guide.',
+      },
+      click: {
+        title: 'Récolter de l’énergie',
+        body1: 'Cliquez sur le vaisseau mère pour récolter de l’énergie.',
+      },
+      buySolar: {
+        title: 'Premier producteur',
+        body1:
+          'Achetez un Panneau solaire : il produit de l’énergie tout seul, même sans cliquer.',
+      },
+      buyMining: {
+        title: 'Extraire du métal',
+        body1:
+          'Achetez un Drone minier : il vous faudra du métal pour construire des vaisseaux.',
+      },
+      goFleetTab: {
+        title: 'Direction la Flotte',
+        body1: 'Ouvrez l’onglet Flotte pour construire vos premiers vaisseaux.',
+      },
+      buyFighters: {
+        title: 'Construire une flotte',
+        body1: 'Achetez deux Chasseurs.',
+        body2:
+          'Une flotte permet d’explorer les systèmes et de combattre — un seul vaisseau suffit rarement.',
+      },
+      goExplorationTab: {
+        title: 'Direction l’Exploration',
+        body1: 'Ouvrez l’onglet Exploration : votre flotte vous ouvre l’accès aux systèmes.',
+      },
+      openSystem0: {
+        title: 'Ouvrir un système',
+        body1: 'Cliquez sur le premier système de la liste pour voir ses planètes.',
+      },
+      engageCombat: {
+        title: 'Engager le combat',
+        body1: 'Cliquez sur « Engager » pour attaquer la planète, puis confirmez l’allocation de flotte.',
+        retry: 'Assaut repoussé — réessayez, votre flotte est toujours là.',
+      },
+      systemConquered: {
+        title: 'Système conquis !',
+        body1: 'Fermez cette fenêtre pour revenir à la carte.',
+      },
+      showLevelXp: {
+        title: 'Niveau de Commandant',
+        body1:
+          'Chaque combat rapporte de l’XP : votre niveau grimpe ici, et débloque des systèmes plus loin dans la carte.',
+      },
+      goTechnologyTab: {
+        title: 'Centre de recherche',
+        body1: 'L’onglet Technologies débloque des multiplicateurs permanents pour votre production.',
+      },
+      mentionFleetSkills: {
+        title: 'Compétences de run',
+        body1:
+          'L’onglet Flotte (déjà visité) contient aussi un arbre de compétences temporaires, payées avec les points gagnés en combat.',
+      },
+      goAscensionTab: {
+        title: 'Temple de l’Ascension',
+        body1:
+          'Cet onglet regroupe la fin de run, les compétences de faction, et l’Ascension véritable.',
+      },
+      explainEndRun: {
+        title: 'Terminer la run',
+        body1: 'Cliquez sur « Terminer la run » : votre objectif est rempli.',
+      },
+      factionReselect: {
+        title: 'Nouvelle run',
+        body1: 'Choisissez une faction pour repartir — les technologies et votre niveau sont conservés.',
+      },
+      explainTrueAscension: {
+        title: 'L’Ascension véritable',
+        body1:
+          'Ce bouton reste grisé jusqu’à ce que votre faction atteigne le niveau 10 — plusieurs fins de run seront nécessaires.',
+        body2: 'Ascender remet tout à zéro mais offre une récompense permanente pour toutes vos parties futures.',
+      },
+      complete: {
+        title: 'Tutoriel terminé',
+        body1: 'Vous connaissez la boucle complète. Bon jeu, Commandant !',
+      },
+    },
   },
 
   options: {

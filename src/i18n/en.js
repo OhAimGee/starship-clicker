@@ -214,7 +214,6 @@ export const en = {
     achievements: 'Achievements',
     options: 'Options',
     quit: 'Quit',
-    tutorialSoon: 'The tutorial is in the works — check back soon!',
     overwriteWarning:
       'Creating a new Commander will overwrite the current save. Continue?',
     defaultCommanderName: 'Commander',
@@ -227,6 +226,95 @@ export const en = {
       'progresses during this game.',
     nameLabel: 'Commander name',
     namePlaceholder: 'Commander',
+  },
+
+  tutorial: {
+    skip: 'Skip tutorial',
+    next: 'Next',
+    finish: 'Finish',
+    stepCounter: 'Step {n} / {total}',
+    steps: {
+      intro: {
+        title: 'Welcome, Commander',
+        body1:
+          'This tutorial walks you through a full gameplay loop: harvesting energy, building a fleet, conquering a system, and understanding the long-term progression.',
+        body2: 'Each step points at a real button to click — follow along.',
+      },
+      click: {
+        title: 'Harvest energy',
+        body1: 'Click the mothership to harvest energy.',
+      },
+      buySolar: {
+        title: 'First producer',
+        body1: 'Buy a Solar Panel: it produces energy on its own, even without clicking.',
+      },
+      buyMining: {
+        title: 'Mine metal',
+        body1: 'Buy a Mining Drone: you will need metal to build ships.',
+      },
+      goFleetTab: {
+        title: 'Head to Fleet',
+        body1: 'Open the Fleet tab to build your first ships.',
+      },
+      buyFighters: {
+        title: 'Build a fleet',
+        body1: 'Buy two Fighters.',
+        body2: 'A fleet lets you explore systems and fight — a single ship rarely holds.',
+      },
+      goExplorationTab: {
+        title: 'Head to Exploration',
+        body1: 'Open the Exploration tab: your fleet now grants access to systems.',
+      },
+      openSystem0: {
+        title: 'Open a system',
+        body1: 'Click the first system in the list to see its planets.',
+      },
+      engageCombat: {
+        title: 'Engage combat',
+        body1: 'Click "Engage" to attack the planet, then confirm your fleet allocation.',
+        retry: 'Assault repelled — try again, your fleet is still here.',
+      },
+      systemConquered: {
+        title: 'System conquered!',
+        body1: 'Close this window to return to the map.',
+      },
+      showLevelXp: {
+        title: 'Commander level',
+        body1:
+          'Every fight grants XP: your level shows here, and unlocks farther systems on the map.',
+      },
+      goTechnologyTab: {
+        title: 'Research center',
+        body1: 'The Technology tab unlocks permanent multipliers for your production.',
+      },
+      mentionFleetSkills: {
+        title: 'Run skills',
+        body1:
+          'The Fleet tab (already visited) also holds a temporary skill tree, paid for with points earned in combat.',
+      },
+      goAscensionTab: {
+        title: 'Temple of Ascension',
+        body1: 'This tab covers ending a run, faction skills, and true Ascension.',
+      },
+      explainEndRun: {
+        title: 'End the run',
+        body1: 'Click "End Run": your objective is complete.',
+      },
+      factionReselect: {
+        title: 'New run',
+        body1: 'Pick a faction to start again — technologies and your level are kept.',
+      },
+      explainTrueAscension: {
+        title: 'True Ascension',
+        body1:
+          'This button stays disabled until your faction reaches level 10 — several run-ends will be needed.',
+        body2: 'Ascending resets everything but grants a permanent reward for all future games.',
+      },
+      complete: {
+        title: 'Tutorial complete',
+        body1: 'You know the full loop now. Have fun, Commander!',
+      },
+    },
   },
 
   options: {

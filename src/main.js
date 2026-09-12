@@ -20,6 +20,8 @@ import { showCommanderCreation } from './ui/commander-creation.js';
 import { showAchievements } from './ui/achievements-screen.js';
 import { showOptions } from './ui/options-screen.js';
 import { confirmDialog, openPanel } from './ui/modal.js';
+import { initTutorialProgress } from './ui/tutorial-progress.js';
+import { startTutorial } from './ui/tutorial.js';
 
 const host = document.getElementById('app');
 
@@ -29,6 +31,7 @@ const host = document.getElementById('app');
 // préférence de langue n'a jamais été posée.
 initLang(loadState().state.lang);
 initTheme();
+initTutorialProgress();
 
 if (import.meta.env.DEV) {
   window.__starship = { engine: null, state: () => window.__starship.engine?.state };
@@ -63,6 +66,38 @@ function attemptQuit() {
   closeBtn.addEventListener('click', close);
 }
 
+// Tutoriel actif (le cas échéant) — démarré par-dessus une partie fraîche,
+// voir `onTutorial` ci-dessous. `startGame`'s `onReturnToMenu` le dispose
+// avant de revenir au menu (retour au menu pendant le tutoriel), sans quoi
+// sa boucle d'overlay/ses écouteurs moteur survivraient à la partie qui les
+// a créés — même risque de fuite que celui déjà corrigé pour `mountApp`.
+let activeTutorial = null;
+
+/** Fiche de création de Commandant → nouvelle partie, avec l'avertissement
+ * d'écrasement habituel si une sauvegarde existe déjà. Partagé par
+ * "Nouveau" et "Tutoriel" (le tutoriel démarre une vraie partie neuve,
+ * voir DÉCISIONS du plan). `afterStart({engine, app})` est appelé une fois
+ * la partie montée. */
+function startNewGame(afterStart) {
+  const proceed = () => {
+    showCommanderCreation(host, {
+      onCreate({ name, factionId }) {
+        const fresh = createInitialState();
+        fresh.commander.name = name || t('mainMenu.defaultCommanderName');
+        const engine = new Engine(fresh);
+        engine.selectFaction(factionId);
+        saveState(engine.state); // écrase immédiatement la sauvegarde existante
+        afterStart?.(startGame(engine.state));
+      },
+    });
+  };
+  if (hasSave()) {
+    confirmDialog(t('mainMenu.overwriteWarning'), proceed);
+  } else {
+    proceed();
+  }
+}
+
 function bootMenu() {
   host.className = 'menu-screen';
   showMainMenu(host, {
@@ -71,36 +106,11 @@ function bootMenu() {
       const { state, status } = loadState();
       startGame(state, status);
     },
-    onNewGame: () => {
-      const proceed = () => {
-        showCommanderCreation(host, {
-          onCreate({ name, factionId }) {
-            const fresh = createInitialState();
-            fresh.commander.name = name || t('mainMenu.defaultCommanderName');
-            const engine = new Engine(fresh);
-            engine.selectFaction(factionId);
-            saveState(engine.state); // écrase immédiatement la sauvegarde existante
-            startGame(engine.state);
-          },
-        });
-      };
-      if (hasSave()) {
-        confirmDialog(t('mainMenu.overwriteWarning'), proceed);
-      } else {
-        proceed();
-      }
-    },
+    onNewGame: () => startNewGame(),
     onTutorial: () => {
-      const closeBtn = el('button', {
-        class: 'btn btn-block',
-        type: 'button',
-        text: t('ui.buttons.close'),
+      startNewGame(({ engine }) => {
+        activeTutorial = startTutorial(engine);
       });
-      const { close } = openPanel(t('mainMenu.tutorial'), [
-        el('p', { class: 'panel-note', text: t('mainMenu.tutorialSoon') }),
-        closeBtn,
-      ]);
-      closeBtn.addEventListener('click', close);
     },
     onAchievements: () => showAchievements(loadState().state),
     onOptions: () => showOptions(),
@@ -124,7 +134,11 @@ function startGame(state, bootStatus) {
 
   const app = mountApp(host, engine, {
     offlineReport,
-    onReturnToMenu: bootMenu,
+    onReturnToMenu: () => {
+      activeTutorial?.dispose();
+      activeTutorial = null;
+      bootMenu();
+    },
   });
 
   if (bootStatus === 'recovered') {
@@ -136,6 +150,8 @@ function startGame(state, bootStatus) {
   if (import.meta.env.DEV) {
     window.__starship.engine = engine;
   }
+
+  return { engine, app };
 }
 
 bootMenu();

@@ -1439,6 +1439,92 @@ h3 {
   }
 }
 
+/* ── Tutoriel (overlay spotlight) ─────────────────────────────────────────── */
+
+.tutorial-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 65; /* au-dessus de .board-modal-scrim (60) : reste visible même
+    si une modale de jeu (rapport de combat, sélection de faction) s'ouvre
+    pendant une étape explicative. */
+  pointer-events: none;
+}
+.tutorial-dim {
+  position: fixed;
+  z-index: 1;
+  background: rgba(4, 3, 12, 0.72);
+  pointer-events: auto;
+}
+.tutorial-ring {
+  position: fixed;
+  z-index: 1;
+  border: 2px solid var(--focus);
+  border-radius: var(--radius);
+  box-shadow: var(--glow-focus);
+  pointer-events: none;
+  animation: tutorial-pulse 1.8s ease-in-out infinite;
+}
+.tutorial-card {
+  position: fixed;
+  z-index: 2; /* toujours au-dessus des bandes d'assombrissement, quel que
+    soit l'ordre d'insertion dans le DOM (elles sont ajoutées/retirées
+    dynamiquement, voir tutorial.js#positionOverlay). */
+  width: min(22rem, calc(100vw - 2 * var(--pad)));
+  pointer-events: auto;
+  background:
+    var(--starfield),
+    var(--face);
+  background-size:
+    240px 240px,
+    auto;
+  background-blend-mode: screen, normal;
+  border: 2px solid var(--steel-2);
+  border-radius: var(--radius);
+  padding: 0.9rem var(--pad) 1rem;
+  box-shadow: 0 0 30px rgba(74, 58, 122, 0.5);
+  font-family: var(--face-display);
+}
+.tutorial-card[data-placement='center'] {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.tutorial-card[data-placement='fixed-bottom'] {
+  left: 50%;
+  bottom: calc(var(--bottom-bar-h) + var(--pad) + 1rem);
+  transform: translateX(-50%);
+}
+.tutorial-card-eyebrow {
+  margin: 0 0 0.4rem;
+  color: var(--ink-faint);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+.tutorial-card-text {
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+}
+.tutorial-card-text:last-of-type {
+  margin-bottom: 0;
+}
+.tutorial-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+@keyframes tutorial-pulse {
+  0%,
+  100% {
+    box-shadow: var(--glow-focus);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(108, 140, 255, 0.85);
+  }
+}
+
 /* ── Mouvement réduit ────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1449,6 +1535,9 @@ h3 {
     transition: none;
   }
   .announce {
+    animation: none;
+  }
+  .tutorial-ring {
     animation: none;
   }
   * {
