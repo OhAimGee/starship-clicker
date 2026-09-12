@@ -75,4 +75,17 @@ export const CONFIG = {
     loseLossMax: 0.5, // pertes maximales d'un assaut très mal engagé
     minLossThreshold: 0.03, // au-delà, au moins 1 perte par type engagé
   },
+
+  // Niveau de joueur (voir game/leveling.js) : persiste entre les runs
+  // (comme le niveau de faction), remis à zéro par ascend() seulement.
+  // Alimenté uniquement par le combat — gagner des combats/planètes/
+  // systèmes fait progresser le seul palier qui débloque l'accès aux
+  // systèmes lointains (voir data/systems.js#requiredLevelForIndex).
+  player: {
+    xpBase: 20, // XP requise pour passer du niveau 0 au niveau 1
+    xpGrowth: 1.22, // multiplicateur d'XP requise par niveau
+    xpPerCombatWin: 2, // chaque phase de combat gagnée
+    xpPerPlanet: 8, // chaque planète entièrement conquise
+    xpPerSystem: 30, // système entièrement conquis (toutes planètes faites)
+  },
 };

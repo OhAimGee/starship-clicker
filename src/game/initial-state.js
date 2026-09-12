@@ -19,7 +19,11 @@ import { RUN_SKILLS } from '../data/runSkills.js';
 // sauvegarde v3 existante sans y toucher (pas de reset forcé).
 // v5 = arbre de compétences de run (run.skillTree) — additif également.
 // v6 = combat réel (run.combatLog) — additif également.
-export const SCHEMA_VERSION = 6;
+// v7 = systèmes à planètes + niveau de joueur (prestige.player,
+// run.exploration.systems/activeSystemIndex remplacent targets/activeMap)
+// — additif également : mergeIntoShape comble les nouveaux champs, les
+// anciens (targets/activeMap) sont simplement ignorés (clés inconnues).
+export const SCHEMA_VERSION = 7;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -75,6 +79,9 @@ export function createInitialState() {
           },
         ])
       ),
+      // Niveau de joueur (XP) — voir game/leveling.js. Survit à endRun()
+      // comme le niveau de faction ; remis à zéro par ascend() seulement.
+      player: { level: 0, xp: 0 },
     },
 
     // État de la run en cours — vidé/reconstruit à chaque `selectFaction()`
@@ -92,11 +99,17 @@ export function createInitialState() {
         RUN_SKILLS.map((s) => [s.id, { level: 0 }])
       ),
       // Journal de combat de la run en cours — liste bornée (voir
-      // Engine#chooseNode), remise à zéro comme le reste de `run`.
+      // Engine#resolvePlanetCombat), remise à zéro comme le reste de `run`.
       combatLog: [],
       exploration: {
-        targets: [], // file des systèmes-objectif de la run (carte à nœuds)
-        activeMap: null, // carte à nœuds en cours (voir game/nodemap.js)
+        // Systèmes explorables générés pour cette run (voir
+        // game/exploration.js#ensureVisibleSystems) — le joueur choisit
+        // librement lequel ouvrir, verrouillé par palier de niveau
+        // (system.requiredLevel vs prestige.player.level).
+        systems: [],
+        // Index (dans `systems`) du système dont le sous-menu de planètes
+        // est ouvert, ou `null` (liste des systèmes affichée).
+        activeSystemIndex: null,
         conquered: [],
         advancedUnlocked: false,
       },

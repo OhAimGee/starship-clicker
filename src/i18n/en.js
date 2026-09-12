@@ -33,7 +33,7 @@ export const en = {
       clickUpgrades: 'Ship Upgrades',
       ships: 'Ships',
       research: 'Research',
-      explorationMap: 'System map',
+      explorationMap: 'Systems',
       conqueredSystems: 'Conquered systems',
       prestigeUpgrades: 'Permanent upgrades',
       factionSkills: 'Skills — {faction}',
@@ -60,6 +60,7 @@ export const en = {
       owned: 'Owned',
       runObjective: 'Run objective',
       runSkillPoints: 'Skill points',
+      playerLevel: 'Player level',
     },
     factionSelect: {
       title: 'Choose a faction',
@@ -82,6 +83,22 @@ export const en = {
       skillPoint: 'Skill point',
       conquest: 'Conquest',
     },
+    system: {
+      locked: 'Level {level} required',
+      conqueredTag: 'Conquered',
+      planetCount: '{n} planets',
+    },
+    planet: {
+      conquered: 'Conquered',
+      pending: 'Pending',
+      phaseProgress: 'Phase {won}/{total}',
+    },
+    planetType: {
+      invaded: 'Invaded',
+      hostile: 'Hostile',
+      uninhabited: 'Uninhabited',
+      gas: 'Gas giant',
+    },
     buttons: {
       buy: 'Buy',
       build: 'Build',
@@ -96,6 +113,7 @@ export const en = {
       details: 'Details',
       cancel: 'Cancel',
       engage: 'Engage',
+      back: 'Back',
     },
     labels: {
       owned: 'Owned: {n}',
@@ -288,6 +306,10 @@ export const en = {
       desc: 'Generators self-purchase when resources are plentiful.',
     },
     warpDrive: { name: 'Warp drive', desc: 'Unlocks distant star systems.' },
+    xenoColonization: {
+      name: 'Xeno-colonization',
+      desc: 'Lets conquered hostile-environment planets yield permanent production.',
+    },
     energyEfficiency: {
       name: 'Energy efficiency',
       desc: 'Reduces fleet upkeep.',
@@ -548,6 +570,10 @@ export const en = {
     ascensionRewardChosen: '{name} — Ascension reward gained (level {level}).',
     maintenanceLoss: 'Insufficient upkeep: ships were lost.',
     unlocked: 'New: {name}',
+    systemLocked: 'Level {level} required to access this system.',
+    levelUp: 'Level {level} reached!',
+    planetConquered: 'Planet conquered!',
+    battleWon: 'Combat phase won.',
     saveRecovered:
       'Unreadable save archived (starshipClickerSave.bak). New game.',
     saveReset:

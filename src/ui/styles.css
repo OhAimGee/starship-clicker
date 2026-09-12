@@ -360,6 +360,44 @@ h3 {
   box-shadow: 0 0 8px rgba(255, 47, 208, 0.6);
 }
 
+/* ── Niveau de joueur (XP) — en tête du panneau ressources, toujours
+   visible (voir game/leveling.js) ───────────────────────────────────────── */
+.player-level-row {
+  grid-template-columns: 1.5rem minmax(4.5rem, auto) minmax(0, 1fr);
+  border-bottom: 2px solid var(--rule-strong);
+}
+.player-level-tail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.player-level-value {
+  font-family: var(--face-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.xp-bar {
+  flex: 1;
+  min-width: 3rem;
+  height: 0.4rem;
+  border-radius: var(--radius);
+  background: var(--steel-3);
+  overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%;
+  background: var(--go);
+  box-shadow: var(--glow-go);
+  transition: width 200ms ease-out;
+}
+.xp-bar-label {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
 /* ── Palette (chiffre qui tourne) ────────────────────────────────────────── */
 
 .flaps {

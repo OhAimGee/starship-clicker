@@ -35,7 +35,7 @@ export const fr = {
       clickUpgrades: 'Améliorations du vaisseau',
       ships: 'Vaisseaux',
       research: 'Recherches',
-      explorationMap: 'Carte du système',
+      explorationMap: 'Systèmes',
       conqueredSystems: 'Systèmes conquis',
       prestigeUpgrades: 'Améliorations permanentes',
       factionSkills: 'Compétences — {faction}',
@@ -62,6 +62,7 @@ export const fr = {
       owned: 'Possédés',
       runObjective: 'Objectif de la run',
       runSkillPoints: 'Points de compétence',
+      playerLevel: 'Niveau du joueur',
     },
     factionSelect: {
       title: 'Choisir une faction',
@@ -84,6 +85,22 @@ export const fr = {
       skillPoint: 'Point de compétence',
       conquest: 'Conquête',
     },
+    system: {
+      locked: 'Niveau {level} requis',
+      conqueredTag: 'Conquis',
+      planetCount: '{n} planètes',
+    },
+    planet: {
+      conquered: 'Conquise',
+      pending: 'À faire',
+      phaseProgress: 'Phase {won}/{total}',
+    },
+    planetType: {
+      invaded: 'Envahie',
+      hostile: 'Hostile',
+      uninhabited: 'Non-habitée',
+      gas: 'Gazeuse',
+    },
     buttons: {
       buy: 'Acheter',
       build: 'Construire',
@@ -98,6 +115,7 @@ export const fr = {
       details: 'Détails',
       cancel: 'Annuler',
       engage: 'Engager',
+      back: 'Retour',
     },
     labels: {
       owned: 'Possédés : {n}',
@@ -298,6 +316,10 @@ export const fr = {
     warpDrive: {
       name: 'Moteur de distorsion',
       desc: 'Débloque les systèmes stellaires lointains.',
+    },
+    xenoColonization: {
+      name: 'Xéno-colonisation',
+      desc: 'Permet de tirer une production permanente des planètes à environnement hostile conquises.',
     },
     energyEfficiency: {
       name: 'Efficacité énergétique',
@@ -561,6 +583,10 @@ export const fr = {
     ascensionRewardChosen: '{name} — récompense d’Ascension obtenue (niveau {level}).',
     maintenanceLoss: 'Maintenance insuffisante : des vaisseaux ont été perdus.',
     unlocked: 'Nouveau : {name}',
+    systemLocked: 'Niveau {level} requis pour accéder à ce système.',
+    levelUp: 'Niveau {level} atteint !',
+    planetConquered: 'Planète conquise !',
+    battleWon: 'Phase de combat remportée.',
     saveRecovered:
       'Sauvegarde illisible archivée (starshipClickerSave.bak). Nouvelle partie.',
     saveReset:

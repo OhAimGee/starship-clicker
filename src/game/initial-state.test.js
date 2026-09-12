@@ -8,10 +8,10 @@ import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
 import { ASCENSION_REWARD_IDS } from '../data/ascensionRewards.js';
 
 describe('createInitialState', () => {
-  it('produit un état taggé v6 avec horodatages', () => {
+  it('produit un état taggé v7 avec horodatages', () => {
     const s = createInitialState();
     expect(s.schemaVersion).toBe(SCHEMA_VERSION);
-    expect(s.schemaVersion).toBe(6);
+    expect(s.schemaVersion).toBe(7);
     expect(typeof s.savedAt).toBe('number');
     expect(typeof s.createdAt).toBe('number');
   });
@@ -47,8 +47,9 @@ describe('createInitialState', () => {
     expect(s.run.buffs).toEqual([]);
     expect(s.run.skillPoints).toBe(0);
     expect(s.run.combatLog).toEqual([]);
-    expect(s.run.exploration.targets).toEqual([]);
-    expect(s.run.exploration.activeMap).toBeNull();
+    expect(s.run.exploration.systems).toEqual([]);
+    expect(s.run.exploration.activeSystemIndex).toBeNull();
+    expect(s.prestige.player).toEqual({ level: 0, xp: 0 });
   });
 
   it('prépare un compartiment Ascension neuf, indépendant de la run', () => {

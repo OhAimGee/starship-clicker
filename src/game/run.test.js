@@ -72,11 +72,11 @@ describe('startRun', () => {
     );
   });
 
-  it('ne construit pas la file de systèmes (c’est Engine#selectFaction qui l’enchaîne)', () => {
+  it('ne construit pas la liste de systèmes (c’est Engine#selectFaction qui l’enchaîne)', () => {
     const s = createInitialState();
     startRun(s, 'miningCollective');
-    expect(s.run.exploration.targets).toEqual([]);
-    expect(s.run.exploration.activeMap).toBeNull();
+    expect(s.run.exploration.systems).toEqual([]);
+    expect(s.run.exploration.activeSystemIndex).toBeNull();
   });
 
   it('réinitialise les bonus/points de compétence/arbre de run', () => {

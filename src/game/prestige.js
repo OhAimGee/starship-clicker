@@ -78,8 +78,8 @@ export function endRun(state) {
   state.civilizationLevel = 1;
 
   state.run.exploration.conquered = [];
-  state.run.exploration.targets = [];
-  state.run.exploration.activeMap = null;
+  state.run.exploration.systems = [];
+  state.run.exploration.activeSystemIndex = null;
   // Les technos sont conservées : les systèmes avancés restent débloqués si
   // warpDrive a déjà été recherché.
   state.run.exploration.advancedUnlocked =
@@ -165,6 +165,10 @@ export function ascend(state) {
       entry.skills[skillId].level = 0;
     }
   }
+  // Le niveau de joueur (XP, voir game/leveling.js) repart aussi à zéro —
+  // un vrai New Game+ pour l'accès aux systèmes lointains, pas seulement
+  // pour les factions.
+  state.prestige.player = { level: 0, xp: 0 };
 
   state.ascension.count += 1;
   const options = pickRewardOptions(state, 3);
