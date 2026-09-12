@@ -28,6 +28,20 @@ function topUpObjective(engine) {
   }
 }
 
+// La flotte tout juste achetée coûte de la maintenance en énergie chaque
+// seconde (voir Engine#tick) ; à ce stade du tutoriel, la production
+// d'énergie est encore minime, donc un joueur qui prend quelques secondes
+// pour lire une étape peut voir sa flotte partiellement/totalement perdue
+// par attrition avant même d'avoir ouvert un système. On maintient une
+// réserve d'énergie couvrant une longue marge (2 minutes) à chaque étape
+// tant que la flotte est nécessaire — jamais un excédent, juste un plancher.
+const FLEET_BUFFER_SECONDS = 120;
+function ensureFleetSurvives(engine) {
+  const need = engine.fleetMaintenance * FLEET_BUFFER_SECONDS;
+  const have = engine.state.resources.energy ?? 0;
+  if (have < need) engine.grantResources({ energy: need - have });
+}
+
 export const TUTORIAL_STEPS = [
   {
     id: 'intro',
@@ -106,6 +120,7 @@ export const TUTORIAL_STEPS = [
     titleKey: 'tutorial.steps.goExplorationTab.title',
     bodyKeys: ['tutorial.steps.goExplorationTab.body1'],
     advance: 'wait',
+    topUp: ensureFleetSurvives,
     waitFor: { tab: 'exploration' },
   },
   {
@@ -116,6 +131,7 @@ export const TUTORIAL_STEPS = [
     titleKey: 'tutorial.steps.openSystem0.title',
     bodyKeys: ['tutorial.steps.openSystem0.body1'],
     advance: 'wait',
+    topUp: ensureFleetSurvives,
     waitFor: {
       engineEvent: 'changed',
       check: (engine) => engine.activeSystem()?.index === 0,
@@ -129,6 +145,7 @@ export const TUTORIAL_STEPS = [
     bodyKeys: ['tutorial.steps.engageCombat.body1'],
     retryTextKey: 'tutorial.steps.engageCombat.retry',
     advance: 'wait',
+    topUp: ensureFleetSurvives,
     waitFor: {
       engineEvent: 'battle-resolved',
       check: (engine, payload) => payload.victory === true,
