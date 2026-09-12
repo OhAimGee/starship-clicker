@@ -9,11 +9,19 @@ import { icon } from './icons.js';
 import { factionIconId } from './icon-map.js';
 import { openPanel } from './modal.js';
 
-export function showFactionSelect(engine, { onSelected } = {}) {
-  let close;
-
-  const rows = FACTIONS.map((f) => {
-    const level = engine.state.prestige.factions[f.id]?.level ?? 0;
+/**
+ * Rend la liste de factions (icône, nom, description, niveau ou
+ * "Nouvelle") — partagée avec `commander-creation.js` (fiche de création,
+ * avant qu'un Engine existe). `factionsMeta` est la forme de
+ * `state.prestige.factions` (id -> { level, ... }) ; `onPick(factionId)`
+ * est appelé au clic, l'appelant décide de la suite (fermeture de modale,
+ * démarrage de partie, etc.).
+ * @returns {HTMLUListElement}
+ */
+export function renderFactionRows(factionsMeta, onPick) {
+  const root = el('ul', { class: 'board-list' });
+  for (const f of FACTIONS) {
+    const level = factionsMeta[f.id]?.level ?? 0;
     const btn = el(
       'button',
       { class: 'board-row-main faction-row', type: 'button' },
@@ -32,22 +40,31 @@ export function showFactionSelect(engine, { onSelected } = {}) {
         }),
       ]
     );
-    btn.addEventListener('click', () => {
-      engine.selectFaction(f.id);
+    btn.addEventListener('click', () => onPick(f.id));
+    root.append(
+      el('li', { class: 'board-row' }, [
+        el('div', { class: 'board-row-line' }, [btn]),
+      ])
+    );
+  }
+  return root;
+}
+
+export function showFactionSelect(engine, { onSelected } = {}) {
+  let close;
+
+  const rows = renderFactionRows(
+    engine.state.prestige.factions,
+    (factionId) => {
+      engine.selectFaction(factionId);
       close();
       onSelected?.();
-    });
-    return el('li', { class: 'board-row' }, [
-      el('div', { class: 'board-row-line' }, [btn]),
-    ]);
-  });
+    }
+  );
 
   ({ close } = openPanel(
     t('ui.factionSelect.title'),
-    [
-      el('p', { class: 'panel-note', text: t('ui.factionSelect.intro') }),
-      el('ul', { class: 'board-list' }, rows),
-    ],
+    [el('p', { class: 'panel-note', text: t('ui.factionSelect.intro') }), rows],
     { dismissable: false }
   ));
 }
