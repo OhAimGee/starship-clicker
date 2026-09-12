@@ -4,18 +4,23 @@
 // moteur (src/game/**), sans navigateur ni dépendance supplémentaire. Rapport
 // de rythme, pas un test automatisé : lancer avec `npm run simulate`.
 //
-// Fourchettes attendues (constatées lors de l'écriture de ce script — à
-// recontrôler après tout changement d'équilibrage) :
-//  - Niveau de faction 0 : première run bouclée en 2-4h de jeu optimisé.
+// Fourchettes attendues (constatées avec le modèle « systèmes à planètes » —
+// à recontrôler après tout changement d'équilibrage) :
+//  - Niveau de faction 0 : première run bouclée en 1-2 min de jeu optimisé.
 //  - Le temps augmente avec le niveau de faction (plus de systèmes à
-//    conquérir, défense plus élevée) mais reste fini avant le plafond de
-//    8h — un plafond atteint signale un vrai blocage, pas juste "lent".
+//    conquérir, plus de planètes/phases par système) mais reste de l'ordre
+//    de quelques minutes jusqu'au niveau 10 — un blocage (8h atteintes)
+//    signale un vrai problème, pas juste "lent" : voir DÉCISIONS git log
+//    (bug historique — resolveExploration doit rappeler `openSystem` à
+//    CHAQUE passage, même sur un système déjà ouvert, pour repositionner
+//    `activeSystemIndex` avant toute résolution de combat, sans quoi les
+//    planètes d'un système entamé mais pas fini échouent silencieusement).
 //  - Enchaîner plusieurs fins de run avec la même faction doit accélérer
 //    nettement (bonus de faction + arbre commun qui s'accumulent).
 //  - Atteindre la première vraie Ascension (niveau de faction seuil,
-//    CONFIG.ascension.factionLevelThreshold) doit rester de l'ordre de
-//    quelques heures de jeu optimisé cumulées sur plusieurs runs — pas des
-//    dizaines d'heures (voir Rapport 3).
+//    CONFIG.ascension.factionLevelThreshold) reste actuellement de l'ordre
+//    de 20-30 minutes de jeu optimisé cumulées (rythme généreux — pas des
+//    dizaines d'heures, voir Rapport 3 ; resserrable plus tard si souhaité).
 
 import { Engine } from '../src/game/engine.js';
 import {
@@ -27,7 +32,6 @@ import {
   canAfford,
 } from '../src/game/economy.js';
 import { canEndRun } from '../src/game/prestige.js';
-import { reachableNodeIds } from '../src/game/nodemap.js';
 import { GENERATORS } from '../src/data/generators.js';
 import { SHIPS } from '../src/data/fleet.js';
 import { TECHNOLOGIES } from '../src/data/technologies.js';
@@ -102,26 +106,43 @@ function burstBuy(engine, choice) {
   return n;
 }
 
-/** Résout en boucle tous les nœuds accessibles non bloqués par la flotte.
- * `Engine#chooseNode` exige de posséder au moins un vaisseau (voir
- * `hasFleet()`), pour TOUS les types de nœud, même « gratuits » — sans quoi
- * chaque tentative échoue silencieusement et rescanner les mêmes nœuds
- * accessibles boucle indéfiniment (`progressed` ne doit être vrai QUE si
- * `chooseNode` a réellement réussi). */
-function resolveFreeNodes(engine) {
+/** Ouvre et résout en boucle tous les systèmes actuellement débloqués
+ * (niveau de joueur suffisant) et non encore Conquis : ouvre leur sous-menu
+ * (résout gratuitement les planètes uninhabited/gas), puis engage toute la
+ * flotte possédée sur chaque planète invaded/hostile restante dont la
+ * défense est déjà à portée (`engine.fleetPower >= planet.defenseRating`) —
+ * comme l'ancien `resolveFreeNodes` : avec des pertes de combat réelles
+ * depuis « combat réel », attaquer une planète hors de portée avec une
+ * flotte encore chétive ne ferait que la détruire en boucle sans jamais la
+ * laisser grossir, au lieu d'attendre organiquement qu'elle soit assez
+ * forte (stratégie qu'un joueur réel adopterait spontanément). */
+function resolveExploration(engine) {
   if (!engine.hasFleet()) return;
   let progressed = true;
   while (progressed) {
     progressed = false;
-    const map = engine.state.run.exploration.activeMap;
-    if (!map) break;
-    for (const id of reachableNodeIds(map)) {
-      const node = map.nodes[id];
-      const gated = node.type === 'invade' || node.type === 'conquest';
-      if (!gated || engine.fleetPower >= node.data.defenseRating) {
-        if (engine.chooseNode(id)) progressed = true;
-        break; // la rangée accessible a changé, on repart du début
+    const systems = engine.explorationSystems();
+    for (const system of systems) {
+      if (system.conquered) continue;
+      if (system.requiredLevel > engine.state.prestige.player.level) continue;
+      // Toujours appelé, même si déjà ouvert : `openSystem` doit être
+      // rappelé pour repositionner `activeSystemIndex` sur CE système avant
+      // toute résolution de combat (`resolvePlanetCombat` lit le système
+      // actif) — sans quoi les planètes d'un système déjà visité mais pas
+      // encore fini échouent silencieusement (mauvais système actif),
+      // gelant `conquered` malgré une flotte largement suffisante.
+      // `openSystem` lui-même ne réapplique la résolution automatique
+      // (uninhabited/gas) qu'une seule fois (`system.opened`), donc
+      // rappeler ne mute rien d'autre.
+      const wasOpened = system.opened;
+      if (engine.openSystem(system.index) && !wasOpened) progressed = true;
+      for (const planet of system.planets) {
+        if (planet.conquered) continue;
+        if (planet.type !== 'invaded' && planet.type !== 'hostile') continue;
+        if (engine.fleetPower < planet.defenseRating) continue;
+        if (engine.resolvePlanetCombat(planet.id)) progressed = true;
       }
+      if (progressed) break; // l'état a changé (niveau, systèmes visibles…)
     }
   }
 }
@@ -130,17 +151,15 @@ function resolveFreeNodes(engine) {
  * Joue une run jusqu'à ce que `endRun()` soit possible, c'est-à-dire jusqu'à
  * ce que l'objectif de run soit rempli (`canEndRun` = `isObjectiveComplete`,
  * plus du tout lié à `quantumEnergy` depuis la séparation fin de run /
- * Ascension). Continue aussi de résoudre la carte à nœuds tant qu'elle a des
- * nœuds accessibles, même après l'objectif rempli, pour refléter un joueur
- * qui pousse un peu plus loin avant de terminer sa run.
+ * Ascension).
  */
 function playRun(engine) {
   let simTime = 0;
   let iterations = 0;
-  resolveFreeNodes(engine);
+  resolveExploration(engine);
 
   while (
-    (engine.state.run.exploration.activeMap || !canEndRun(engine.state)) &&
+    !canEndRun(engine.state) &&
     simTime < TIME_CAP_S &&
     iterations < MAX_ITERATIONS
   ) {
@@ -192,13 +211,12 @@ function playRun(engine) {
     simTime += choice.t;
     advanceState(engine.state, rates, choice.t);
     burstBuy(engine, choice);
-    resolveFreeNodes(engine);
+    resolveExploration(engine);
   }
 
   return {
     simTime,
-    completed:
-      !engine.state.run.exploration.activeMap && canEndRun(engine.state),
+    completed: canEndRun(engine.state),
     iterations,
   };
 }

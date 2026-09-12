@@ -197,12 +197,25 @@ describe('Engine — faction & run', () => {
     const e = new Engine(createInitialState());
     e.selectFaction('ironLegion');
     e.state.ships.fighters.count = 100000;
-    e.openSystem(0);
-    const system = e.activeSystem();
-    const planet = system.planets.find(
-      (p) => p.type === 'invaded' || p.type === 'hostile'
-    );
+    // Système avec une défense de planète assez haute pour garantir qu'une
+    // allocation d'un seul chasseur (attaque 2) perde à coup sûr — la
+    // défense exacte dépend de la position/l'index (tunable), on cherche
+    // donc explicitement plutôt que de supposer le système 0. Niveau de
+    // joueur élevé le temps de la recherche pour ne pas être bloqué par le
+    // verrouillage par niveau.
+    e.state.prestige.player.level = 50;
+    let planet;
+    for (let i = 0; i < 15 && !planet; i++) {
+      e.openSystem(i);
+      const sys = e.activeSystem();
+      planet = sys?.planets.find(
+        (p) =>
+          (p.type === 'invaded' || p.type === 'hostile') &&
+          p.defenseRating > 5
+      );
+    }
     expect(planet).toBeDefined();
+    e.state.prestige.player.level = 0;
 
     const battles = [];
     e.on('battle-resolved', (entry) => battles.push(entry));

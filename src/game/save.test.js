@@ -97,6 +97,53 @@ describe('loadState', () => {
     expect(state.clickUpgrades.autoClicker.count).toBe(7);
   });
 
+  it('conserve les systèmes/planètes explorés et le niveau de joueur au rechargement', () => {
+    const saved = createInitialState();
+    saved.prestige.player = { level: 4, xp: 12 };
+    saved.run.factionId = 'ironLegion';
+    saved.run.exploration.systems = [
+      {
+        index: 0,
+        name: 'Alpha Centauri',
+        archetype: 'mining',
+        advanced: false,
+        requiredLevel: 0,
+        defenseRating: 10,
+        rewards: { metal: 100 },
+        topResource: 'metal',
+        opened: true,
+        conquered: false,
+        planets: [
+          { id: '0-0', type: 'uninhabited', conquered: true },
+          {
+            id: '0-1',
+            type: 'invaded',
+            phasesTotal: 2,
+            phasesWon: 1,
+            defenseRating: 5,
+            conquered: false,
+          },
+        ],
+      },
+    ];
+    saved.run.exploration.activeSystemIndex = 0;
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(saved) });
+
+    const { state, status } = loadState(storage);
+    expect(status).toBe('loaded');
+    expect(state.prestige.player).toEqual({ level: 4, xp: 12 });
+    expect(state.run.exploration.activeSystemIndex).toBe(0);
+    expect(state.run.exploration.systems).toHaveLength(1);
+    expect(state.run.exploration.systems[0].planets[1]).toEqual({
+      id: '0-1',
+      type: 'invaded',
+      phasesTotal: 2,
+      phasesWon: 1,
+      defenseRating: 5,
+      conquered: false,
+    });
+  });
+
   it('archive une sauvegarde corrompue dans .bak et repart proprement', () => {
     const storage = memoryStorage({ [STORAGE_KEY]: '{{{ pas du JSON' });
     const { state, status } = loadState(storage);

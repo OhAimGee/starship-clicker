@@ -84,14 +84,20 @@ export function generatePlanets(systemDef, index) {
   for (let i = 0; i < count; i++) {
     const type = pickType(rng, weights);
     if (type === 'invaded' || type === 'hostile') {
+      // Un système entier requiert désormais de venir à bout de PLUSIEURS
+      // planètes (chacune 1-5 phases) plutôt que d'un seul nœud de
+      // conquête comme avant les systèmes à planètes — ces deux facteurs
+      // (phases, défense par planète) restent donc volontairement modérés
+      // pour que le coût total d'un système reste du même ordre de
+      // grandeur que l'ancien modèle, pas un multiple.
       const phasesTotal = Math.max(
         1,
-        Math.min(5, 1 + Math.floor(rng() * (1 + index / 3)))
+        Math.min(5, 1 + Math.floor(rng() * (1 + index / 8)))
       );
       const defenseRating = Math.max(
         1,
         Math.round(
-          systemDef.defenseRating * (0.2 + 0.12 * i) * (0.85 + rng() * 0.3)
+          systemDef.defenseRating * (0.12 + 0.05 * i) * (0.85 + rng() * 0.3)
         )
       );
       planets.push({
