@@ -100,6 +100,7 @@ export function techMultipliers(state) {
     clickPower: 1,
     autoBuyGenerators: false,
     unlockAdvancedSystems: false,
+    unlockHostileColonization: false,
   };
   for (const tech of TECHNOLOGIES) {
     if (!state.technologies[tech.id]?.unlocked) continue;
@@ -129,6 +130,9 @@ export function techMultipliers(state) {
           break;
         case 'unlockAdvancedSystems':
           m.unlockAdvancedSystems = true;
+          break;
+        case 'unlockHostileColonization':
+          m.unlockHostileColonization = true;
           break;
       }
     }

@@ -124,6 +124,17 @@ export const ADVANCED_ARCHETYPES = [
   },
 ];
 
+/**
+ * Niveau de joueur requis pour accéder au système d'index `index` (voir
+ * `game/leveling.js`) — plus un système est loin dans la liste, plus il
+ * faut avoir combattu pour y accéder. Croissance volontairement douce (un
+ * niveau tous les 2 systèmes) : la plupart des systèmes proches restent
+ * atteignables tôt, seuls les plus lointains exigent un vrai palier.
+ */
+export function requiredLevelForIndex(index) {
+  return Math.floor(index / 2);
+}
+
 export const EXPLORATION = {
   basicCount: 8,
   advancedCount: 6,

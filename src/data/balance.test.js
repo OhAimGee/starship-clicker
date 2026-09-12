@@ -18,6 +18,7 @@ const KNOWN_EFFECTS = new Set([
   'clickPower',
   'autoBuyGenerators',
   'unlockAdvancedSystems',
+  'unlockHostileColonization',
 ]);
 // Types d'effet « à niveaux », gérés par economy.js#applyLeveledEffect —
 // partagés par PRESTIGE_UPGRADES (arbre commun) et les arbres de faction.

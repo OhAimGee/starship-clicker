@@ -11,6 +11,7 @@
 //   clickPower            { mult }                   pouvoir de clic
 //   autoBuyGenerators     {}                         auto-achat des générateurs
 //   unlockAdvancedSystems {}                         débloque les systèmes avancés
+//   unlockHostileColonization {}                     débloque la récompense des planètes hostiles
 //
 // Les multiplicateurs de même type se cumulent en produit.
 
@@ -38,6 +39,15 @@ export const TECHNOLOGIES = [
     cost: { antimatter: 150, influence: 15 },
     effects: [{ type: 'unlockAdvancedSystems' }],
     unlock: { resource: 'influence', total: 10 },
+  },
+  {
+    id: 'xenoColonization',
+    cost: { crystals: 3000, influence: 60 },
+    // Flag pur (comme `unlockAdvancedSystems`) : conditionne la récompense
+    // permanente des planètes à environnement hostile (voir
+    // `Engine#resolvePlanetCombat`).
+    effects: [{ type: 'unlockHostileColonization' }],
+    unlock: { resource: 'influence', total: 20 },
   },
   {
     id: 'energyEfficiency',
