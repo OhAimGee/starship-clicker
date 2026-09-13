@@ -458,6 +458,17 @@ export class Engine {
     const planet = system.planets.find((p) => p.id === planetId);
     if (!planet || planet.conquered) return false;
     if (planet.type !== 'invaded' && planet.type !== 'hostile') return false;
+    // Une planète hostile sans `xenoColonization` ne rapporte rien et la
+    // conquête est définitive (voir plus bas) : refuser le combat plutôt
+    // que de laisser gâcher la planète pour aucune récompense (le bouton
+    // « Engager » est déjà masqué dans ce cas, voir system-detail.js —
+    // ce garde-fou couvre tout autre appelant).
+    if (
+      planet.type === 'hostile' &&
+      !techMultipliers(this.state).unlockHostileColonization
+    ) {
+      return false;
+    }
 
     const engaged = allocation ?? fullFleetAllocation(this.state);
     const battle = resolveBattle(this.state, engaged, planet.defenseRating);

@@ -160,6 +160,32 @@ export function startTutorial(engine) {
     card.style.left = '';
   }
 
+  /** Étapes `fixed-bottom` : se déroulent par-dessus une vraie modale de jeu
+   * déjà ouverte (détail de système, allocation de flotte…). Un ancrage
+   * bas fixe la recouvrait sur petit écran (le popup, centré, peut occuper
+   * toute la hauteur visible et pousser ses boutons près du bas) — on se
+   * cale donc plutôt au-dessus ou en dessous de la modale la plus récente
+   * (la plus haute dans l'empilement), quel que soit son contenu. */
+  function positionCardNearModal(vw, vh) {
+    const modals = document.querySelectorAll('.board-modal');
+    const modal = modals[modals.length - 1];
+    if (!modal) {
+      positionCardFixed('fixed-bottom');
+      return;
+    }
+    card.dataset.placement = 'auto';
+    const r = modal.getBoundingClientRect();
+    const cw = card.offsetWidth || 320;
+    const ch = card.offsetHeight || 140;
+    const spaceBelow = vh - r.bottom - GAP;
+    const spaceAbove = r.top - GAP;
+    const top = spaceBelow >= spaceAbove ? r.bottom + GAP : r.top - GAP - ch;
+    let left = vw / 2 - cw / 2;
+    left = Math.min(Math.max(8, left), Math.max(8, vw - cw - 8));
+    card.style.top = `${top}px`;
+    card.style.left = `${left}px`;
+  }
+
   function resolveTarget() {
     const s = step();
     if (!s.target) return null;
@@ -205,7 +231,8 @@ export function startTutorial(engine) {
       positionCardNear(r, vw, vh);
     } else {
       for (const n of dimNodes) n.remove();
-      positionCardFixed(s.placement === 'fixed-bottom' ? 'fixed-bottom' : 'center');
+      if (s.placement === 'fixed-bottom') positionCardNearModal(vw, vh);
+      else positionCardFixed('center');
     }
   }
 

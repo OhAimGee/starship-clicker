@@ -197,6 +197,7 @@ describe('Engine — faction & run', () => {
     const e = new Engine(createInitialState());
     e.selectFaction('ironLegion');
     e.state.ships.fighters.count = 100000;
+    e.state.technologies.xenoColonization.unlocked = true; // planète hostile éventuelle conquérable
     // Système avec une défense de planète assez haute pour garantir qu'une
     // allocation d'un seul chasseur (attaque 2) perde à coup sûr — la
     // défense exacte dépend de la position/l'index (tunable), on cherche
@@ -250,8 +251,8 @@ describe('Engine — faction & run', () => {
     return index;
   }
 
-  it('planète hostile : conquise sans la recherche mais sans récompense ; ' +
-    'avec la recherche, la récompense (buff) est accordée', () => {
+  it('planète hostile : conquise et récompensée (buff) avec la recherche ; ' +
+    'le combat est refusé sans la recherche (conquête définitive, pas de récompense)', () => {
     const withTech = new Engine(createInitialState());
     withTech.selectFaction('ironLegion');
     withTech.state.ships.fighters.count = 1_000_000;
@@ -274,13 +275,12 @@ describe('Engine — faction & run', () => {
     withoutTech.openSystem(findHostileSystemIndex(withoutTech));
     const system2 = withoutTech.activeSystem();
     const hostileWithout = system2.planets.find((p) => p.type === 'hostile');
-    guard = 0;
-    while (!hostileWithout.conquered && guard++ < 10) {
-      withoutTech.resolvePlanetCombat(hostileWithout.id, {
-        fighters: withoutTech.state.ships.fighters.count,
-      });
-    }
-    expect(hostileWithout.conquered).toBe(true);
+    const resolved = withoutTech.resolvePlanetCombat(hostileWithout.id, {
+      fighters: withoutTech.state.ships.fighters.count,
+    });
+    expect(resolved).toBe(false);
+    expect(hostileWithout.conquered).toBe(false);
+    expect(hostileWithout.phasesWon).toBe(0);
     expect(withoutTech.state.run.buffs).toHaveLength(0);
   });
 
@@ -333,6 +333,7 @@ describe('Engine — faction & run', () => {
     e.state.ships.fighters.count = 1_000_000; // flotte énorme : tout se résout
     e.selectFaction('ironLegion');
     e.state.resources.quantumEnergy = CONFIG.ascension.quantumCost; // bonus de PA optionnel
+    e.state.technologies.xenoColonization.unlocked = true; // planètes hostiles conquérables
 
     const target = e.state.run.objective.target;
     let guard = 0;

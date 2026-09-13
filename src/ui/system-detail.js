@@ -53,10 +53,7 @@ function rewardPreview(engine, system, planet) {
     return rewardLine(planetLoot(system));
   }
   if (planet.type === 'hostile') {
-    const line = buffLine(planetBuff(system.topResource, 'hostile'));
-    if (!line) return '';
-    const hasTech = techMultipliers(engine.state).unlockHostileColonization;
-    return hasTech ? line : `${line} (${t('ui.planet.needsResearch')})`;
+    return buffLine(planetBuff(system.topResource, 'hostile'));
   }
   if (planet.type === 'uninhabited') {
     return buffLine(planetBuff(system.topResource, 'uninhabited'));
@@ -90,8 +87,23 @@ function planetRow(engine, system, planet, rebuild) {
     text: rewardPreview(engine, system, planet),
   });
 
+  // Une planète hostile sans `xenoColonization` n'offre aucune récompense
+  // (voir `Engine#resolvePlanetCombat`) et la conquête y est définitive :
+  // l'attaquer avant d'avoir la techno gâcherait la planète pour rien, sans
+  // possibilité de revenir la conquérir plus tard. On bloque donc l'accès
+  // au combat tant que la techno n'est pas acquise, plutôt que de laisser
+  // gagner un combat qui ne rapporte rien.
+  const hostileLocked =
+    planet.type === 'hostile' &&
+    !techMultipliers(engine.state).unlockHostileColonization;
+
   let actions = null;
-  if (combat && !planet.conquered) {
+  if (hostileLocked) {
+    actions = el('p', {
+      class: 'panel-note',
+      text: t('ui.planet.hostileLocked'),
+    });
+  } else if (combat && !planet.conquered) {
     const engageBtn = el('button', {
       class: 'btn btn-go',
       type: 'button',

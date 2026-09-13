@@ -95,7 +95,7 @@ export const fr = {
       pending: 'À faire',
       phaseProgress: 'Phase {won}/{total}',
       noReward: 'Aucune récompense.',
-      needsResearch: 'Nécessite une recherche',
+      hostileLocked: 'Nécessite la recherche Xéno-colonisation avant d’attaquer — la conquête est définitive, mieux vaut chercher la techno d’abord.',
     },
     planetType: {
       invaded: 'Envahie',

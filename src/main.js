@@ -87,7 +87,12 @@ function startNewGame(afterStart) {
         const engine = new Engine(fresh);
         engine.selectFaction(factionId);
         saveState(engine.state); // écrase immédiatement la sauvegarde existante
-        afterStart?.(startGame(engine.state));
+        // `afterStart?.(startGame(...))` court-circuiterait `startGame(...)`
+        // lui-même quand `afterStart` est absent (optional chaining : les
+        // arguments d'un appel court-circuité ne sont jamais évalués) — donc
+        // "Nouveau" (qui n'en fournit pas) ne démarrerait jamais la partie.
+        const app = startGame(engine.state);
+        afterStart?.(app);
       },
     });
   };

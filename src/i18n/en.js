@@ -93,7 +93,7 @@ export const en = {
       pending: 'Pending',
       phaseProgress: 'Phase {won}/{total}',
       noReward: 'No reward.',
-      needsResearch: 'Requires research',
+      hostileLocked: 'Requires the Xeno-colonization research before attacking — conquest is permanent, so research the tech first.',
     },
     planetType: {
       invaded: 'Invaded',
