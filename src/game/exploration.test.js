@@ -29,6 +29,26 @@ describe('initExploration', () => {
   });
 });
 
+describe('système d’index 0 (dépendance du tutoriel)', () => {
+  it('a toujours exactement 2 planètes : une résolue d’office, une à conquérir en 1 phase', () => {
+    // Le tutoriel (src/data/tutorialSteps.js) suppose que le système 0 est
+    // gagnable dès 1 `fighters` engagé (voir la note de calibrage de l’étape
+    // `buyFighters`) — si un futur ajustement d’équilibrage change cette
+    // composition, ce test doit casser bruyamment plutôt que de laisser le
+    // tutoriel se bloquer en silence sur l’étape `engageCombat`.
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    initExploration(s);
+    const system = s.run.exploration.systems[0];
+    expect(system.planets).toHaveLength(2);
+    const [first, second] = system.planets;
+    expect(first.type).toBe('uninhabited');
+    expect(second.type).toBe('invaded');
+    expect(second.phasesTotal).toBe(1);
+    expect(second.defenseRating).toBeLessThanOrEqual(2);
+  });
+});
+
 describe('ensureSystemsUpTo', () => {
   it('génère paresseusement, jamais moins que demandé', () => {
     const s = createInitialState();
