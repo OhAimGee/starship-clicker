@@ -340,8 +340,9 @@ export const en = {
     theme: 'Theme',
     themeName: {
       cyberspace: 'CyberSpace (blue)',
+      solstice: 'Solstice (amber)',
+      phosphore: 'Phosphor (green)',
     },
-    moreThemesSoon: 'More themes are coming later.',
   },
 
   achievement: {

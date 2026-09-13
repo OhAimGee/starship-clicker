@@ -48,7 +48,6 @@ export function showOptions({ onClose } = {}) {
         el('li', {}, [el('span', { text: t('ui.language') }), langSelect]),
         el('li', {}, [el('span', { text: t('options.theme') }), themeSelect]),
       ]),
-      el('p', { class: 'panel-note', text: t('options.moreThemesSoon') }),
       closeBtn,
     ],
     { onClose }

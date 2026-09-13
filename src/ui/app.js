@@ -36,21 +36,6 @@ import { createAscensionPanel } from './panels/ascension.js';
 
 const TABS = ['shop', 'fleet', 'exploration', 'technology', 'ascension'];
 
-// Swipe mobile gauche/droite = onglet suivant/précédent. Seuils choisis pour
-// ignorer un simple défilement vertical de liste (dy trop grand) ou un tap
-// qui a légèrement bougé (dx trop court). Fonction pure séparée du DOM pour
-// être testable sans simuler de vrais événements tactiles.
-const SWIPE_MIN_DX = 60;
-const SWIPE_MAX_OFF_AXIS = 60;
-
-export function nextTabForSwipe(tabs, activeKey, dx, dy) {
-  if (Math.abs(dx) < SWIPE_MIN_DX || Math.abs(dy) > SWIPE_MAX_OFF_AXIS) {
-    return null;
-  }
-  const idx = tabs.indexOf(activeKey) + (dx < 0 ? 1 : -1);
-  return idx >= 0 && idx < tabs.length ? tabs[idx] : null;
-}
-
 export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
   host.replaceChildren();
 
@@ -211,41 +196,6 @@ export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
     panels[key].refresh();
     panelHost.append(panels[key].root);
   }
-
-  // — Swipe d'onglet (mobile) — `touchstart`/`touchend` uniquement (jamais
-  // `pointerdown`/`pointerup`) : strictement tactile par construction, donc
-  // aucune interférence avec le glisser-sélection de texte au clavier/
-  // souris. Posé sur `panelHost`, un élément local recréé à chaque
-  // `mountApp()` (voir `dispose()` plus bas) — pas de retrait explicite
-  // nécessaire, contrairement à `host` qui est réutilisé d'une partie à
-  // l'autre. Une modale ouverte (`.board-modal-scrim`, ajoutée à
-  // `document.body`, z-index au-dessus) intercepte le tactile avant qu'il
-  // n'atteigne `panelHost` : aucun garde-fou à ajouter pour ce cas.
-  let touchStartX = 0;
-  let touchStartY = 0;
-  panelHost.addEventListener(
-    'touchstart',
-    (e) => {
-      const touch = e.changedTouches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-    },
-    { passive: true }
-  );
-  panelHost.addEventListener(
-    'touchend',
-    (e) => {
-      const touch = e.changedTouches[0];
-      const next = nextTabForSwipe(
-        TABS,
-        activeKey,
-        touch.clientX - touchStartX,
-        touch.clientY - touchStartY
-      );
-      if (next) showTab(next);
-    },
-    { passive: true }
-  );
 
   // — Textes statiques (dépendent de la langue) —
   function renderStatic() {

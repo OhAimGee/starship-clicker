@@ -349,8 +349,9 @@ export const fr = {
     theme: 'Thème',
     themeName: {
       cyberspace: 'CyberSpace (bleu)',
+      solstice: 'Solstice (ambre)',
+      phosphore: 'Phosphore (vert)',
     },
-    moreThemesSoon: "D'autres thèmes arriveront plus tard.",
   },
 
   achievement: {

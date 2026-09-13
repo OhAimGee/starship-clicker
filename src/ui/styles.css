@@ -52,6 +52,12 @@
   --rule: rgba(234, 241, 255, 0.14);
   --rule-strong: rgba(234, 241, 255, 0.26);
 
+  /* Fond profond (dégradé body + fond html) — variabilisé pour que les
+     thèmes ci-dessous (voir ui/theme.js) puissent le redéfinir sans
+     dupliquer toute la règle `body`. */
+  --bg-deep-1: #0a1626;
+  --bg-deep-2: #03040a;
+
   /* — Type — une seule famille, désormais lue comme un terminal de signal.
      Barlow Condensed : grotesque condensée, reste la seule voix d'affichage. */
   --face-display: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
@@ -77,13 +83,53 @@
   --flip-ms: 200ms;
 }
 
+/* — Thèmes alternatifs (voir ui/theme.js) — ne redéfinissent que la
+   « matière » (chrome/fond/encre) : les couleurs de statut (--lamp/--go/
+   --signal/--focus et leurs lueurs) restent partagées entre thèmes, leur
+   sens (inabordable/actif/verrouillé) ne doit pas changer avec l'habillage. */
+:root[data-theme='solstice'] {
+  --face: #150c02;
+  --face-raised: #3a2408;
+  --steel-1: #d97f2c; /* cadre cuivre/ambre, lit au néon */
+  --steel-2: #a85f1c;
+  --steel-3: #6b3d12;
+
+  --ink: #fff3e6;
+  --ink-dim: #e3bfa0;
+  --ink-faint: #c99b76;
+
+  --rule: rgba(255, 243, 230, 0.14);
+  --rule-strong: rgba(255, 243, 230, 0.26);
+
+  --bg-deep-1: #2a1607;
+  --bg-deep-2: #0d0602;
+}
+
+:root[data-theme='phosphore'] {
+  --face: #030a04;
+  --face-raised: #0d2412;
+  --steel-1: #2fa05a; /* cadre phosphore vert, terminal CRT rétro */
+  --steel-2: #1e7a45;
+  --steel-3: #14502e;
+
+  --ink: #eafff0;
+  --ink-dim: #a7e3bc;
+  --ink-faint: #7fc498;
+
+  --rule: rgba(234, 255, 240, 0.14);
+  --rule-strong: rgba(234, 255, 240, 0.26);
+
+  --bg-deep-1: #0a2614;
+  --bg-deep-2: #020a04;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
 }
 
 html {
-  background: #03040a;
+  background: var(--bg-deep-2);
 }
 
 body {
@@ -93,7 +139,8 @@ body {
   letter-spacing: 0.01em;
   color: var(--ink);
   background:
-    var(--grain), var(--starfield), linear-gradient(180deg, #0a1626, #03040a 60%), #03040a;
+    var(--grain), var(--starfield),
+    linear-gradient(180deg, var(--bg-deep-1), var(--bg-deep-2) 60%), var(--bg-deep-2);
   background-size:
     90px 90px,
     240px 240px,

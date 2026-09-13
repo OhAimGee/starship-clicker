@@ -1,11 +1,10 @@
 // Thème visuel — calqué sur i18n/index.js (même indépendance vis-à-vis du
 // state de jeu, utilisable avant qu'un Engine existe, donc depuis l'écran
-// d'accueil). Un seul thème disponible aujourd'hui (le CyberSpace bleu
-// actuel, seules variables définies sous `:root` dans styles.css) ; cette
-// plomberie pose déjà l'attribut `data-theme` sur `<html>` pour qu'un futur
-// thème puisse se cibler (`:root[data-theme="autre"]`) sans y retoucher.
+// d'accueil). Chaque thème ne redéfinit que la « matière » (chrome/fond/
+// encre) sous `:root[data-theme="..."]` dans styles.css — les couleurs de
+// statut (affordable/inabordable/verrouillé) restent communes à tous.
 
-export const AVAILABLE_THEMES = ['cyberspace'];
+export const AVAILABLE_THEMES = ['cyberspace', 'solstice', 'phosphore'];
 const DEFAULT_THEME = 'cyberspace';
 const STORAGE_KEY = 'starshipClickerTheme';
 
