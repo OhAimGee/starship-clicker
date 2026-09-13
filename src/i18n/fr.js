@@ -118,6 +118,7 @@ export const fr = {
       cancel: 'Annuler',
       engage: 'Engager',
       close: 'Fermer',
+      continue: 'Continuer',
     },
     labels: {
       owned: 'Possédés : {n}',
@@ -173,6 +174,12 @@ export const fr = {
       power: 'Puissance engagée {committed} — défense {required}',
       losses: 'Pertes',
       noLosses: 'Aucune perte.',
+    },
+    runSummary: {
+      title: 'Run terminée',
+      intro: 'Voici ce que votre civilisation a accompli durant cette run.',
+      pointsEarned: 'Points d’ascension gagnés',
+      noResources: 'Aucune ressource notable récoltée durant cette run.',
     },
     runSkillTree: {
       intro:
@@ -323,6 +330,17 @@ export const fr = {
         title: 'Tutoriel terminé',
         body1: 'Vous connaissez la boucle complète. Bon jeu, Commandant !',
       },
+    },
+  },
+
+  updateNotice: {
+    corbi: {
+      title: 'Corbi Update',
+      intro: 'Quoi de neuf dans cette mise à jour :',
+      bullet1: 'Changez d’onglet en swipant à gauche ou à droite sur mobile.',
+      bullet2:
+        'Un résumé s’affiche maintenant à la fin de chaque run (ressources récoltées, systèmes conquis, points gagnés).',
+      bullet3: 'Le double-tap sur iPhone ne déclenche plus de zoom accidentel.',
     },
   },
 

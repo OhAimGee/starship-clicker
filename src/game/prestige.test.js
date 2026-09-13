@@ -84,6 +84,16 @@ describe('endRun', () => {
     endRun(s);
     expect(s.resources.energy).toBe(CONFIG.ascension.restartGrant.energy * 1);
   });
+
+  it('capture un résumé (ressources produites, systèmes conquis) avant la remise à zéro', () => {
+    const s = advancedState();
+    const { summary } = endRun(s);
+    expect(summary.resources.energy).toBe(5e6);
+    expect(summary.systemsConquered).toBe(1);
+    // instantané, pas une référence vivante : la remise à zéro ne l'affecte pas
+    expect(s.totalProduced.energy).toBe(0);
+    expect(s.run.exploration.conquered).toHaveLength(0);
+  });
 });
 
 describe('endRun — faction & run', () => {

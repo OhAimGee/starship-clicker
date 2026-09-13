@@ -102,6 +102,11 @@ body {
   background-blend-mode: overlay, screen, normal, normal;
   -webkit-font-smoothing: antialiased;
   font-variant-numeric: tabular-nums;
+  /* iOS déclenche un zoom au double-tap par défaut — gênant sur un jeu où
+     le bouton de clic principal est tapé en rafale. `manipulation` retire
+     ce geste (et le délai de ~300ms avant chaque tap) sans désactiver le
+     pinch-zoom, contrairement à `user-scalable=no` sur le viewport. */
+  touch-action: manipulation;
 }
 
 ::selection {

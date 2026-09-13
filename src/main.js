@@ -22,6 +22,8 @@ import { showOptions } from './ui/options-screen.js';
 import { confirmDialog, openPanel } from './ui/modal.js';
 import { initTutorialProgress } from './ui/tutorial-progress.js';
 import { startTutorial } from './ui/tutorial.js';
+import { initUpdateProgress } from './ui/update-progress.js';
+import { maybeShowUpdateNotice } from './ui/update-notice.js';
 
 const host = document.getElementById('app');
 
@@ -32,6 +34,7 @@ const host = document.getElementById('app');
 initLang(loadState().state.lang);
 initTheme();
 initTutorialProgress();
+initUpdateProgress();
 
 if (import.meta.env.DEV) {
   window.__starship = { engine: null, state: () => window.__starship.engine?.state };
@@ -160,3 +163,4 @@ function startGame(state, bootStatus) {
 }
 
 bootMenu();
+maybeShowUpdateNotice();

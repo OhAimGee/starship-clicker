@@ -116,6 +116,7 @@ export const en = {
       cancel: 'Cancel',
       engage: 'Engage',
       close: 'Close',
+      continue: 'Continue',
     },
     labels: {
       owned: 'Owned: {n}',
@@ -170,6 +171,12 @@ export const en = {
       power: 'Power committed {committed} — defence {required}',
       losses: 'Losses',
       noLosses: 'No losses.',
+    },
+    runSummary: {
+      title: 'Run complete',
+      intro: 'Here’s what your civilization accomplished during this run.',
+      pointsEarned: 'Ascension points earned',
+      noResources: 'No notable resources harvested during this run.',
     },
     runSkillTree: {
       intro:
@@ -314,6 +321,17 @@ export const en = {
         title: 'Tutorial complete',
         body1: 'You know the full loop now. Have fun, Commander!',
       },
+    },
+  },
+
+  updateNotice: {
+    corbi: {
+      title: 'Corbi Update',
+      intro: 'What’s new in this update:',
+      bullet1: 'Swipe left or right on mobile to switch between tabs.',
+      bullet2:
+        'A summary now appears at the end of every run (resources harvested, systems conquered, points earned).',
+      bullet3: 'Double-tapping on iPhone no longer triggers an accidental zoom.',
     },
   },
 

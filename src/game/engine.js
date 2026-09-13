@@ -560,10 +560,10 @@ export class Engine {
       this._notify('notify.cannotEndRun', {}, 'error');
       return false;
     }
-    const { points } = endRunState(this.state);
+    const { points, summary } = endRunState(this.state);
     this._seen = this._currentUnlockSet();
     this._notify('notify.runEnded', { points }, 'success');
-    this._emit('run-ended', { points });
+    this._emit('run-ended', { points, summary });
     this._afterChange();
     return true;
   }

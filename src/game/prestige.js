@@ -39,11 +39,19 @@ export function potentialPoints(state) {
  * ainsi que ses compétences). Remis à zéro : le reste, l'exploration
  * incluse — et la run (faction active, objectif, bonus temporaires), qui
  * exige une nouvelle sélection de faction.
- * @returns {{ points: number, objectiveComplete: boolean }}
+ * @returns {{ points: number, objectiveComplete: boolean, summary: { resources: Record<string, number>, systemsConquered: number } }}
  */
 export function endRun(state) {
   const points = potentialPoints(state);
   const objectiveComplete = isObjectiveComplete(state);
+  // Instantané pour la popup de résumé de fin de run (voir
+  // `ui/run-summary.js`) — pris AVANT toute remise à zéro ci-dessous, sans
+  // quoi `totalProduced`/`exploration.conquered` seraient déjà vidés au
+  // moment où l'UI reçoit l'événement `run-ended`.
+  const summary = {
+    resources: { ...state.totalProduced },
+    systemsConquered: state.run.exploration.conquered.length,
+  };
   const factionId = state.run.factionId;
   const runSkillPoints = state.run.skillPoints;
 
@@ -105,7 +113,7 @@ export function endRun(state) {
 
   state.events = { lastAt: 0, accumMs: 0 };
 
-  return { points, objectiveComplete };
+  return { points, objectiveComplete, summary };
 }
 
 // ─── Ascension (rare, New Game+) ────────────────────────────────────────────
