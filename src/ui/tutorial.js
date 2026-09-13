@@ -138,10 +138,16 @@ export function startTutorial(engine) {
     card.dataset.placement = 'auto';
     const cw = card.offsetWidth || 320;
     const ch = card.offsetHeight || 140;
-    let top;
-    if (rect.bottom + GAP + ch <= vh) top = rect.bottom + GAP;
-    else if (rect.top - GAP - ch >= 0) top = rect.top - GAP - ch;
-    else top = Math.max(8, vh - ch - 8);
+    const spaceBelow = vh - rect.bottom - GAP;
+    const spaceAbove = rect.top - GAP;
+    // Choisit le côté (dessous/dessus) qui a le plus de place et s'y colle
+    // sans jamais empiéter sur la cible — quitte à déborder du viewport si
+    // le texte de l'étape rend la carte plus haute que la place disponible
+    // des deux côtés (écrans mobiles étroits) : mieux vaut une carte
+    // partiellement hors écran qu'une carte qui recouvre le bouton à
+    // cliquer et bloque la progression.
+    const top =
+      spaceBelow >= spaceAbove ? rect.bottom + GAP : rect.top - GAP - ch;
     let left = rect.left + rect.width / 2 - cw / 2;
     left = Math.min(Math.max(8, left), Math.max(8, vw - cw - 8));
     card.style.top = `${top}px`;
