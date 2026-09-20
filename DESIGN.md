@@ -168,13 +168,37 @@ smuggled in, and it stays refused.
 
 ## Layout
 
-Unchanged from the incumbent system by explicit product constraint (see
-`.impeccable/surfaces/index-html.md` direction contract): mobile-first
-single column capped at `--maxw` (860px, 1040px ≥720px, 1360px ≥1280px with
-a fixed 300px sidebar), sticky header/resources-board, a sticky terminal tab
-bar (bottom on mobile, top on desktop), and the same `--pad`/`--gap` rhythm.
-Nothing about grid structure, breakpoints, or component placement changed in
-this pass — only the material rendered inside that structure.
+Reworked by the **Fifty Update** ("Refonte UX", variant *Passerelle*): the
+material (steel chrome, neon signal, split-flap) is untouched, the chrome
+around it is halved so content starts at ~190px instead of ~330px on a phone.
+One DOM, three presentations, all driven from `styles.css`:
+
+- **< 720px — the Passerelle shell.** `.app` is a fixed-height (`100dvh`)
+  column; only `.app-main` scrolls, so LANCER and the pager never leave the
+  screen. Top to bottom: steel header (burger · wordmark · Civ.), a one-line
+  strip of resource chips (icon · code · split-flap · trend lamp, scrolls
+  sideways) over the `Niv. N ▬▬ +x NRG/s` line, the permanent run-objective
+  bar (magenta wash), a 2.1rem text-only pager (short labels, ←/→ keys,
+  selected = magenta underline on `--face-raised`), the scrolling panel, and
+  the LANCER bay stuck to the bottom with the pager dots floating above it.
+  A left drawer (78% wide, `inert` on everything else) holds Succès / Options
+  / Menu principal / Recommencer; Succès and Options open full-screen with a
+  back arrow that reopens the drawer, never stacked on it. Swiping the panel
+  sideways changes terminal (touch Pointer Events only — the mouse never
+  triggers it; `touch-action: pan-y` on the scroller and on every scrolling
+  ancestor inside the drawer, or the browser cancels the gesture).
+- **720–1279px.** Header (menu entries inline, no burger) → icon+label tab bar
+  (sticky) → objective bar → resource grid (sticky under the tab bar, level
+  line full width) → LANCER → content. Capped at 1040px.
+- **≥ 1280px.** Named grid, capped at 1360px: header / tabs / objective bar
+  across the top, content on the left, and a 340px right column with LANCER
+  first, then the resource sheet (level line + rows with rates), then fleet
+  power.
+
+Breakpoints, `--pad`/`--gap` rhythm and `--maxw` are unchanged. `--bottom-bar-h`
+now means "height of the LANCER bay" (0 from 720px): toasts and the tutorial
+card sit above it. The tutorial scrolls its target into `.app-main` itself
+(its dimming bands swallow touch scrolling).
 
 ## Elevation & Depth
 
@@ -220,14 +244,32 @@ component.
   signal states (afford/cant/held), not every primary action.
 - **Terminal tab (selected):** Deep Space background, Magenta Deficit
   inset top bar plus a soft magenta glow washed up from the bar
-  (`inset 0 8px 14px -8px rgba(255,47,208,.45)`).
+  (`inset 0 8px 14px -8px rgba(255,47,208,.45)`). On the mobile pager the
+  bar moves to the bottom edge (`inset 0 -2px 0`) on `--face-raised`.
+- **Burger / header buttons / back arrow:** translucent black chip on the
+  steel (`rgba(0,0,0,.24)`, 1px white-18% rule, 3px radius); the destructive
+  header entry only differs by a `--signal` border.
 
 ### Board Rows
 - **Style:** unchanged ruled-row grid; `afford`/`cant`/`locked`/`done`
   states now carry glow on top of color (`--glow-go` / `--glow-lamp` text-
   shadow on the cost figure).
 
+### Resource chips, objective bar, drawer (Passerelle)
+- **Resource chip:** `--face-raised` token with a 1px rule, 3px radius —
+  a strip element, not a card: never stacked, never given elevation. The full
+  resource name stays in the DOM (visually hidden) for screen readers.
+- **Objective bar:** `--lamp` at 10% wash with a 35% rule, uppercase
+  label/name/progress in `--lamp` — the run's one permanent call to action.
+- **Drawer:** `--face` panel, steel head carrying the commander's name and
+  XP, ruled entry list, the only destructive action as a full-width danger
+  button at the bottom. Closed, it is `visibility: hidden`, not just offscreen.
+
 ### Modals (Board Modal)
+- **Long content:** the head stays put and only the body scrolls
+  (`max-height: calc(100dvh - 2rem)`).
+- **Drill-down (`is-drilldown`):** opened from the drawer, full-screen below
+  720px with a back arrow in the head.
 - **Style:** steel-chrome head, Deep Space body, unchanged frame — now with
   the procedural starfield layered behind the body (`--starfield`, blend
   mode `screen`) and a soft violet-chrome halo (`0 0 40px rgba(74,58,122,.5)`)
@@ -265,7 +307,12 @@ map's conquest node.
 - **Do** keep every existing steel/machined-lip depth shadow exactly as
   it was; add glow alongside it, never instead of it.
 - **Do** route new content through the same ruled-row/board-modal skeleton;
-  this redesign changed material, not structure.
+  the Fifty Update reorganised the chrome around it, not the rows.
+- **Do** keep the mobile chrome above the content to what the Passerelle shell
+  spends (header, chips, objective, pager); anything new goes in the drawer or
+  the scrolling panel, never as one more sticky strip.
+- **Do** style new shell pieces with theme tokens (`--face-raised`, `--lamp`,
+  `--steel-*`, `--rule*`) — the three themes recolour them for free.
 - **Do** keep Barlow Condensed as the only typeface and route every
   changing number through the split-flap display.
 

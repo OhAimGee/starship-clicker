@@ -6,14 +6,19 @@
 import { el, clear } from '../dom.js';
 import { t } from '../../i18n/index.js';
 import { resourceCode } from '../../data/resources.js';
-import { formatNumber } from '../format.js';
+import { formatNumber, formatRateNumber } from '../format.js';
 import { sectionHead } from '../board-row.js';
 import { objectiveLabel, objectiveProgressText } from '../objective-text.js';
 import { renderSystemList } from '../system-map.js';
 
-const rewardLine = (rewards, factor = 1) =>
+// `rate: true` pour un débit /s (revenu passif) : `formatNumber` tronquerait
+// 1,5 à « 1 » — voir `formatRateNumber`.
+const rewardLine = (rewards, factor = 1, { rate = false } = {}) =>
   Object.entries(rewards)
-    .map(([res, amt]) => `${formatNumber(amt * factor)} ${resourceCode(res)}`)
+    .map(
+      ([res, amt]) =>
+        `${(rate ? formatRateNumber : formatNumber)(amt * factor)} ${resourceCode(res)}`
+    )
     .join('  ·  ');
 
 export function createExplorationPanel(engine) {
@@ -97,7 +102,7 @@ export function createExplorationPanel(engine) {
                 el('span', { class: 'row-name', text: system.name }),
                 el('span', {
                   class: 'row-sub',
-                  text: `${t('ui.labels.passiveIncome')} : ${rewardLine(system.rewards, 0.1)} /s`,
+                  text: `${t('ui.labels.passiveIncome')} : ${rewardLine(system.rewards, 0.1, { rate: true })} /s`,
                 }),
               ]),
             ]),

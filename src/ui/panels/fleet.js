@@ -11,6 +11,7 @@ import { canAfford } from '../../game/economy.js';
 import { revealList } from '../reveal.js';
 import {
   formatNumber,
+  formatRateNumber,
   formatCost,
   shortCost,
   lockHint,
@@ -91,7 +92,7 @@ export function createFleetPanel(engine) {
   function update() {
     const state = engine.state;
     statPower.textContent = formatNumber(engine.fleetPower);
-    statMaint.textContent = `${formatNumber(engine.fleetMaintenance)} NRG/s`;
+    statMaint.textContent = `${formatRateNumber(engine.fleetMaintenance)} NRG/s`;
 
     for (const [id, row] of rows) {
       const { def, refs, teased } = row;

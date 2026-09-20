@@ -10,7 +10,7 @@ import { icon } from './icons.js';
 import { shipIconId } from './icon-map.js';
 import { formatNumber } from './format.js';
 import { openPanel } from './modal.js';
-import { committedFleetPower } from '../game/combat.js';
+import { committedFleetPower, minimumAllocation } from '../game/combat.js';
 
 /**
  * @param {import('../game/engine.js').Engine} engine
@@ -23,8 +23,15 @@ export function showFleetAllocation(engine, defenseRating, onEngage) {
   const ownedShips = Object.entries(state.ships).filter(
     ([, s]) => s.count > 0
   );
+  // Pré-rempli avec la flotte MINIMALE qui bat la défense (voir
+  // `minimumAllocation`) plutôt qu'avec toute la flotte : le joueur ajuste à
+  // la hausse s'il veut de la marge. Flotte insuffisante : tout est engagé.
+  const { allocation: minimum, sufficient } = minimumAllocation(
+    state,
+    defenseRating
+  );
   const allocation = {};
-  for (const [id, s] of ownedShips) allocation[id] = s.count;
+  for (const [id] of ownedShips) allocation[id] = minimum[id] ?? 0;
 
   const powerValue = el('b');
   const updatePower = () => {
@@ -40,7 +47,7 @@ export function showFleetAllocation(engine, defenseRating, onEngage) {
       inputmode: 'numeric',
       min: '0',
       max: String(s.count),
-      value: String(s.count),
+      value: String(allocation[id]),
     });
     input.addEventListener('input', () => {
       const n = Math.max(
@@ -82,6 +89,14 @@ export function showFleetAllocation(engine, defenseRating, onEngage) {
     t('ui.fleetAllocation.title'),
     [
       el('p', { class: 'panel-note', text: t('ui.fleetAllocation.intro') }),
+      el('p', {
+        class: 'panel-note',
+        text: t(
+          sufficient
+            ? 'ui.fleetAllocation.minHint'
+            : 'ui.fleetAllocation.notEnough'
+        ),
+      }),
       el('ul', { class: 'stat-grid' }, [
         el('li', {}, [
           el('span', { text: t('ui.labels.defense') }),

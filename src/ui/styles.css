@@ -76,7 +76,9 @@
   --gap: 0.9rem;
   --pad: clamp(0.75rem, 3vw, 1.25rem);
   --row-h: 2.75rem;
-  --bottom-bar-h: 3.9rem;
+  /* Hauteur de la baie LANCER collée en bas (mobile) : les annonces et la
+     carte du tutoriel se posent au-dessus. 0 dès 720 px (voir plus bas). */
+  --bottom-bar-h: 5.2rem;
   --radius: 3px;
   --maxw: 860px;
 
@@ -245,8 +247,7 @@ h3 {
 }
 
 .board-header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 20;
   padding: 0.4rem var(--pad) 0.45rem;
   border-bottom: 2px solid var(--steel-3);
@@ -278,16 +279,14 @@ h3 {
   filter: drop-shadow(var(--paint-shadow));
 }
 
-/* Deux relevés à l'échelle d'affichage — l'ancre, sur leur propre ligne et
-   compacts pour que LANCER et les premières lignes restent au-dessus du pli. */
+/* Deux relevés à l'échelle d'affichage — l'ancre. Sur mobile, seul le niveau
+   de civilisation reste en tête (voir bloc « Passerelle »). */
 .readouts {
-  flex: 1 1 100%;
-  order: 2;
+  flex: 0 1 auto;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem 1.25rem;
-  margin-top: 0.15rem;
 }
 .readout {
   display: flex;
@@ -321,9 +320,6 @@ h3 {
 
 @media (min-width: 720px) {
   .readouts {
-    flex: 0 1 auto;
-    order: 0;
-    margin-top: 0;
     margin-left: auto; /* le niveau de civ ancre à droite (FIRST VIEWPORT) */
     gap: 2.5rem;
   }
@@ -349,18 +345,24 @@ h3 {
   background: var(--face);
 }
 
-/* ── Panneau ressources (collant sous l'en-tête) ─────────────────────────── */
+/* ── Panneau ressources ───────────────────────────────────────────────────
+   Un seul DOM, deux présentations. Ici la présentation « lignes » (grille de
+   [pictogramme · nom · figure · débit], dès 720 px) ; sous 720 px le bloc
+   « Passerelle » la remplace par un bandeau de jetons défilant. Le code court
+   (`.res-code`), la lampe de tendance et le débit de niveau n'existent que
+   dans l'une ou l'autre. */
 
 .resources-board {
-  position: sticky;
-  top: 0;
-  z-index: 15;
   background: var(--face);
   border-bottom: 2px solid var(--steel-3);
 }
+/* Sur desktop les lignes participent directement à la grille du panneau. */
+.res-strip {
+  display: contents;
+}
 .res-row {
   display: grid;
-  grid-template-columns: 1.5rem minmax(4.5rem, auto) minmax(0, 1fr) 0.6rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.55rem;
   min-height: 2.4rem;
@@ -396,6 +398,24 @@ h3 {
   display: flex;
   justify-content: flex-end;
 }
+.res-code,
+.res-lamp {
+  display: none;
+}
+.res-rate {
+  min-width: 5ch;
+  font: 600 0.74rem / 1 var(--face-display);
+  letter-spacing: 0.04em;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ink-faint);
+}
+.res-rate[data-sign='pos'] {
+  color: var(--go);
+}
+.res-rate[data-sign='neg'] {
+  color: var(--lamp);
+}
 .res-lamp {
   width: 0.55rem;
   height: 0.55rem;
@@ -415,8 +435,23 @@ h3 {
 /* ── Niveau de joueur (XP) — en tête du panneau ressources, toujours
    visible (voir game/leveling.js) ───────────────────────────────────────── */
 .player-level-row {
-  grid-template-columns: 1.5rem minmax(4.5rem, auto) minmax(0, 1fr);
+  position: relative;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
   border-bottom: 2px solid var(--rule-strong);
+}
+/* « Niveau du joueur » double le libellé « Niveau : N » de la ligne : masqué
+   à l'écran, conservé pour les lecteurs d'écran. */
+.player-level-row > .res-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Le débit d'énergie ne remplace le compteur d'XP que sur mobile. */
+.player-level-rate {
+  display: none;
 }
 .player-level-tail {
   display: flex;
@@ -518,7 +553,7 @@ h3 {
 /* ── LANCER (le contrôle maître) ─────────────────────────────────────────── */
 
 .launch-bay {
-  padding: 0 var(--pad) var(--gap);
+  padding: var(--gap) var(--pad);
 }
 .launch {
   --press: 0;
@@ -537,7 +572,7 @@ h3 {
   background-blend-mode: overlay, normal;
   color: var(--ink);
   border: 0;
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: var(--radius);
   /* Lèvre usinée : biseau haut clair, retombée sombre, aucun bloc à blur nul. */
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, 0.09),
@@ -586,24 +621,28 @@ h3 {
 }
 
 /* ── Sélecteur de terminaux ──────────────────────────────────────────────── */
+/* Barre d'onglets pictogramme + libellé (dès 720 px, voir « Desktop ») ; sous
+   720 px, le bloc « Passerelle » la réduit à un pager texte de 2,1 rem. */
 
 .terminal-bar {
-  position: sticky;
-  bottom: 0;
+  position: relative;
   z-index: 30;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-  height: calc(var(--bottom-bar-h) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  border-top: 2px solid var(--steel-3);
+  height: 3rem;
+  border-bottom: 2px solid var(--steel-3);
+}
+.terminal-label-short {
+  display: none;
 }
 .terminal-btn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 0.2rem;
+  gap: 0.5rem;
+  min-width: 0;
   background: transparent;
   border: 0;
   border-right: 1px solid rgba(0, 0, 0, 0.4);
@@ -637,13 +676,7 @@ h3 {
 
 .app-main {
   flex: 1;
-  /* Le nav est sticky et reste ancré au bas de l'écran (mobile) tant que la
-     page défile ; sans cette réserve, le pied de page — dont le bouton
-     "recommencer" — peut se retrouver rendu sous lui dès le premier écran,
-     sur un onglet à contenu court. */
-  padding-bottom: calc(
-    var(--bottom-bar-h) * 2 + env(safe-area-inset-bottom) + 1rem
-  );
+  min-width: 0;
 }
 .panel {
   padding: var(--gap) 0 2rem;
@@ -1042,11 +1075,6 @@ h3 {
   flex-direction: column;
   gap: 0.75rem;
 }
-.foot-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
 .foot-note {
   font-size: var(--fs-label);
   letter-spacing: 0.04em;
@@ -1202,8 +1230,17 @@ h3 {
   border-radius: var(--radius);
   box-shadow: 0 0 40px rgba(74, 58, 122, 0.5);
   overflow: hidden;
+  /* Colonne : l'en-tête reste en place, seul le corps défile quand le
+     contenu dépasse l'écran (liste de succès, rapport de combat…). */
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 2rem);
 }
 .board-modal-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   padding: 0.6rem var(--pad);
   border-bottom: 2px solid var(--steel-3);
   font-family: var(--face-display);
@@ -1211,7 +1248,36 @@ h3 {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
+.board-modal-title {
+  flex: 1;
+  min-width: 0;
+}
+/* Flèche de retour des écrans ouverts depuis le tiroir. */
+.board-modal-back {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.board-modal-back:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.board-modal-back-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: currentColor;
+  transform: scaleX(-1); /* le chevron du jeu pointe vers la droite */
+}
 .board-modal-body {
+  min-height: 0;
+  overflow-y: auto;
   padding: 1.1rem var(--pad) 1.25rem;
   display: flex;
   flex-direction: column;
@@ -1320,6 +1386,531 @@ h3 {
   margin: 0;
 }
 
+/* ── Passerelle : coquille mobile ─────────────────────────────────────────
+   Sous 720 px l'écran est une colonne à hauteur fixe : en-tête (burger · titre
+   · Civ.) → bandeau de jetons + niveau → objectif de run → pager de terminaux
+   → contenu qui défile SEUL → baie LANCER collée en bas. Le tiroir latéral
+   porte Succès / Options / Menu principal / Recommencer. Tout est en jetons de
+   thème : la maquette ne fournit que la structure, pas les couleurs. */
+
+/* Composants partagés (le bloc mobile ci-dessous les place). */
+
+.objective-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.4rem var(--pad);
+  background: color-mix(in srgb, var(--lamp) 10%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--lamp) 35%, transparent);
+  font-family: var(--face-display);
+  text-transform: uppercase;
+}
+.objective-bar-label {
+  flex: none;
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--lamp);
+}
+.objective-bar-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.objective-bar-value {
+  flex: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--lamp);
+}
+
+.burger,
+.header-btn,
+.drawer-close {
+  color: var(--ink);
+  cursor: pointer;
+}
+.burger,
+.header-btn {
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+}
+.burger:hover,
+.header-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.burger {
+  position: relative;
+  flex: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+/* Cible tactile élargie sans grossir la pastille dans l'en-tête. */
+.burger::after {
+  content: '';
+  position: absolute;
+  inset: -0.3rem;
+}
+.burger-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: currentColor;
+}
+
+/* Entrées de menu dans l'en-tête (dès 720 px, à la place du burger). */
+.header-actions {
+  display: none;
+  gap: 0.4rem;
+}
+.header-btn {
+  font: 600 0.74rem / 1 var(--face-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.6rem;
+}
+.header-btn.is-danger {
+  border-color: var(--signal);
+}
+.header-btn.is-danger:hover {
+  background: var(--signal-soft);
+}
+
+/* Points de pagination : posés juste au-dessus de la baie LANCER. */
+.pager-dots {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  margin-bottom: 0.45rem;
+  justify-content: center;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+.pager-dot {
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 2px;
+  background: var(--rule-strong);
+  transition:
+    width 200ms ease,
+    background-color 200ms ease;
+}
+.pager-dot.is-active {
+  width: 1.1rem;
+  background: var(--lamp);
+  box-shadow: var(--glow-lamp);
+}
+
+/* Tiroir latéral + rideau. Fermé : hors écran ET `visibility: hidden` (ni
+   focus clavier ni lecteur d'écran ne l'atteignent). */
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(4, 3, 12, 0.72);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+.drawer-scrim.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 51;
+  width: min(78%, 22rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--face);
+  border-right: 2px solid var(--steel-2);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--steel-1) 50%, transparent);
+  transform: translateX(-102%);
+  visibility: hidden;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s linear 260ms;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  /* Le défilement vertical de la liste reste au navigateur ; les gestes
+     horizontaux nous reviennent (swipe gauche = fermer, voir drawer.js),
+     sans quoi le navigateur les annule (`pointercancel`). */
+  touch-action: pan-y;
+}
+.drawer.is-open {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s;
+}
+.drawer:focus {
+  outline: none; /* le focus programmatique va sur la première entrée */
+}
+.drawer-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 2px solid var(--steel-3);
+  text-shadow: var(--paint-shadow);
+}
+.drawer-kicker {
+  display: block;
+  font: 600 0.66rem / 1.4 var(--face-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.drawer-name-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.drawer-name {
+  font: 700 1.05rem / 1.1 var(--face-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.drawer-level {
+  font: 600 0.8rem / 1 var(--face-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.drawer-close {
+  flex: none;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+.drawer-close-icon {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+.drawer-xp {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+.drawer-xp .xp-bar {
+  flex: none;
+  width: 100%;
+}
+.drawer-xp-label {
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+.drawer-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  touch-action: pan-y; /* conteneur défilant : sa propre valeur prime sur celle du tiroir */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.drawer-list > li {
+  border-bottom: 1px solid var(--rule);
+}
+.drawer-list > li.is-danger {
+  border-bottom: 0;
+  padding: 0.9rem;
+}
+.drawer-entry {
+  width: 100%;
+  min-height: 3.2rem;
+  display: grid;
+  grid-template-columns: 1.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem 0.9rem;
+  color: var(--ink);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.drawer-entry:hover {
+  background: var(--face-raised);
+}
+.drawer-entry-icon {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: var(--ink);
+  opacity: 0.9;
+}
+.drawer-entry-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.drawer-entry-name {
+  font: 600 1rem / 1.15 var(--face-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.drawer-entry-sub {
+  font: 400 0.76rem / 1.3 var(--face-display);
+  color: var(--ink-dim);
+}
+.drawer-entry-chevron {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: var(--ink);
+  opacity: 0.5;
+}
+.drawer-note {
+  flex: none;
+  padding: 0.9rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 719px) {
+  /* Colonne à hauteur fixe : seul `.app-main` défile. */
+  .app {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .board-header,
+  .resources-board,
+  .objective-bar,
+  .terminal-bar,
+  .launch-bay {
+    flex: none;
+  }
+  .board-header {
+    order: 0;
+    padding: 0.4rem var(--pad);
+  }
+  .resources-board {
+    order: 1;
+  }
+  .objective-bar {
+    order: 2;
+  }
+  .terminal-bar {
+    order: 3;
+  }
+  .app-main {
+    order: 4;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Pas de rebond qui remonte à la page ni de « tirer pour rafraîchir »
+       en plein milieu d'une partie. `pan-y` réserve les gestes horizontaux au
+       swipe d'onglet (panel-swiper.js) ; le pincement reste possible. */
+    overscroll-behavior: contain;
+    touch-action: pan-y pinch-zoom;
+  }
+  .app-main.is-swiping {
+    user-select: none;
+  }
+  .launch-bay {
+    order: 5;
+    position: relative;
+    padding: 0.5rem var(--pad) calc(0.6rem + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, transparent, var(--bg-deep-2) 40%);
+  }
+  .launch {
+    padding: 1rem 1.25rem;
+    line-height: 1.2;
+  }
+  .pager-dots {
+    display: flex;
+  }
+
+  /* En-tête : burger · titre · Civ. — le reste vit dans le tiroir. */
+  .board-header-top {
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+  }
+  .readout:not(.readout-civ),
+  .board-header .lang-select {
+    display: none;
+  }
+  .readout-label {
+    font-size: 0.74rem;
+  }
+  .readout-civ .readout-value {
+    font-size: 1.6rem;
+  }
+
+  /* Pager : texte seul, 2,1 rem, sous le bandeau objectif. */
+  .terminal-bar {
+    height: 2.1rem;
+    background: var(--face);
+    box-shadow: none;
+  }
+  .terminal-btn {
+    border-right: 0;
+    padding: 0 0.1rem;
+    color: var(--ink-dim);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .terminal-icon,
+  .terminal-label {
+    display: none;
+  }
+  .terminal-label-short {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .terminal-btn[aria-selected='true'] {
+    background: var(--face-raised);
+    box-shadow: inset 0 -2px 0 var(--lamp);
+  }
+
+  /* Ressources : bandeau de jetons défilant + ligne Niveau ▬ débit d'énergie. */
+  .resources-board {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--rule);
+  }
+  .res-strip {
+    order: -1;
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.45rem var(--pad);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .res-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .res-strip .res-row,
+  .res-strip .res-row:last-child {
+    position: relative;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 0;
+    padding: 0.25rem 0.5rem;
+    background: var(--face-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+  .res-strip .pictogram {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+  /* Le code court fait foi visuellement ; le nom complet reste lu par les
+     lecteurs d'écran. */
+  .res-strip .res-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .res-strip .res-code {
+    display: block;
+    font: 600 0.7rem / 1 var(--face-display);
+    letter-spacing: 0.09em;
+    color: var(--ink-dim);
+  }
+  .res-strip .res-figure {
+    font-size: 0.92rem;
+    justify-content: flex-start;
+  }
+  .res-strip .res-rate {
+    display: none;
+  }
+  .res-strip .res-lamp {
+    display: block;
+    width: 0.4rem;
+    height: 0.4rem;
+  }
+
+  .resources-board .player-level-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 0;
+    padding-block: 0 0.4rem;
+    border-bottom: 0;
+  }
+  .player-level-row > .pictogram {
+    display: none;
+  }
+  .player-level-tail {
+    flex: 1;
+    gap: 0.5rem;
+  }
+  .player-level-value {
+    font: 600 0.68rem / 1 var(--face-display);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .player-level-tail .xp-bar {
+    height: 0.3rem;
+  }
+  .xp-bar-label {
+    display: none;
+  }
+  .player-level-rate {
+    display: block;
+    font: 600 0.68rem / 1 var(--face-display);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    color: var(--go);
+  }
+  .player-level-rate[data-sign='neg'] {
+    color: var(--lamp);
+  }
+
+  /* Écrans ouverts depuis le tiroir (Succès, Options) : plein écran, pas une
+     modale empilée sur le tiroir. */
+  .board-modal-scrim.is-drilldown {
+    padding: 0;
+    place-items: stretch;
+    background: var(--face);
+  }
+  .is-drilldown .board-modal {
+    width: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
 /* ── Desktop ─────────────────────────────────────────────────────────────── */
 
 @media (min-width: 720px) {
@@ -1329,36 +1920,69 @@ h3 {
   .app {
     padding-bottom: 2rem;
   }
-  .app-main {
-    padding-bottom: 0;
+
+  /* Ordre visuel : en-tête → terminaux → objectif → ressources → LANCER →
+     contenu (le DOM, lui, place le pager avant les ressources pour l'ordre de
+     tabulation). Au-delà de 1280 px la grille nommée prend le relais. */
+  .board-header {
+    order: 0;
   }
   .terminal-bar {
+    order: 1;
     position: sticky;
     top: 0;
-    bottom: auto;
-    order: -1;
-    height: 3rem;
-    padding-bottom: 0;
-    border-top: 0;
-    border-bottom: 2px solid var(--steel-3);
+  }
+  .objective-bar {
+    order: 2;
+    padding-block: 0.45rem;
+  }
+  .resources-board {
+    order: 3;
+  }
+  .launch-bay {
+    order: 4;
+  }
+  .app-main {
+    order: 5;
   }
   .terminal-btn {
-    flex-direction: row;
-    gap: 0.5rem;
     font-size: 0.8rem;
   }
 
-  /* Panneau ressources : chips compactes [icône · nom · figure]. */
+  /* Le tiroir n'existe que sur mobile : ses entrées passent dans l'en-tête. */
+  .burger,
+  .drawer,
+  .drawer-scrim {
+    display: none;
+  }
+  .header-actions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .objective-bar-label {
+    font-size: 0.72rem;
+  }
+  .objective-bar-name {
+    font-size: 0.95rem;
+  }
+  .objective-bar-value {
+    font-size: 1rem;
+  }
+
+  /* Panneau ressources : grille de lignes [icône · nom · figure · débit],
+     collée sous la barre d'onglets pendant le défilement. */
   .resources-board {
+    position: sticky;
+    top: 3rem;
+    z-index: 15;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   }
   .res-row {
-    grid-template-columns: 1.5rem 1fr auto;
     border-right: 1px solid var(--rule);
   }
-  .res-row .res-lamp {
-    display: none;
+  .resources-board .player-level-row {
+    grid-column: 1 / -1;
   }
   .res-figure {
     min-width: 0;
@@ -1426,33 +2050,32 @@ h3 {
   }
 }
 
-/* ── Desktop large : barre latérale ──────────────────────────────────────
+/* ── Desktop large : colonne latérale ────────────────────────────────────
    Au-delà de 1040px de contenu utile, le reste de l'écran restait vide.
-   Rangée latérale fixe : ressources + statut de run (objectif, puissance de
-   flotte), toujours visibles quel que soit l'onglet actif. `.app` devient
-   une grille à deux colonnes (le tableau de bord existant n'est pas touché,
-   seulement repositionné via `grid-area`) — en dessous de ce seuil, rien ne
-   change (voir le bloc "Desktop" ci-dessus, toujours actif à partir de
-   720px). */
+   `.app` devient une grille à deux colonnes : le contenu à gauche ; à droite,
+   LANCER en tête puis la « feuille de bord » (niveau + ressources, toujours
+   visibles quel que soit l'onglet actif). Le bandeau objectif barre toute la
+   largeur. En dessous de ce seuil rien ne change (voir « Desktop », actif
+   dès 720px). */
 @media (min-width: 1280px) {
   .app {
     max-width: 1360px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-columns: minmax(0, 1fr) 340px;
     /* Lignes explicites : sans elles, `min-height: 100dvh` pousse la
        grille à étirer TOUTES les lignes "auto" à parts égales dès qu'un
        onglet a moins de contenu que la fenêtre — la barre d'onglets
        (ligne "terminal") se retrouvait alors décalée différemment selon
-       la hauteur du panneau actif. Seule "main" (le contenu qui varie
-       réellement d'un onglet à l'autre) absorbe l'espace restant ; les
-       autres lignes gardent la taille de leur propre contenu. */
-    grid-template-rows: auto auto auto 1fr auto;
+       la hauteur du panneau actif. Seule la dernière ligne (sous LANCER,
+       là où la colonne latérale finit et où `main` se prolonge) absorbe
+       l'espace restant ; les autres gardent la taille de leur contenu. */
+    grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas:
-      'header   header'
-      'terminal terminal'
-      'launch   sidebar'
-      'main     sidebar'
-      'foot     sidebar';
+      'header    header'
+      'terminal  terminal'
+      'objective objective'
+      'main      launch'
+      'main      sidebar';
     column-gap: var(--gap);
     align-items: start;
   }
@@ -1462,21 +2085,36 @@ h3 {
   .terminal-bar {
     grid-area: terminal;
   }
+  .objective-bar {
+    grid-area: objective;
+  }
   .launch-bay {
     grid-area: launch;
+    padding: var(--gap) var(--pad) 0 0;
   }
   .app-main {
     grid-area: main;
-  }
-  .foot {
-    grid-area: foot;
   }
   .app-sidebar {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
     grid-area: sidebar;
-    padding-top: var(--gap);
+    padding: var(--gap) var(--pad) var(--gap) 0;
+  }
+  /* Feuille de bord : niveau + ressources dans un cadre unique. */
+  .app-sidebar .resources-board {
+    order: 0;
+    position: static;
+    display: block;
+    border: 1px solid var(--steel-3);
+    border-radius: var(--radius);
+  }
+  .app-sidebar .res-row {
+    border-right: 0;
+  }
+  .app-sidebar .res-row:last-child {
+    border-bottom: 0;
   }
   .run-status {
     display: block;
@@ -1594,5 +2232,9 @@ h3 {
   }
   * {
     transition-duration: 0.01ms !important;
+  }
+  /* Le tiroir apparaît/disparaît sans délai de visibilité. */
+  .drawer {
+    transition-delay: 0s !important;
   }
 }

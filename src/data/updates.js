@@ -4,12 +4,12 @@
 // tout le monde, y compris ceux ayant déjà vu la précédente.
 
 export const CURRENT_UPDATE = {
-  id: 'corbi',
-  titleKey: 'updateNotice.corbi.title',
-  introKey: 'updateNotice.corbi.intro',
+  id: 'fifty',
+  titleKey: 'updateNotice.fifty.title',
+  introKey: 'updateNotice.fifty.intro',
   bulletKeys: [
-    'updateNotice.corbi.bullet1',
-    'updateNotice.corbi.bullet2',
-    'updateNotice.corbi.bullet3',
+    'updateNotice.fifty.bullet1',
+    'updateNotice.fifty.bullet2',
+    'updateNotice.fifty.bullet3',
   ],
 };

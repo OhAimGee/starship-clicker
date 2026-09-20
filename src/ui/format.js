@@ -5,11 +5,11 @@
 // codes courts des ressources (NRG, MTL…), et les panneaux composent
 // icône + nombre en DOM quand ils le peuvent.
 
-import { formatNumber } from '../game/format.js';
+import { formatNumber, formatRateNumber } from '../game/format.js';
 import { resourceCode } from '../data/resources.js';
 import { t } from '../i18n/index.js';
 
-export { formatNumber };
+export { formatNumber, formatRateNumber };
 
 const THIN = ' '; // fine insécable — séparateur de milliers « panneau »
 
@@ -53,7 +53,7 @@ export function formatResourceList(map) {
 /** « +2.5 NRG/s » pour un taux de production. */
 export function formatRate(amount, resource) {
   const sign = amount >= 0 ? '+' : '';
-  return `${sign}${formatNumber(amount)}${THIN}${resourceCode(resource)}${t('ui.labels.perSecondShort')}`;
+  return `${sign}${formatRateNumber(amount)}${THIN}${resourceCode(resource)}${t('ui.labels.perSecondShort')}`;
 }
 
 /** Indice de déblocage lisible pour un `unlock` de données. */

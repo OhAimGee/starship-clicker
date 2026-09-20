@@ -21,6 +21,18 @@ export const en = {
       technology: 'Technology',
       ascension: 'Ascension',
     },
+    // Short labels for the mobile pager (5 tabs on one 2.1 rem line).
+    tabsShort: {
+      shop: 'Shop',
+      fleet: 'Fleet',
+      exploration: 'Explore',
+      technology: 'Tech',
+      ascension: 'Ascend',
+    },
+    // Short label of the permanent objective bar (mobile: ~366 px wide).
+    objectiveBar: {
+      label: 'Goal',
+    },
     panels: {
       shop: 'Command Centre',
       fleet: 'Shipyard',
@@ -121,6 +133,7 @@ export const en = {
     labels: {
       owned: 'Owned: {n}',
       level: 'Level: {n}',
+      levelShort: 'Lv. {n}',
       cost: 'Cost',
       produces: 'Produces',
       consumes: 'Consumes',
@@ -164,6 +177,12 @@ export const en = {
       intro:
         'Choose how many ships of each type to commit to this fight — ' +
         'losses only affect the committed fleet, win or lose.',
+      minHint:
+        'Pre-filled with the smallest fleet that beats the defense (smallest ' +
+        'ships first). Adjust it if you want a wider margin.',
+      notEnough:
+        'Even your whole fleet cannot beat this defense: everything is ' +
+        'committed by default.',
     },
     battleReport: {
       titleWon: 'Battle won',
@@ -203,12 +222,20 @@ export const en = {
       cannotClose:
         'The browser will not close this tab automatically — you can close it yourself.',
     },
-    pauseMenu: {
-      button: 'Menu',
-      title: 'Menu',
+    // Mobile drawer (burger) and desktop header buttons — same entries.
+    drawer: {
+      open: 'Open the menu',
+      close: 'Close the menu',
+      back: 'Back to the menu',
+      title: 'Commander menu',
+      commander: 'Commander',
       achievements: 'Achievements',
+      achievementsSub: '{done} / {total} unlocked',
       options: 'Options',
+      optionsSub: 'Language and theme',
       mainMenu: 'Main menu',
+      mainMenuSub: 'Leave the current game',
+      reset: 'Restart the game',
     },
     language: 'Language',
     footer: 'Automatic local save · no data leaves your machine.',
@@ -325,13 +352,15 @@ export const en = {
   },
 
   updateNotice: {
-    corbi: {
-      title: 'Corbi Update',
+    fifty: {
+      title: 'Fifty Update',
       intro: 'What’s new in this update:',
-      bullet1: 'Swipe left or right on mobile to switch between tabs.',
+      bullet1:
+        'New mobile interface: burger menu, resources in a strip, run objective always visible, swipe to switch tabs and a LAUNCH button always under your thumb.',
       bullet2:
-        'A summary now appears at the end of every run (resources harvested, systems conquered, points earned).',
-      bullet3: 'Double-tapping on iPhone no longer triggers an accidental zoom.',
+        'Production rates now show their decimals: the Senate Archives no longer get stuck at “+1 INF/s”.',
+      bullet3:
+        'Combat: the minimum fleet needed to beat the planet is pre-filled.',
     },
   },
 

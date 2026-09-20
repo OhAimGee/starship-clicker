@@ -1,14 +1,15 @@
 // Écran Options — langue + thème. Aucune dépendance à un Engine : même
-// composant utilisable avant une partie (menu principal) et pendant (menu
-// de pause, voir pause-menu.js).
+// composant utilisable avant une partie (menu principal) et pendant (tiroir
+// latéral, voir drawer.js).
 
 import { el } from './dom.js';
 import { t, getLang, setLang, AVAILABLE_LANGS } from '../i18n/index.js';
 import { getTheme, setTheme, AVAILABLE_THEMES } from './theme.js';
 import { openPanel } from './modal.js';
 
-/** @param {{ onClose?: () => void }} [opts] */
-export function showOptions({ onClose } = {}) {
+/** @param {{ onClose?: () => void, onBack?: () => void }} [opts] `onBack` :
+ *  ouvert depuis le tiroir (flèche de retour, plein écran mobile) */
+export function showOptions({ onClose, onBack } = {}) {
   const langSelect = el(
     'select',
     { class: 'lang-select', 'aria-label': t('ui.language') },
@@ -50,7 +51,7 @@ export function showOptions({ onClose } = {}) {
       ]),
       closeBtn,
     ],
-    { onClose }
+    { onClose, onBack }
   );
   closeBtn.addEventListener('click', close);
 }

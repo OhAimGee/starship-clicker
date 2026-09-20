@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatNumber } from './format.js';
+import { formatNumber, formatRateNumber } from './format.js';
 
 describe('formatNumber', () => {
   it('rend "0" pour zéro (et non "0.00")', () => {
@@ -36,5 +36,42 @@ describe('formatNumber', () => {
   it('gère les fractions et les négatifs', () => {
     expect(formatNumber(0.5)).toBe('0.50');
     expect(formatNumber(-1500)).toBe('-1.50K');
+  });
+});
+
+describe('formatRateNumber', () => {
+  it('garde les décimales entre 1 et 999 (formatNumber les tronque)', () => {
+    expect(formatRateNumber(1.05)).toBe('1.05');
+    expect(formatRateNumber(1.95)).toBe('1.95');
+    expect(formatRateNumber(12.5)).toBe('12.50');
+    expect(formatRateNumber(0.05)).toBe('0.05');
+  });
+
+  it('affiche les valeurs entières sans décimales', () => {
+    expect(formatRateNumber(0)).toBe('0');
+    expect(formatRateNumber(1)).toBe('1');
+    expect(formatRateNumber(40)).toBe('40');
+    expect(formatRateNumber(999)).toBe('999');
+  });
+
+  it('absorbe le bruit flottant (0.05 × 39 = 1.9500000000000002)', () => {
+    expect(formatRateNumber(0.05 * 39)).toBe('1.95');
+    expect(formatRateNumber(0.05 * 20)).toBe('1');
+    expect(formatRateNumber(0.1 + 0.2)).toBe('0.30');
+  });
+
+  it('gère les négatifs (maintenance > production)', () => {
+    expect(formatRateNumber(-1.5)).toBe('-1.50');
+    expect(formatRateNumber(-3)).toBe('-3');
+  });
+
+  it('abrège à partir de 1000 comme formatNumber', () => {
+    expect(formatRateNumber(1234)).toBe('1.23K');
+    expect(formatRateNumber(5_000_000)).toBe('5.00M');
+  });
+
+  it('gère les valeurs invalides', () => {
+    expect(formatRateNumber(NaN)).toBe('0');
+    expect(formatRateNumber(undefined)).toBe('0');
   });
 });

@@ -7,6 +7,7 @@ import { PRESTIGE_UPGRADES, CLICK_UPGRADES } from './upgrades.js';
 import { RANDOM_EVENTS } from './events.js';
 import { FACTIONS } from './factions.js';
 import { ASCENSION_REWARDS } from './ascensionRewards.js';
+import { formatRateNumber } from '../game/format.js';
 
 const isResource = (id) => RESOURCE_IDS.includes(id);
 const KNOWN_EFFECTS = new Set([
@@ -118,6 +119,28 @@ describe('générateurs', () => {
       .sort((a, b) => a - b);
     for (let i = 1; i < tiers.length; i++) {
       expect(minByTier[tiers[i]]).toBeGreaterThan(minByTier[tiers[i - 1]]);
+    }
+  });
+
+  // Garde-fou d'affichage : `formatNumber` tronquait à l'entier les débits
+  // fractionnaires, si bien que 20 à 39 Archives du Sénat (0,05 INF/s chacune)
+  // affichaient toutes « +1 INF/s » et la production semblait figée. Vaut pour
+  // n'importe quelle ressource : un exemplaire de plus doit toujours changer
+  // le débit affiché (avec et sans multiplicateur de production).
+  it('un exemplaire de plus change toujours le débit affiché', () => {
+    for (const g of GENERATORS) {
+      for (const mult of [1, 1.37]) {
+        for (let n = 1; n <= 200; n++) {
+          const next = (n + 1) * g.rate * mult;
+          // Au-delà de 1000, l'affichage est abrégé (« 1.23K ») : un pas
+          // unitaire n'y est plus lisible par construction.
+          if (next >= 1000) break;
+          expect(
+            formatRateNumber(next),
+            `${g.id} ×${mult} : ${n} → ${n + 1} exemplaires`
+          ).not.toBe(formatRateNumber(n * g.rate * mult));
+        }
+      }
     }
   });
 });

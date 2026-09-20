@@ -51,6 +51,7 @@ export function startTutorial(engine) {
   let rafId = null;
   let stepIndex = 0;
   let currentUnsub = null;
+  let revealedTarget = null;
 
   function step() {
     return TUTORIAL_STEPS[stepIndex];
@@ -207,6 +208,25 @@ export function startTutorial(engine) {
     return null;
   }
 
+  /** Sur mobile le contenu défile dans `.app-main` (et non plus dans la
+   * page) : les bandes d'assombrissement interceptent les gestes, le joueur
+   * ne peut donc pas y amener lui-même une cible située sous la ligne de
+   * flottaison (ex. « Terminer la run », en bas du panneau Ascension). On la
+   * fait défiler dans la zone visible, une fois par cible. Sans effet
+   * dès 720 px, où `.app-main` ne défile pas. */
+  function revealInScroller(node) {
+    const scroller = node.closest('.app-main');
+    if (!scroller || scroller.scrollHeight <= scroller.clientHeight) return;
+    const view = scroller.getBoundingClientRect();
+    const r = node.getBoundingClientRect();
+    const margin = PAD + GAP;
+    if (r.top < view.top + margin) {
+      scroller.scrollTop -= view.top + margin - r.top;
+    } else if (r.bottom > view.bottom - margin) {
+      scroller.scrollTop += r.bottom - (view.bottom - margin);
+    }
+  }
+
   function positionOverlay() {
     const s = step();
     const vw = window.innerWidth;
@@ -217,6 +237,10 @@ export function startTutorial(engine) {
         : resolveTarget();
 
     if (targetEl) {
+      if (targetEl !== revealedTarget) {
+        revealedTarget = targetEl;
+        revealInScroller(targetEl);
+      }
       const r = targetEl.getBoundingClientRect();
       const top = Math.max(0, r.top - PAD);
       const bottom = Math.min(vh, r.bottom + PAD);

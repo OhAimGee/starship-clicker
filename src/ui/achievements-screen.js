@@ -1,7 +1,7 @@
 // Écran des succès — liste à cocher, purement informative (aucun effet sur
 // la partie, voir DÉCISIONS du plan « écran d'accueil »). Prend un `state`
 // brut (pas un Engine) : fonctionne identiquement avant une partie (menu
-// principal) et pendant (menu de pause, voir pause-menu.js).
+// principal) et pendant (tiroir, voir drawer.js).
 
 import { el } from './dom.js';
 import { t } from '../i18n/index.js';
@@ -11,9 +11,10 @@ import { ACHIEVEMENTS } from '../data/achievements.js';
 
 /**
  * @param {object} state
- * @param {{ onClose?: () => void }} [opts]
+ * @param {{ onClose?: () => void, onBack?: () => void }} [opts] `onBack` :
+ *   ouvert depuis le tiroir (flèche de retour, plein écran mobile)
  */
-export function showAchievements(state, { onClose } = {}) {
+export function showAchievements(state, { onClose, onBack } = {}) {
   const rows = ACHIEVEMENTS.map((def) => {
     const unlocked = state.achievements[def.id]?.unlocked ?? false;
     return el(
@@ -48,7 +49,7 @@ export function showAchievements(state, { onClose } = {}) {
   const { close } = openPanel(
     t('ui.achievements.title'),
     [el('ul', { class: 'board-list' }, rows), closeBtn],
-    { onClose }
+    { onClose, onBack }
   );
   closeBtn.addEventListener('click', close);
 }

@@ -23,6 +23,18 @@ export const fr = {
       technology: 'Technologies',
       ascension: 'Ascension',
     },
+    // Libellés courts du pager mobile (5 onglets en une ligne de 2,1 rem).
+    tabsShort: {
+      shop: 'Boutique',
+      fleet: 'Flotte',
+      exploration: 'Explor.',
+      technology: 'Techno.',
+      ascension: 'Ascens.',
+    },
+    // Libellé court du bandeau objectif permanent (mobile : 366 px de large).
+    objectiveBar: {
+      label: 'Objectif',
+    },
     panels: {
       shop: 'Centre de commande',
       fleet: 'Chantier naval',
@@ -123,6 +135,7 @@ export const fr = {
     labels: {
       owned: 'Possédés : {n}',
       level: 'Niveau : {n}',
+      levelShort: 'Niv. {n}',
       cost: 'Coût',
       produces: 'Produit',
       consumes: 'Consomme',
@@ -167,6 +180,12 @@ export const fr = {
         'Choisissez combien de vaisseaux de chaque type engager sur ce ' +
         'combat — les pertes ne toucheront que la flotte engagée, en cas ' +
         'de victoire comme d’échec.',
+      minHint:
+        'Pré-rempli avec la flotte minimale qui bat la défense (des plus ' +
+        'petits vaisseaux aux plus gros). Ajustez si vous voulez plus de marge.',
+      notEnough:
+        'Même toute votre flotte ne suffit pas à battre cette défense : ' +
+        'tout est engagé par défaut.',
     },
     battleReport: {
       titleWon: 'Combat remporté',
@@ -207,12 +226,20 @@ export const fr = {
       cannotClose:
         'Le navigateur ne permet pas de fermer cet onglet automatiquement — vous pouvez le fermer vous-même.',
     },
-    pauseMenu: {
-      button: 'Menu',
-      title: 'Menu',
+    // Tiroir mobile (burger) et boutons d'en-tête desktop — mêmes entrées.
+    drawer: {
+      open: 'Ouvrir le menu',
+      close: 'Fermer le menu',
+      back: 'Retour au menu',
+      title: 'Menu du commandant',
+      commander: 'Commandant',
       achievements: 'Succès',
+      achievementsSub: '{done} / {total} débloqués',
       options: 'Options',
-      mainMenu: "Menu principal",
+      optionsSub: 'Langue et thème',
+      mainMenu: 'Menu principal',
+      mainMenuSub: 'Quitter la partie en cours',
+      reset: 'Recommencer la partie',
     },
     language: 'Langue',
     footer:
@@ -334,13 +361,15 @@ export const fr = {
   },
 
   updateNotice: {
-    corbi: {
-      title: 'Corbi Update',
+    fifty: {
+      title: 'Fifty Update',
       intro: 'Quoi de neuf dans cette mise à jour :',
-      bullet1: 'Changez d’onglet en swipant à gauche ou à droite sur mobile.',
+      bullet1:
+        'Nouvelle interface mobile : menu burger, ressources en bandeau, objectif de run toujours visible, changement d’onglet par swipe et bouton LANCER toujours sous le pouce.',
       bullet2:
-        'Un résumé s’affiche maintenant à la fin de chaque run (ressources récoltées, systèmes conquis, points gagnés).',
-      bullet3: 'Le double-tap sur iPhone ne déclenche plus de zoom accidentel.',
+        'Les débits de production s’affichent avec leurs décimales : les Archives du Sénat ne restent plus bloquées à « +1 INF/s ».',
+      bullet3:
+        'Combats : la flotte minimale nécessaire pour vaincre la planète est pré-remplie.',
     },
   },
 

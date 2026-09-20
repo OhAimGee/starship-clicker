@@ -47,6 +47,51 @@ export function committedFleetPower(state, allocation) {
 }
 
 /**
+ * Allocation minimale qui bat `defenseRating` — pré-remplissage de la popup
+ * d'allocation (voir `src/ui/fleet-allocation.js`). On parcourt les types
+ * possédés du plus faible au plus fort : chacun est engagé en totalité tant
+ * que la puissance cumulée n'atteint pas la défense, puis, pour le type qui
+ * l'atteint, on ne prend que le plus petit nombre suffisant. Les gros
+ * vaisseaux ne sont donc engagés qu'en dernier recours (moins de pertes
+ * coûteuses). `committedFleetPower` fait foi : multiplicateurs et arrondi
+ * inclus.
+ *
+ * Si toute la flotte ne suffit pas, `allocation` est la flotte entière (le
+ * comportement historique) et `sufficient` vaut `false`.
+ * @param {object} state
+ * @param {number} defenseRating
+ * @returns {{ allocation: Record<string, number>, sufficient: boolean }}
+ */
+export function minimumAllocation(state, defenseRating) {
+  const owned = Object.entries(state.ships)
+    .filter(([, s]) => s.count > 0)
+    .sort(([a], [b]) => SHIP_BY_ID[a].attack - SHIP_BY_ID[b].attack);
+
+  const allocation = {};
+  for (const [id, { count }] of owned) {
+    if (committedFleetPower(state, { ...allocation, [id]: count }) < defenseRating) {
+      allocation[id] = count;
+      continue;
+    }
+    // Ce type suffit à lui seul pour finir : plus petit n qui atteint la
+    // défense (la puissance engagée croît avec n, donc dichotomie).
+    let lo = 1;
+    let hi = count;
+    while (lo < hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      if (committedFleetPower(state, { ...allocation, [id]: mid }) >= defenseRating) {
+        hi = mid;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    allocation[id] = lo;
+    return { allocation, sufficient: true };
+  }
+  return { allocation, sufficient: false };
+}
+
+/**
  * Résout un combat (nœud `invade`/`conquest`) : `allocation` = la flotte
  * engagée sur ce nœud précis (`{ shipId: nombre }`), `defenseRating` = la
  * défense du nœud. Déterministe — mêmes entrées, mêmes pertes, toujours.
