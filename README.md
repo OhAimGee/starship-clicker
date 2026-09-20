@@ -13,8 +13,8 @@ GitHub Pages : **https://ohaimgee.github.io/starship-clicker/**
 ## Statut
 
 Refonte 2026 (architecture + design) puis refonte rogue-like terminées.
-Vision produit : `PRODUCT.md` · système visuel : `DESIGN.md` · plan :
-`.claude/plans/`.
+Vision produit : `PRODUCT.md` · système visuel : `DESIGN.md` · feuille de route
+de contenu : [`docs/ROADMAP.md`](docs/ROADMAP.md) · plan : `.claude/plans/`.
 
 | Refonte    | Phase | Contenu                                                     | État |
 | ---------- | ----- | ----------------------------------------------------------- | ---- |
@@ -29,6 +29,30 @@ Vision produit : `PRODUCT.md` · système visuel : `DESIGN.md` · plan :
 | Rogue-like | 5     | UI faction / carte / compétences                            | ✅   |
 | Rogue-like | 6     | Contenu (générateurs, systèmes, arbres de faction)          | ✅   |
 | Rogue-like | 7     | Outillage d'équilibrage (`npm run simulate`)                | ✅   |
+
+## Feuille de route
+
+Six mises à jour thématiques sont prévues, chacune avec un axe principal et un
+chapitre du fil rouge (une histoire par chapitres, débloqués par des jalons de
+jeu : systèmes conquis, runs terminées, Ascensions). Détail, règles de cadrage
+et chiffres indicatifs dans [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+| MAJ | Titre de travail | Axe principal                | Contenu clé                                                                                              | État        |
+| --- | ---------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
+| 1   | Combat vivant    | Exploration & combat         | PV et blindage des vaisseaux, flottes ennemies, combat simulé avec journal d'événements, Journal de bord | 🚧 en cours |
+| 2   | Grands Chantiers | Production & économie        | Mégastructures, décrets du Sénat, +6 générateurs, +4 technologies, Sentinelles                           | prévu       |
+| 3   | Frontières       | Exploration (monde) & combat | Nouveaux systèmes et planètes, raids et garnison, rôles de vaisseaux, événements à choix                 | prévu       |
+| 4   | Héritages        | Prestige & rejouabilité      | Mutateurs de run, 2 nouvelles factions, arbres structurés, succès à récompenses, statistiques            | prévu       |
+| 5   | Le Chant sombre  | Fin de partie                | Ressource « Singularités », générateurs T6, systèmes « Abysses », les Éveillés                           | prévu       |
+| 6   | L'Adversaire     | Narration & clôture          | Boss multi-phases, fins multiples, cycle infini                                                          | prévu       |
+
+**Chantier phare — « Combat vivant »** : les combats cessent d'être instantanés.
+Chaque vaisseau a des PV et un blindage (petits vaisseaux : peu chers mais
+fragiles ; gros vaisseaux : chers mais solides), l'ennemi devient une vraie
+flotte, et la bataille se déroule round par round dans un **journal
+d'événements** aléatoires (« vaisseau ennemi détruit », « attaque évitée »…)
+jusqu'à la destruction d'un camp. La fenêtre d'allocation affiche la composition
+ennemie et une chance de victoire estimée.
 
 ## Développement
 
@@ -59,6 +83,7 @@ src/
                        faction-select, styles)
 public/               favicon, manifeste PWA, service worker, icônes
 scripts/               outillage (simulate.mjs : simulation d'équilibrage headless)
+docs/ROADMAP.md      feuille de route de contenu (mises à jour prévues)
 docs/archive/         anciens rapports de développement
 .github/workflows/    déploiement GitHub Pages
 ```
