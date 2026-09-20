@@ -1,63 +1,89 @@
-// Rapport de combat — modal dismissable affichée juste après la résolution
-// d'un nœud invade/conquest (voir Engine#chooseNode, événement
-// 'battle-resolved'). Réutilise `openPanel` (même motif que les autres
-// modales), fermable ici — ce n'est qu'un compte-rendu, pas un choix.
+// Résumé d'un combat — le bloc « rapport » qui clôt la fenêtre de bataille
+// (voir battle-log.js) : issue, puissance engagée, vaisseaux détruits /
+// récupérés / perdus pour de bon, forces ennemies détruites, butin.
 
 import { el } from './dom.js';
 import { t } from '../i18n/index.js';
 import { resourceCode } from '../data/resources.js';
 import { formatNumber } from './format.js';
-import { openPanel } from './modal.js';
+import { unitNames } from './battle-text.js';
 
-export function showBattleReport(entry) {
-  const lossEntries = Object.entries(entry.losses);
-  const rewardEntries = entry.rewards ? Object.entries(entry.rewards) : [];
+const TITLE_KEY = {
+  victory: 'ui.battleReport.titleWon',
+  retreat: 'ui.battleReport.titleRetreat',
+  defeat: 'ui.battleReport.titleLost',
+  timeout: 'ui.battleReport.titleLost',
+};
 
-  const btn = el('button', {
-    class: 'btn btn-go btn-block',
-    type: 'button',
-    text: t('ui.buttons.resume'),
-  });
+export const battleTitle = (outcome) =>
+  t(TITLE_KEY[outcome] ?? 'ui.battleReport.titleLost');
 
-  const { close } = openPanel(
-    entry.victory
-      ? t('ui.battleReport.titleWon')
-      : t('ui.battleReport.titleLost'),
-    [
-      el('p', {
-        class: 'panel-note',
-        text: t('ui.battleReport.power', {
+/** Liste « pile → effectif » ; `tone` = `good` (vert) ou `bad` (rouge). */
+function countList(kind, counts, sign, tone) {
+  return el(
+    'ul',
+    { class: 'battle-report-list', dataset: { tone } },
+    Object.entries(counts).map(([id, n]) =>
+      el('li', {}, [
+        el('span', { text: unitNames(`${kind}:${id}`).plural }),
+        el('span', { text: `${sign}${formatNumber(n)}` }),
+      ])
+    )
+  );
+}
+
+/** Nœuds DOM du résumé d'un combat résolu.
+ * @param {object} entry charge de l'événement `battle-resolved` */
+export function buildBattleSummary(entry) {
+  const { battle } = entry;
+  const lost = Object.keys(entry.losses).length > 0;
+  const back = Object.keys(entry.recovered ?? {}).length > 0;
+  const destroyed = Object.keys(entry.destroyed ?? {}).length > 0;
+  const enemyGone = Object.keys(battle.enemyLosses).length > 0;
+  const rewards = entry.rewards ? Object.entries(entry.rewards) : [];
+
+  return [
+    el('p', {
+      class: 'battle-outcome',
+      dataset: { outcome: entry.outcome },
+      text: battleTitle(entry.outcome),
+    }),
+    el('p', {
+      class: 'battle-note',
+      text:
+        t('ui.battleReport.power', {
           committed: formatNumber(entry.committedPower),
           required: formatNumber(entry.defenseRating),
-        }),
-      }),
-      el('p', {
-        class: 'drawer-desc',
-        text: t('ui.battleReport.losses'),
-      }),
-      lossEntries.length > 0
-        ? el(
-            'ul',
-            { class: 'battle-report-list' },
-            lossEntries.map(([id, n]) =>
-              el('li', {}, [
-                el('span', { text: t(`ship.${id}.name`) }),
-                el('span', { text: `-${formatNumber(n)}` }),
-              ])
-            )
-          )
-        : el('p', { class: 'panel-note', text: t('ui.battleReport.noLosses') }),
-      rewardEntries.length > 0
-        ? el('p', {
-            class: 'board-modal-gains',
-            text: rewardEntries
-              .map(([res, amt]) => `+${formatNumber(amt)} ${resourceCode(res)}`)
-              .join('  '),
-          })
-        : null,
-      btn,
-    ]
-  );
-  btn.addEventListener('click', close);
-  btn.focus();
+        }) +
+        ' · ' +
+        t('ui.battleReport.rounds', { n: battle.rounds.length }),
+    }),
+    destroyed
+      ? el('p', { class: 'drawer-desc', text: t('ui.battleReport.destroyed') })
+      : null,
+    destroyed ? countList('ship', entry.destroyed, '-', 'bad') : null,
+    back
+      ? el('p', { class: 'drawer-desc', text: t('ui.battleReport.recovered') })
+      : null,
+    back ? countList('ship', entry.recovered, '+', 'good') : null,
+    el('p', { class: 'drawer-desc', text: t('ui.battleReport.losses') }),
+    lost
+      ? countList('ship', entry.losses, '-', 'bad')
+      : el('p', { class: 'battle-note', text: t('ui.battleReport.noLosses') }),
+    enemyGone
+      ? el('p', {
+          class: 'drawer-desc',
+          text: t('ui.battleReport.enemyLosses'),
+        })
+      : null,
+    enemyGone ? countList('enemy', battle.enemyLosses, '', 'good') : null,
+    rewards.length > 0
+      ? el('p', {
+          class: 'board-modal-gains',
+          text: rewards
+            .map(([res, amt]) => `+${formatNumber(amt)} ${resourceCode(res)}`)
+            .join('  '),
+        })
+      : null,
+  ];
 }

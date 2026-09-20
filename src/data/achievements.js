@@ -44,6 +44,12 @@ export const ACHIEVEMENTS = [
     check: (s) => Object.values(s.generators).every((g) => g.count >= 1),
   },
   { id: 'playerLevel10', check: (s) => s.prestige.player.level >= 10 },
+  // Combat vivant : compteurs à vie de `state.combatStats` et
+  // `state.story.defeated` (voir Engine#resolvePlanetCombat).
+  { id: 'firstBlood', check: (s) => s.combatStats.victories >= 1 },
+  { id: 'flawlessVictory', check: (s) => s.combatStats.flawless >= 1 },
+  { id: 'swarmCrusher', check: (s) => s.combatStats.enemiesDestroyed >= 100 },
+  { id: 'nestSlayer', check: (s) => s.story.defeated.motherNest === true },
 ];
 
 export const ACHIEVEMENT_IDS = ACHIEVEMENTS.map((a) => a.id);

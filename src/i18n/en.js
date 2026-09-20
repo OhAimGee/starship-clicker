@@ -138,6 +138,7 @@ export const en = {
       produces: 'Produces',
       consumes: 'Consumes',
       attack: 'Attack',
+      hp: 'Hull',
       maintenance: 'Upkeep',
       defense: 'Defence',
       rewards: 'Rewards',
@@ -175,21 +176,36 @@ export const en = {
     fleetAllocation: {
       title: 'Engage the fleet',
       intro:
-        'Choose how many ships of each type to commit to this fight — ' +
-        'losses only affect the committed fleet, win or lose.',
+        'Choose how many ships of each type to commit. The battle plays out ' +
+        'round by round and chance has its say: destroyed ships are lost ' +
+        '(wrecks are partly recovered), win or lose.',
+      enemy: 'Enemy: {name}',
+      composition: 'Composition',
+      winChance: 'Win chance',
+      estLosses: 'Expected losses',
+      percent: '{n}%',
+      recommended: 'Recommended',
+      all: 'Commit all',
+      chanceNote: 'Estimated from {n} simulated battles.',
       minHint:
-        'Pre-filled with the smallest fleet that beats the defense (smallest ' +
-        'ships first). Adjust it if you want a wider margin.',
+        'Pre-filled with the smallest fleet aiming for a {target}% chance to ' +
+        'win (smallest ships first). Commit more ships to reduce risk and ' +
+        'losses.',
       notEnough:
-        'Even your whole fleet cannot beat this defense: everything is ' +
-        'committed by default.',
+        'Even your whole fleet does not reach a {target}% chance to win: ' +
+        'everything is committed by default.',
     },
     battleReport: {
       titleWon: 'Battle won',
       titleLost: 'Assault repelled',
+      titleRetreat: 'Fleet withdrawn',
       power: 'Power committed {committed} — defence {required}',
-      losses: 'Losses',
+      rounds: '{n} rounds',
+      destroyed: 'Ships destroyed',
+      recovered: 'Wrecks recovered',
+      losses: 'Permanent losses',
       noLosses: 'No losses.',
+      enemyLosses: 'Enemy forces destroyed',
     },
     runSummary: {
       title: 'Run complete',
@@ -218,6 +234,12 @@ export const en = {
     achievements: {
       title: 'Achievements',
     },
+    journal: {
+      title: 'Logbook',
+      locked: 'Locked entry',
+      bestiary: 'Enemies encountered',
+      bestiaryEmpty: 'No enemy encountered yet.',
+    },
     quit: {
       cannotClose:
         'The browser will not close this tab automatically — you can close it yourself.',
@@ -231,8 +253,10 @@ export const en = {
       commander: 'Commander',
       achievements: 'Achievements',
       achievementsSub: '{done} / {total} unlocked',
+      journal: 'Logbook',
+      journalSub: '{done} / {total} entries',
       options: 'Options',
-      optionsSub: 'Language and theme',
+      optionsSub: 'Language, theme and battles',
       mainMenu: 'Main menu',
       mainMenuSub: 'Leave the current game',
       reset: 'Restart the game',
@@ -306,7 +330,7 @@ export const en = {
       engageCombat: {
         title: 'Engage combat',
         body1: 'Click "Engage" to attack the planet, then confirm your fleet allocation.',
-        retry: 'Assault repelled — try again, your fleet is still here.',
+        retry: 'Assault repelled: luck was not on your side. Your fighters are replaced, try again.',
       },
       systemConquered: {
         title: 'System conquered!',
@@ -352,21 +376,28 @@ export const en = {
   },
 
   updateNotice: {
-    fifty: {
-      title: 'Fifty Update',
+    enhancedCombat: {
+      title: 'Enhanced Combat Update',
       intro: 'What’s new in this update:',
       bullet1:
-        'New mobile interface: burger menu, resources in a strip, run objective always visible, swipe to switch tabs and a LAUNCH button always under your thumb.',
+        'Living combat: every battle plays out round by round, with a live event log (critical hits, evaded shots, hull breaches…). Chance has its say: destroyed ships are lost, their wrecks partly recovered.',
       bullet2:
-        'Production rates now show their decimals: the Senate Archives no longer get stuck at “+1 INF/s”.',
+        'Small versus big: every ship now has hull points and armour. Small ships are cheap but fragile, big ones cost more but soak damage. Enemies field their own fleets (the Swarm, garrisons, wildlife…): the engage screen shows their composition and your estimated chance to win.',
       bullet3:
-        'Combat: the minimum fleet needed to beat the planet is pre-filled.',
+        'Logbook: a prologue, chapter 1 “The Tide”, the bestiary, the Mother Nest boss planet and 4 new combat achievements.',
+      bullet4:
+        'New “Battles” option: animated log or summary only.',
     },
   },
 
   options: {
     title: 'Options',
     theme: 'Theme',
+    combatPlayback: 'Battles',
+    playback: {
+      animated: 'Animated log',
+      summary: 'Summary only',
+    },
     themeName: {
       cyberspace: 'CyberSpace (blue)',
       solstice: 'Solstice (amber)',
@@ -418,6 +449,22 @@ export const en = {
     playerLevel10: {
       name: 'Seasoned Commander',
       desc: 'Reach player level 10.',
+    },
+    firstBlood: {
+      name: 'First blood',
+      desc: 'Win a battle.',
+    },
+    flawlessVictory: {
+      name: 'Not a scratch',
+      desc: 'Win a battle with no permanent losses.',
+    },
+    swarmCrusher: {
+      name: 'Swarm crusher',
+      desc: 'Destroy 100 enemy units in total.',
+    },
+    nestSlayer: {
+      name: 'Queen slayer',
+      desc: 'Defeat the Mother Nest.',
     },
   },
 
@@ -499,25 +546,202 @@ export const en = {
     },
   },
 
+  enemy: {
+    class: {
+      drone: 'Drone',
+      frigate: 'Frigate',
+      cruiser: 'Cruiser',
+      bastion: 'Bastion',
+      leviathan: 'Leviathan',
+    },
+    classPlural: {
+      drone: 'Drones',
+      frigate: 'Frigates',
+      cruiser: 'Cruisers',
+      bastion: 'Bastions',
+      leviathan: 'Leviathans',
+    },
+    profile: {
+      swarm: {
+        name: 'The Swarm',
+        hint: 'Clouds of light units: your big ships waste their shots there — numbers win.',
+        intro: 'A cloud of drones rises to meet you. The Swarm has spotted your fleet.',
+        victory: 'The Swarm scatters: the way is clear.',
+        defeat: 'The Swarm closes in on what is left of your ships.',
+        retreat: 'Under the Swarm’s pressure, your ships break contact.',
+      },
+      garrison: {
+        name: 'Occupation forces',
+        hint: 'A balanced mix around an armoured core: don’t commit small ships only.',
+        intro: 'The garrison’s defences come alive, its batteries locking onto your fleet.',
+        victory: 'The garrison surrenders, its batteries fall silent.',
+        defeat: 'The garrison holds firm: your fleet is swept aside.',
+        retreat: 'The garrison is too strong: your ships fall back.',
+      },
+      nest: {
+        name: 'The Mother Nest',
+        hint: 'A colossal queen at the heart of a swarm: sweep the drones with numbers, but keep heavy ships to break her shell.',
+        intro: 'The ground trembles. The Mother Nest rises, drones pouring out from every side.',
+        victory: 'The queen collapses: the swarm falls silent, robbed of its heart.',
+        defeat: 'The Mother Nest buries your fleet under its swarm.',
+        retreat: 'Her shell withstands everything: your ships break off.',
+      },
+      wilds: {
+        name: 'Hostile wildlife',
+        hint: 'A few colossal, heavily armoured creatures: small calibres are ineffective — bring heavy ships.',
+        intro: 'Colossal shapes rise from the ground: the local wildlife attacks.',
+        victory: 'The creatures collapse one by one: the planet grows quiet.',
+        defeat: 'The creatures slaughter your fleet.',
+        retreat: 'Your weapons glance off their carapace: emergency retreat.',
+      },
+    },
+  },
+
+  boss: {
+    motherNest: { name: 'Mother Nest' },
+  },
+
+  story: {
+    chapter: {
+      prologue: { title: 'Prologue — Awakening' },
+      tide: { title: 'Chapter 1 — The Tide' },
+    },
+    entry: {
+      awakening: {
+        title: 'Awakening',
+        text: 'The pods open one by one. You are Commander {name}, and the ark-ship that took you in drifts through what was once the Galactic Senate. Nothing answers on the official frequencies: the Rupture swept it all away.',
+      },
+      firstFleet: {
+        title: 'One more hull',
+        text: 'A first fighter leaves the bay. Small, fragile, cheap: it is all anyone still knows how to build. Bigger ships will come, but every hull lost will cost more than the last.',
+      },
+      firstContact: {
+        title: 'First contact',
+        text: 'The drones did not fire first: they surrounded you. The Swarm is not an army, it is a reflex — abandoned machines repeating the last order they received: occupy. Every planet they hold is a hive.',
+      },
+      firstFlag: {
+        title: 'First flag',
+        text: 'A free planet, at last. The Senate is gone, but someone has to write the first line of the new register. You write your own name.',
+      },
+      tideRises: {
+        title: 'The Tide rises',
+        text: 'The first campaign ends, but the map redraws itself: wherever you freed a system, the Swarm already holds another. They return like a tide. You will have to go back to the source.',
+      },
+      swarmNature: {
+        title: 'What the Swarm cannot do',
+        text: 'After dozens of drone wrecks, one lesson: they fire fast, aim wide and die in droves. Your big ships waste their salvoes on them; sheer numbers sweep them away. Every enemy has its answer.',
+      },
+      motherNestSighted: {
+        title: 'The Mother Nest',
+        text: 'The probes converge: every swarm flows back to one system, where the shell of a colossal queen blots out the sky. She is guarded by her own drones — and by armour no fighter will ever pierce.',
+      },
+      nestFallen: {
+        title: 'The queen falls',
+        text: 'The Mother Nest collapses and, with her, every swarm freezes at once, as if robbed of an order. The tide recedes. One question remains: who gave the queen her order? Deep inside her, an encrypted signal — coordinates.',
+      },
+    },
+  },
+
+  battle: {
+    title: 'Battle',
+    versus: '{system} — {enemy}',
+    allyBar: 'Your fleet',
+    enemyBar: 'Enemy',
+    round: 'Round {n}',
+    speed: 'Speed',
+    skip: 'Skip',
+    showLog: 'Battle log',
+    empty: 'No events.',
+    units: 'Units: {n}',
+    line: {
+      dodgedAllyOne: 'Attack evaded: one enemy shot misses its target.',
+      dodgedAllyMany: 'Attacks evaded: {n} enemy shots miss their target.',
+      dodgedEnemyOne: 'One of your shots is dodged by the enemy.',
+      dodgedEnemyMany: '{n} of your shots are dodged by the enemy.',
+      destroyedEnemyOne: 'Enemy ship destroyed: {unitOne}.',
+      destroyedEnemyMany: 'Enemy ships destroyed: {n} × {unitOne}.',
+      destroyedAllyOne: 'Ship lost: {unitOne}.',
+      destroyedAllyMany: 'Ships lost: {n} × {unitOne}.',
+      timeout: 'The fight drags on: both fleets break contact.',
+    },
+    event: {
+      criticalHit: {
+        ally: 'Critical hit! Your {unit} find a weak point (damage +50% this round).',
+        enemy: 'Enemy critical hit: their {unit} break through your lines (damage +50% this round).',
+      },
+      barrage: {
+        ally: 'Concentrated barrage! Your whole fleet fires in unison (+25% damage).',
+        enemy: 'Enemy barrage: their fire converges (+25% damage).',
+      },
+      shieldFailure: {
+        ally: 'Shields overloaded: your {unit} take the full brunt (+50% damage taken).',
+        enemy: 'Enemy shields overloaded: their {unit} are exposed (+50% damage taken).',
+      },
+      hullBreach: {
+        ally: 'Hull breach: your {unit} lose 6% of their structure.',
+        enemy: 'Enemy hull breach: their {unit} lose 6% of their structure.',
+      },
+      reactorOverheat: {
+        ally: 'Reactor overheating: one of your {unit} is lost.',
+        enemy: 'Enemy reactor overheating: one of their {unit} explodes.',
+      },
+      evasiveManeuver: {
+        ally: 'Evasive manoeuvre: your {unit} weave (+20 points of evasion).',
+        enemy: 'Enemy evasive manoeuvre: their {unit} are harder to hit.',
+      },
+      emergencyRepairs: {
+        ally: 'Emergency repairs: your {unit} regain structure.',
+        enemy: 'The enemy rushes repairs on its {unit}.',
+      },
+      weaponsMalfunction: {
+        ally: 'Weapons malfunction: your {unit} fire at half rate.',
+        enemy: 'Enemy weapons malfunction: their {unit} fire at half rate.',
+      },
+      decisiveShot: {
+        ally: 'Decisive shot! An enemy {unitOne} is destroyed outright.',
+        enemy: 'Enemy decisive shot: one of your {unit} is destroyed outright.',
+      },
+      reinforcements: {
+        enemy: 'Enemy reinforcements: new {unit} arrive on the scene.',
+      },
+    },
+  },
+
   ship: {
     fighters: {
       name: 'Fighters',
+      one: 'Fighter',
       desc: 'Fast, expendable, effective in numbers.',
     },
-    cruisers: { name: 'Cruisers', desc: 'The backbone of a serious fleet.' },
-    dreadnoughts: { name: 'Dreadnoughts', desc: 'Heavy armour, heavy strike.' },
-    titans: { name: 'Titans', desc: 'Mobile fortresses.' },
+    cruisers: {
+      name: 'Cruisers',
+      one: 'Cruiser',
+      desc: 'The backbone of a serious fleet.',
+    },
+    dreadnoughts: {
+      name: 'Dreadnoughts',
+      one: 'Dreadnought',
+      desc: 'Heavy armour, heavy strike.',
+    },
+    titans: { name: 'Titans', one: 'Titan', desc: 'Mobile fortresses.' },
     motherships: {
       name: 'Motherships',
+      one: 'Mothership',
       desc: 'Project the power of an empire.',
     },
     worldBurners: {
       name: 'World burners',
+      one: 'World burner',
       desc: 'Exactly what the name promises.',
     },
-    voidCrusaders: { name: 'Void crusaders', desc: 'Carved from dark matter.' },
+    voidCrusaders: {
+      name: 'Void crusaders',
+      one: 'Void crusader',
+      desc: 'Carved from dark matter.',
+    },
     realityShifters: {
       name: 'Reality shifters',
+      one: 'Reality shifter',
       desc: 'War as a metaphysical act.',
     },
   },
@@ -703,6 +927,10 @@ export const en = {
       name: 'Streamlined Logistics',
       desc: '-6% ship cost per level (this run only).',
     },
+    reinforcedHulls: {
+      name: 'Reinforced Hulls',
+      desc: '+10% ship hit points per level (this run only).',
+    },
     energyFocus: {
       name: 'Energy Focus',
       desc: '+6% overall production per level (this run only).',
@@ -791,8 +1019,8 @@ export const en = {
       'Run objective complete! You can end the run for the bonus.',
     systemConquered: '{name} conquered!',
     fleetTooWeak: 'Fleet too weak (power required: {required}).',
-    battleLost:
-      'Assault repelled (defence: {required}) — ships were lost.',
+    battleLost: 'Assault repelled — ships were lost.',
+    noFleetEngaged: 'No ship committed.',
     cannotEndRun: "You need to complete the run's objective first.",
     runEnded: 'Run complete! +{points} ✨ and your faction levels up.',
     cannotAscend: 'Your faction needs to reach level {level} to ascend.',
@@ -801,6 +1029,8 @@ export const en = {
     maintenanceLoss: 'Insufficient upkeep: ships were lost.',
     unlocked: 'New: {name}',
     achievementUnlocked: 'Achievement unlocked: {name}',
+    storyUnlocked: 'Logbook: {title}',
+    storyUnlockedMany: 'Logbook: {n} new entries',
     systemLocked: 'Level {level} required to access this system.',
     levelUp: 'Level {level} reached!',
     planetConquered: 'Planet conquered!',

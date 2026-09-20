@@ -4,7 +4,8 @@
 // cours, `run.skillTree` étant remis à zéro à chaque `startRun()`/`endRun()`
 // (voir `game/run.js#startRun`, `game/prestige.js#endRun`) comme le reste de
 // `state.run`. Réutilise exactement le vocabulaire d'effet existant (voir
-// `economy.js#applyLeveledEffect`) : aucun nouveau type d'effet. `perLevel`
+// `economy.js#applyLeveledEffect`) : seul `fleetDurability` (PV de flotte, combat
+// vivant) s'y est ajouté. `perLevel`
 // volontairement modeste (entre une compétence de faction et une récompense
 // d'Ascension en impact par niveau) puisqu'il se ressent sur une run entière
 // mais ne survit pas à sa fin.
@@ -45,6 +46,14 @@ export const RUN_SKILLS = [
     costGrowth: 1.7,
     // réduit le coût des vaisseaux : perLevel = fraction retirée par niveau
     effect: { type: 'shipCost', perLevel: 0.06 },
+  },
+  {
+    id: 'reinforcedHulls',
+    baseCost: 1,
+    costGrowth: 1.7,
+    // PV des vaisseaux au combat (voir game/battle.js) — l'attaque n'est pas
+    // touchée : perLevel = bonus de PV par niveau.
+    effect: { type: 'fleetDurability', perLevel: 0.1 },
   },
   {
     id: 'energyFocus',

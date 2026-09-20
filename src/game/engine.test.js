@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Engine } from './engine.js';
 import { createInitialState } from './initial-state.js';
 import { CONFIG } from '../data/config.js';
+import { TUTORIAL_STEPS } from '../data/tutorialSteps.js';
 
 const withResources = (patch) => {
   const s = createInitialState();
@@ -221,7 +222,12 @@ describe('Engine — faction & run', () => {
     const battles = [];
     e.on('battle-resolved', (entry) => battles.push(entry));
 
-    const weak = e.resolvePlanetCombat(planet.id, { fighters: 1 });
+    // Graine fixée : un seul chasseur a ~2 % de chances de vaincre par hasard.
+    const weak = e.resolvePlanetCombat(
+      planet.id,
+      { fighters: 1 },
+      { seed: 12345 }
+    );
     expect(weak).toBe(false);
     expect(planet.conquered).toBe(false);
     expect(e.state.run.combatLog).toHaveLength(1);
@@ -406,5 +412,150 @@ describe('Engine — hors-ligne', () => {
     const report = e.applyOfflineProgress(3600 * 1000); // 1 h
     expect(report.cappedSeconds).toBe(3600);
     expect(e.state.resources.energy).toBeCloseTo(18000);
+  });
+});
+
+describe('Engine — combat vivant : compteurs et Journal de bord', () => {
+  // Système 0, première planète de combat ; flotte massive pour gagner sûrement.
+  function setup() {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 100000;
+    e.openSystem(0);
+    const planet = e.activeSystem().planets.find((p) => p.type === 'invaded');
+    return { e, planet };
+  }
+
+  it('les compteurs de combat suivent exactement les batailles résolues', () => {
+    const { e, planet } = setup();
+    const entries = [];
+    e.on('battle-resolved', (entry) => entries.push(entry));
+    // Graines fixées ; on enchaîne les phases jusqu'à la conquête.
+    for (let seed = 1; seed <= 6 && !planet.conquered; seed++) {
+      e.resolvePlanetCombat(planet.id, { fighters: 100000 }, { seed });
+    }
+    const stats = e.state.combatStats;
+    const enemyKilled = entries.reduce(
+      (sum, x) =>
+        sum + Object.values(x.battle.enemyLosses).reduce((a, n) => a + n, 0),
+      0
+    );
+    expect(entries.length).toBeGreaterThan(0);
+    expect(stats.battles).toBe(entries.length);
+    expect(stats.victories).toBe(entries.filter((x) => x.victory).length);
+    expect(stats.victories).toBeGreaterThan(0);
+    expect(stats.flawless).toBe(
+      entries.filter((x) => x.victory && Object.keys(x.losses).length === 0)
+        .length
+    );
+    expect(stats.enemiesDestroyed).toBe(enemyKilled);
+    expect(e.state.story.bestiary.swarm).toBe(true);
+  });
+
+  it('une défaite compte comme combat mais pas comme victoire', () => {
+    const { e } = setup();
+    e.state.prestige.player.level = 50;
+    let planet;
+    for (let i = 1; i < 15 && !planet; i++) {
+      e.openSystem(i);
+      planet = e
+        .activeSystem()
+        ?.planets.find((p) => p.type === 'invaded' && p.defenseRating > 50);
+    }
+    expect(planet).toBeDefined();
+    e.resolvePlanetCombat(planet.id, { fighters: 1 }, { seed: 3 });
+    expect(e.state.combatStats.battles).toBe(1);
+    expect(e.state.combatStats.victories).toBe(0);
+    expect(e.state.combatStats.flawless).toBe(0);
+  });
+
+  it('_scanStory révèle le prologue dès le premier tick, sans doublon', () => {
+    const e = new Engine(createInitialState());
+    const seen = [];
+    e.on('story', ({ ids }) => seen.push(...ids));
+    e.tick(1);
+    expect(e.state.story.entries.awakening).toBe(true);
+    expect(e.state.story.entries.tideRises).toBe(false);
+    e.tick(1);
+    expect(seen.filter((id) => id === 'awakening')).toHaveLength(1);
+  });
+
+  it('premier combat et premier système conquis ouvrent leurs entrées et succès', () => {
+    const { e } = setup();
+    e.state.prestige.player.level = 50;
+    const system = e.activeSystem();
+    let guard = 0;
+    while (!system.conquered && guard++ < 40) {
+      for (const p of system.planets) {
+        if (!p.conquered && (p.type === 'invaded' || p.type === 'hostile')) {
+          e.state.technologies.xenoColonization.unlocked = true;
+          e.resolvePlanetCombat(p.id, { fighters: 100000 });
+        }
+      }
+    }
+    expect(system.conquered).toBe(true);
+    e.tick(1);
+    expect(e.state.story.entries.firstContact).toBe(true);
+    expect(e.state.story.entries.firstFlag).toBe(true);
+    expect(e.state.achievements.firstBlood.unlocked).toBe(true);
+  });
+
+  it('les succès de combat suivent les compteurs à vie', () => {
+    const e = new Engine(createInitialState());
+    e.tick(1);
+    expect(e.state.achievements.flawlessVictory.unlocked).toBe(false);
+    expect(e.state.achievements.swarmCrusher.unlocked).toBe(false);
+    e.state.combatStats.flawless = 1;
+    e.state.combatStats.enemiesDestroyed = 100;
+    e.tick(1);
+    expect(e.state.achievements.flawlessVictory.unlocked).toBe(true);
+    expect(e.state.achievements.swarmCrusher.unlocked).toBe(true);
+  });
+
+  it('vaincre la Nid-mère la marque vaincue et débloque succès + entrée', () => {
+    const e = new Engine(createInitialState());
+    e.selectFaction('ironLegion');
+    e.state.ships.fighters.count = 1_000_000;
+    e.state.prestige.player.level = 50;
+    e.state.technologies.xenoColonization.unlocked = true;
+    e.openSystem(4);
+    const boss = e.activeSystem().planets.find((p) => p.boss === 'motherNest');
+    expect(boss).toBeDefined();
+    let guard = 0;
+    while (!boss.conquered && guard++ < 10) {
+      e.resolvePlanetCombat(boss.id, { fighters: 1_000_000 });
+    }
+    expect(boss.conquered).toBe(true);
+    expect(e.state.story.defeated.motherNest).toBe(true);
+    expect(e.state.story.bestiary.nest).toBe(true);
+    e.tick(1);
+    expect(e.state.achievements.nestSlayer.unlocked).toBe(true);
+    expect(e.state.story.entries.nestFallen).toBe(true);
+  });
+
+  it('les entrées du chapitre 1 restent cachées avant la première run terminée', () => {
+    const e = new Engine(createInitialState());
+    e.state.combatStats.enemiesDestroyed = 500;
+    e.state.story.bestiary.swarm = true;
+    e.tick(1);
+    expect(e.state.story.entries.swarmNature).toBe(false);
+    e.state.prestige.ascensions = 1;
+    e.tick(1);
+    expect(e.state.story.entries.tideRises).toBe(true);
+    expect(e.state.story.entries.swarmNature).toBe(true);
+  });
+});
+
+describe('Engine — tutoriel : revers au premier combat', () => {
+  it('grantShips ajoute des vaisseaux, et l’étape de combat remplace les chasseurs perdus', () => {
+    const e = new Engine(createInitialState());
+    e.state.ships.fighters.count = 0; // revers : les deux chasseurs sont perdus
+    const step = TUTORIAL_STEPS.find((s) => s.id === 'engageCombat');
+    step.topUp(e);
+    expect(e.state.ships.fighters.count).toBe(2);
+    step.topUp(e); // idempotent : jamais d'excédent
+    expect(e.state.ships.fighters.count).toBe(2);
+    e.grantShips({ cruisers: 3 });
+    expect(e.state.ships.cruisers.count).toBe(3);
   });
 });

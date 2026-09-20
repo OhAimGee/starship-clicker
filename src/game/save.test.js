@@ -53,6 +53,33 @@ describe('loadState', () => {
     expect(state.prestige.ascensions).toBe(0);
   });
 
+  it('charge une sauvegarde v8 (avant le combat vivant) sans rien perdre : ' +
+    'journal et compteurs arrivent à zéro, les entrées se rattrapent', () => {
+    const fresh = createInitialState();
+    const v8 = JSON.parse(JSON.stringify(fresh));
+    delete v8.story;
+    delete v8.combatStats;
+    v8.schemaVersion = 8;
+    v8.resources.energy = 1234;
+    v8.prestige.ascensions = 2; // une run déjà terminée avant la MAJ
+    v8.achievements.firstSystemConquered.unlocked = true;
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(v8) });
+    const { state, status } = loadState(storage);
+    expect(status).toBe('loaded');
+    expect(state.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(state.resources.energy).toBe(1234);
+    expect(state.prestige.ascensions).toBe(2);
+    expect(state.combatStats).toEqual({
+      battles: 0,
+      victories: 0,
+      flawless: 0,
+      enemiesDestroyed: 0,
+    });
+    expect(state.story.entries.awakening).toBe(false);
+    expect(Object.keys(state.story.bestiary)).toContain('swarm');
+    expect(state.story.defeated.motherNest).toBe(false);
+  });
+
   it('conserve run.factionId au rechargement (un champ null par défaut ' +
     'dont la vraie valeur est une chaîne — typeof null === "object" piégeait ' +
     'la fusion de forme)', () => {

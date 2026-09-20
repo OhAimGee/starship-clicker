@@ -108,6 +108,7 @@ export function createFleetPanel(engine) {
 
       setFacts(refs.drawerFacts, [
         [t('ui.labels.attack'), formatNumber(def.attack)],
+        [t('ui.labels.hp'), formatNumber(def.hp)],
         [t('ui.labels.maintenance'), `${formatNumber(def.maintenance)} NRG/s`],
         [t('ui.labels.cost'), formatCost(cost)],
       ]);

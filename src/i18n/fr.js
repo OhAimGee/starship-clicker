@@ -140,6 +140,7 @@ export const fr = {
       produces: 'Produit',
       consumes: 'Consomme',
       attack: 'Attaque',
+      hp: 'Structure',
       maintenance: 'Maintenance',
       defense: 'Défense',
       rewards: 'Récompenses',
@@ -177,22 +178,37 @@ export const fr = {
     fleetAllocation: {
       title: 'Engager la flotte',
       intro:
-        'Choisissez combien de vaisseaux de chaque type engager sur ce ' +
-        'combat — les pertes ne toucheront que la flotte engagée, en cas ' +
-        'de victoire comme d’échec.',
+        'Choisissez combien de vaisseaux de chaque type engager. La ' +
+        'bataille se joue round par round et le hasard s’en mêle : les ' +
+        'vaisseaux détruits sont perdus (les épaves sont en partie ' +
+        'récupérées), en cas de victoire comme d’échec.',
+      enemy: 'Ennemi : {name}',
+      composition: 'Composition',
+      winChance: 'Chance de victoire',
+      estLosses: 'Pertes prévues',
+      percent: '{n} %',
+      recommended: 'Recommandé',
+      all: 'Tout engager',
+      chanceNote: 'Estimation sur {n} batailles simulées.',
       minHint:
-        'Pré-rempli avec la flotte minimale qui bat la défense (des plus ' +
-        'petits vaisseaux aux plus gros). Ajustez si vous voulez plus de marge.',
+        'Pré-rempli avec la plus petite flotte qui vise {target} % de chances ' +
+        'de victoire (des plus petits vaisseaux aux plus gros). Engagez plus ' +
+        'de vaisseaux pour réduire le risque et les pertes.',
       notEnough:
-        'Même toute votre flotte ne suffit pas à battre cette défense : ' +
-        'tout est engagé par défaut.',
+        'Même toute votre flotte n’atteint pas {target} % de chances de ' +
+        'victoire : tout est engagé par défaut.',
     },
     battleReport: {
       titleWon: 'Combat remporté',
       titleLost: 'Assaut repoussé',
+      titleRetreat: 'Repli de la flotte',
       power: 'Puissance engagée {committed} — défense {required}',
-      losses: 'Pertes',
+      rounds: '{n} rounds',
+      destroyed: 'Vaisseaux détruits',
+      recovered: 'Épaves récupérées',
+      losses: 'Pertes définitives',
       noLosses: 'Aucune perte.',
+      enemyLosses: 'Forces ennemies détruites',
     },
     runSummary: {
       title: 'Run terminée',
@@ -222,6 +238,12 @@ export const fr = {
     achievements: {
       title: 'Succès',
     },
+    journal: {
+      title: 'Journal de bord',
+      locked: 'Entrée verrouillée',
+      bestiary: 'Ennemis rencontrés',
+      bestiaryEmpty: 'Aucun ennemi rencontré pour l’instant.',
+    },
     quit: {
       cannotClose:
         'Le navigateur ne permet pas de fermer cet onglet automatiquement — vous pouvez le fermer vous-même.',
@@ -235,8 +257,10 @@ export const fr = {
       commander: 'Commandant',
       achievements: 'Succès',
       achievementsSub: '{done} / {total} débloqués',
+      journal: 'Journal de bord',
+      journalSub: '{done} / {total} entrées',
       options: 'Options',
-      optionsSub: 'Langue et thème',
+      optionsSub: 'Langue, thème et combats',
       mainMenu: 'Menu principal',
       mainMenuSub: 'Quitter la partie en cours',
       reset: 'Recommencer la partie',
@@ -314,7 +338,7 @@ export const fr = {
       engageCombat: {
         title: 'Engager le combat',
         body1: 'Cliquez sur « Engager » pour attaquer la planète, puis confirmez l’allocation de flotte.',
-        retry: 'Assaut repoussé — réessayez, votre flotte est toujours là.',
+        retry: 'Assaut repoussé : le hasard n’était pas avec vous. Vos chasseurs sont remplacés, réessayez.',
       },
       systemConquered: {
         title: 'Système conquis !',
@@ -361,21 +385,28 @@ export const fr = {
   },
 
   updateNotice: {
-    fifty: {
-      title: 'Fifty Update',
+    enhancedCombat: {
+      title: 'Enhanced Combat Update',
       intro: 'Quoi de neuf dans cette mise à jour :',
       bullet1:
-        'Nouvelle interface mobile : menu burger, ressources en bandeau, objectif de run toujours visible, changement d’onglet par swipe et bouton LANCER toujours sous le pouce.',
+        'Combats vivants : chaque bataille se joue round par round, avec un journal d’événements en direct (coups critiques, tirs esquivés, avaries…). Le hasard s’en mêle : les vaisseaux détruits sont perdus, leurs épaves en partie récupérées.',
       bullet2:
-        'Les débits de production s’affichent avec leurs décimales : les Archives du Sénat ne restent plus bloquées à « +1 INF/s ».',
+        'Petits contre gros : chaque vaisseau a désormais une structure et un blindage. Les petits sont peu chers mais fragiles, les gros coûtent plus cher mais encaissent. Les ennemis ont leurs flottes (l’Essaim, la garnison, la faune…) : la fenêtre d’engagement affiche leur composition et votre chance de victoire.',
       bullet3:
-        'Combats : la flotte minimale nécessaire pour vaincre la planète est pré-remplie.',
+        'Journal de bord : un prologue, le chapitre 1 « La Marée », le bestiaire, la planète-boss Nid-mère et 4 nouveaux succès de combat.',
+      bullet4:
+        'Nouvelle option « Combats » : journal animé ou résumé seulement.',
     },
   },
 
   options: {
     title: 'Options',
     theme: 'Thème',
+    combatPlayback: 'Combats',
+    playback: {
+      animated: 'Journal animé',
+      summary: 'Résumé seulement',
+    },
     themeName: {
       cyberspace: 'CyberSpace (bleu)',
       solstice: 'Solstice (ambre)',
@@ -427,6 +458,22 @@ export const fr = {
     playerLevel10: {
       name: 'Commandant aguerri',
       desc: 'Atteignez le niveau de joueur 10.',
+    },
+    firstBlood: {
+      name: 'Premier sang',
+      desc: 'Remportez une bataille.',
+    },
+    flawlessVictory: {
+      name: 'Sans une égratignure',
+      desc: 'Remportez une bataille sans aucune perte définitive.',
+    },
+    swarmCrusher: {
+      name: 'Écraseur d’Essaim',
+      desc: 'Détruisez 100 unités ennemies au total.',
+    },
+    nestSlayer: {
+      name: 'Tueur de reine',
+      desc: 'Vainquez la Nid-mère.',
     },
   },
 
@@ -508,28 +555,202 @@ export const fr = {
     },
   },
 
+  enemy: {
+    class: {
+      drone: 'Drone',
+      frigate: 'Frégate',
+      cruiser: 'Croiseur',
+      bastion: 'Bastion',
+      leviathan: 'Léviathan',
+    },
+    classPlural: {
+      drone: 'Drones',
+      frigate: 'Frégates',
+      cruiser: 'Croiseurs',
+      bastion: 'Bastions',
+      leviathan: 'Léviathans',
+    },
+    profile: {
+      swarm: {
+        name: 'L’Essaim',
+        hint: 'Des nuées d’unités légères : vos gros vaisseaux y gaspillent leurs tirs — le nombre l’emporte.',
+        intro: 'Une nuée de drones s’élève à votre approche. L’Essaim vous a repérés.',
+        victory: 'L’Essaim se disperse : la voie est libre.',
+        defeat: 'L’Essaim referme son étau sur ce qu’il reste de vos vaisseaux.',
+        retreat: 'Sous la pression de l’Essaim, vos vaisseaux rompent le contact.',
+      },
+      garrison: {
+        name: 'Forces d’occupation',
+        hint: 'Un mélange équilibré autour d’un noyau blindé : n’engagez pas que de petits vaisseaux.',
+        intro: 'Les défenses de la garnison s’activent, ses batteries se verrouillent sur votre flotte.',
+        victory: 'La garnison capitule, ses batteries se taisent.',
+        defeat: 'La garnison tient bon : votre flotte est balayée.',
+        retreat: 'La garnison est trop solide : vos vaisseaux battent en retraite.',
+      },
+      nest: {
+        name: 'La Nid-mère',
+        hint: 'Une reine colossale au cœur d’une nuée : balayez les drones avec du nombre, mais gardez du lourd pour percer sa carapace.',
+        intro: 'Le sol vibre. La Nid-mère se dresse, ses drones jaillissent de toutes parts.',
+        victory: 'La reine s’effondre : la nuée s’éteint, privée de son cœur.',
+        defeat: 'La Nid-mère engloutit votre flotte sous sa nuée.',
+        retreat: 'Sa carapace résiste à tout : vos vaisseaux rompent le contact.',
+      },
+      wilds: {
+        name: 'Faune hostile',
+        hint: 'Quelques créatures colossales et cuirassées : les petits calibres y sont inefficaces, engagez du lourd.',
+        intro: 'Des formes colossales se détachent du sol : la faune locale attaque.',
+        victory: 'Les créatures s’effondrent une à une : la planète retrouve le calme.',
+        defeat: 'Les créatures massacrent votre flotte.',
+        retreat: 'Vos armes glissent sur leur carapace : repli en urgence.',
+      },
+    },
+  },
+
+  boss: {
+    motherNest: { name: 'Nid-mère' },
+  },
+
+  story: {
+    chapter: {
+      prologue: { title: 'Prologue — Réveil' },
+      tide: { title: 'Chapitre 1 — La Marée' },
+    },
+    entry: {
+      awakening: {
+        title: 'Réveil',
+        text: 'Les caissons s’ouvrent un à un. Vous êtes le Commandant {name}, et l’arche-vaisseau qui vous a recueilli dérive au milieu de ce qui fut le Sénat galactique. Rien ne répond sur les fréquences officielles : la Rupture a tout emporté.',
+      },
+      firstFleet: {
+        title: 'Une coque de plus',
+        text: 'Un premier chasseur quitte la baie. Petit, fragile, peu coûteux : c’est ce que l’on sait encore fabriquer. Les gros bâtiments viendront, mais chaque coque perdue coûtera plus cher que la précédente.',
+      },
+      firstContact: {
+        title: 'Premier contact',
+        text: 'Les drones n’ont pas tiré en premier : ils ont encerclé. L’Essaim n’est pas une armée, c’est un réflexe — des machines abandonnées qui répètent le dernier ordre reçu : occuper. Chaque planète qu’ils tiennent est une ruche.',
+      },
+      firstFlag: {
+        title: 'Premier drapeau',
+        text: 'Une planète libre, enfin. Le Sénat n’existe plus, mais quelqu’un doit bien écrire la première ligne du nouveau registre. Vous y inscrivez votre nom.',
+      },
+      tideRises: {
+        title: 'La Marée monte',
+        text: 'La première campagne s’achève, mais la carte se redessine : là où vous avez libéré un système, l’Essaim en occupe déjà un autre. Ils reviennent comme une marée. Il faudra remonter jusqu’à la source.',
+      },
+      swarmNature: {
+        title: 'Ce que l’Essaim ne sait pas faire',
+        text: 'Après des dizaines d’épaves de drones, un constat : ils tirent vite, visent large et meurent en masse. Vos gros vaisseaux gaspillent leurs salves sur eux ; le nombre, lui, les balaie. À chaque ennemi sa réponse.',
+      },
+      motherNestSighted: {
+        title: 'La Nid-mère',
+        text: 'Les sondes convergent : toutes les nuées remontent vers un même système, où la carapace d’une reine colossale masque le ciel. Elle est protégée par ses propres drones — et par un blindage qu’aucun chasseur ne percera.',
+      },
+      nestFallen: {
+        title: 'La reine tombe',
+        text: 'La Nid-mère s’effondre et, avec elle, toutes les nuées se figent d’un coup, comme privées d’un ordre. La marée se retire. Reste une question : qui a donné l’ordre à la reine ? Dans ses entrailles, un signal chiffré — des coordonnées.',
+      },
+    },
+  },
+
+  battle: {
+    title: 'Bataille',
+    versus: '{system} — {enemy}',
+    allyBar: 'Votre flotte',
+    enemyBar: 'Ennemi',
+    round: 'Round {n}',
+    speed: 'Vitesse',
+    skip: 'Passer',
+    showLog: 'Journal du combat',
+    empty: 'Aucun événement.',
+    units: 'Unités : {n}',
+    line: {
+      dodgedAllyOne: 'Attaque évitée : un tir ennemi manque sa cible.',
+      dodgedAllyMany: 'Attaques évitées : {n} tirs ennemis manquent leur cible.',
+      dodgedEnemyOne: 'Un de vos tirs est esquivé par l’ennemi.',
+      dodgedEnemyMany: '{n} de vos tirs sont esquivés par l’ennemi.',
+      destroyedEnemyOne: 'Vaisseau ennemi détruit : {unitOne}.',
+      destroyedEnemyMany: 'Vaisseaux ennemis détruits : {n} × {unitOne}.',
+      destroyedAllyOne: 'Vaisseau perdu : {unitOne}.',
+      destroyedAllyMany: 'Vaisseaux perdus : {n} × {unitOne}.',
+      timeout: 'Le combat s’éternise : les deux flottes rompent le contact.',
+    },
+    event: {
+      criticalHit: {
+        ally: 'Coup critique ! Vos {unit} trouvent une faille (dégâts +50 % ce round).',
+        enemy: 'Coup critique ennemi : leurs {unit} percent vos lignes (dégâts +50 % ce round).',
+      },
+      barrage: {
+        ally: 'Salve groupée ! Toute votre flotte tire de concert (+25 % de dégâts).',
+        enemy: 'Salve groupée ennemie : leurs tirs convergent (+25 % de dégâts).',
+      },
+      shieldFailure: {
+        ally: 'Boucliers saturés : vos {unit} encaissent de plein fouet (+50 % de dégâts subis).',
+        enemy: 'Boucliers saturés côté ennemi : leurs {unit} sont exposés (+50 % de dégâts subis).',
+      },
+      hullBreach: {
+        ally: 'Brèche dans la coque : vos {unit} perdent 6 % de leur structure.',
+        enemy: 'Brèche dans la coque ennemie : leurs {unit} perdent 6 % de leur structure.',
+      },
+      reactorOverheat: {
+        ally: 'Réacteur en surchauffe : un de vos {unit} est perdu.',
+        enemy: 'Réacteur en surchauffe chez l’ennemi : un de leurs {unit} explose.',
+      },
+      evasiveManeuver: {
+        ally: 'Manœuvre d’évitement : vos {unit} zigzaguent (+20 points d’esquive).',
+        enemy: 'Manœuvre d’évitement ennemie : leurs {unit} sont plus difficiles à toucher.',
+      },
+      emergencyRepairs: {
+        ally: 'Réparations d’urgence : vos {unit} regagnent de la structure.',
+        enemy: 'L’ennemi répare en urgence ses {unit}.',
+      },
+      weaponsMalfunction: {
+        ally: 'Panne d’armes : vos {unit} ne tirent qu’à moitié.',
+        enemy: 'Panne d’armes ennemie : leurs {unit} ne tirent qu’à moitié.',
+      },
+      decisiveShot: {
+        ally: 'Tir décisif ! Un {unitOne} ennemi est détruit net.',
+        enemy: 'Tir décisif ennemi : un de vos {unit} est détruit net.',
+      },
+      reinforcements: {
+        enemy: 'Renforts ennemis : de nouveaux {unit} arrivent sur zone.',
+      },
+    },
+  },
+
   ship: {
     fighters: {
       name: 'Chasseurs',
+      one: 'Chasseur',
       desc: 'Rapides, jetables, efficaces en nombre.',
     },
-    cruisers: { name: 'Croiseurs', desc: 'L’ossature d’une flotte sérieuse.' },
-    dreadnoughts: { name: 'Cuirassés', desc: 'Blindage lourd, frappe lourde.' },
-    titans: { name: 'Titans', desc: 'Des forteresses mobiles.' },
+    cruisers: {
+      name: 'Croiseurs',
+      one: 'Croiseur',
+      desc: 'L’ossature d’une flotte sérieuse.',
+    },
+    dreadnoughts: {
+      name: 'Cuirassés',
+      one: 'Cuirassé',
+      desc: 'Blindage lourd, frappe lourde.',
+    },
+    titans: { name: 'Titans', one: 'Titan', desc: 'Des forteresses mobiles.' },
     motherships: {
       name: 'Vaisseaux mères',
+      one: 'Vaisseau mère',
       desc: 'Projettent la puissance d’un empire.',
     },
     worldBurners: {
       name: 'Brûleurs de mondes',
+      one: 'Brûleur de mondes',
       desc: 'Ce que leur nom promet.',
     },
     voidCrusaders: {
       name: 'Croisés du vide',
+      one: 'Croisé du vide',
       desc: 'Taillés dans la matière noire.',
     },
     realityShifters: {
       name: 'Manipulateurs de réalité',
+      one: 'Manipulateur de réalité',
       desc: 'La guerre comme acte métaphysique.',
     },
   },
@@ -720,6 +941,10 @@ export const fr = {
       name: 'Logistique allégée',
       desc: '-6 % de coût des vaisseaux par niveau (cette run seulement).',
     },
+    reinforcedHulls: {
+      name: 'Coques renforcées',
+      desc: '+10 % de PV des vaisseaux par niveau (cette run seulement).',
+    },
     energyFocus: {
       name: 'Focalisation énergétique',
       desc: '+6 % de production globale par niveau (cette run seulement).',
@@ -809,7 +1034,8 @@ export const fr = {
     systemConquered: '{name} conquis !',
     fleetTooWeak: 'Flotte trop faible (puissance requise : {required}).',
     battleLost:
-      'Assaut repoussé (défense : {required}) — des vaisseaux ont été perdus.',
+      'Assaut repoussé — des vaisseaux ont été perdus.',
+    noFleetEngaged: 'Aucun vaisseau engagé.',
     cannotEndRun: "Il faut d'abord remplir l'objectif de la run.",
     runEnded: 'Run terminée ! +{points} ✨ et la faction monte de niveau.',
     cannotAscend: 'Il faut atteindre le niveau {level} avec ta faction pour ascendre.',
@@ -818,6 +1044,8 @@ export const fr = {
     maintenanceLoss: 'Maintenance insuffisante : des vaisseaux ont été perdus.',
     unlocked: 'Nouveau : {name}',
     achievementUnlocked: 'Succès débloqué : {name}',
+    storyUnlocked: 'Journal de bord : {title}',
+    storyUnlockedMany: 'Journal de bord : {n} nouvelles entrées',
     systemLocked: 'Niveau {level} requis pour accéder à ce système.',
     levelUp: 'Niveau {level} atteint !',
     planetConquered: 'Planète conquise !',

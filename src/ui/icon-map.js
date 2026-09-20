@@ -47,6 +47,7 @@ const RUN_SKILL_ICON = {
   scavengerProtocols: 'metal',
   rapidFire: 'bolt',
   fieldRepairs: 'fleet',
+  reinforcedHulls: 'fleet',
   streamlinedLogistics: 'fleet',
   energyFocus: 'energy',
 };

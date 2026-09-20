@@ -146,6 +146,7 @@ function neutralMultipliers() {
     production: 1,
     click: 1,
     fleet: 1,
+    fleetDurability: 1, // PV seuls (l'attaque reste sur `fleet`), voir combat.js
     shipCost: 1,
     fleetMaintenance: 1,
     resourceProduction: {}, // { resourceId: mult }
@@ -170,6 +171,9 @@ export function applyLeveledEffect(out, effect, level) {
       break;
     case 'fleetMultiplier':
       out.fleet *= 1 + effect.perLevel * level;
+      break;
+    case 'fleetDurability':
+      out.fleetDurability *= 1 + effect.perLevel * level;
       break;
     case 'shipCost':
       out.shipCost *= Math.max(0.05, 1 - effect.perLevel * level);

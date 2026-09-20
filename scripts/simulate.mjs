@@ -19,8 +19,10 @@
 //    nettement (bonus de faction + arbre commun qui s'accumulent).
 //  - Atteindre la première vraie Ascension (niveau de faction seuil,
 //    CONFIG.ascension.factionLevelThreshold) reste actuellement de l'ordre
-//    de 20-30 minutes de jeu optimisé cumulées (rythme généreux — pas des
+//    de 30 minutes de jeu optimisé cumulées (rythme généreux — pas des
 //    dizaines d'heures, voir Rapport 3 ; resserrable plus tard si souhaité).
+//    Combat vivant : 27 min 40 avant, 30 min 03 après recalibrage de
+//    `EXPLORATION.baseDefense` (data/systems.js) — à garder à ±10 %.
 
 import { Engine } from '../src/game/engine.js';
 import {
@@ -32,6 +34,8 @@ import {
   canAfford,
 } from '../src/game/economy.js';
 import { canEndRun } from '../src/game/prestige.js';
+import { safeAllocation } from '../src/game/battle.js';
+import { enemyFleetForPlanet } from '../src/game/enemy-fleet.js';
 import { GENERATORS } from '../src/data/generators.js';
 import { SHIPS } from '../src/data/fleet.js';
 import { TECHNOLOGIES } from '../src/data/technologies.js';
@@ -43,6 +47,7 @@ const CLICK_RATE = 3; // clics/s, joueur engagé
 const TIME_CAP_S = 8 * 3600; // 8h de jeu simulé par run, garde-fou
 const MAX_ITERATIONS = 200_000;
 const GEN_BY_ID = Object.fromEntries(GENERATORS.map((g) => [g.id, g]));
+let battleSeed = 0; // graine des batailles simulées (reproductible)
 
 function fmtTime(s) {
   s = Math.round(s);
@@ -110,12 +115,18 @@ function burstBuy(engine, choice) {
  * (niveau de joueur suffisant) et non encore Conquis : ouvre leur sous-menu
  * (résout gratuitement les planètes uninhabited/gas), puis engage toute la
  * flotte possédée sur chaque planète invaded/hostile restante dont la
- * défense est déjà à portée (`engine.fleetPower >= planet.defenseRating`) —
- * comme l'ancien `resolveFreeNodes` : avec des pertes de combat réelles
- * depuis « combat réel », attaquer une planète hors de portée avec une
- * flotte encore chétive ne ferait que la détruire en boucle sans jamais la
- * laisser grossir, au lieu d'attendre organiquement qu'elle soit assez
- * forte (stratégie qu'un joueur réel adopterait spontanément). */
+ * défense est déjà à portée — comme l'ancien `resolveFreeNodes` : attaquer
+ * une planète hors de portée avec une flotte encore chétive ne ferait que la
+ * détruire en boucle sans jamais la laisser grossir, au lieu d'attendre
+ * organiquement qu'elle soit assez forte (stratégie qu'un joueur réel
+ * adopterait spontanément).
+ *
+ * « À portée » = ce que propose la fenêtre d'engagement du jeu (combat
+ * vivant) : `safeAllocation`, la plus petite flotte qui vise
+ * `CONFIG.combat.winChanceTarget` de chances de victoire. Le joueur simulé
+ * l'accepte telle quelle (comme le pré-remplissage) et n'attaque pas tant
+ * que même toute sa flotte n'atteint pas la cible. La bataille est tirée avec
+ * une graine dérivée de l'itération : la simulation reste reproductible. */
 function resolveExploration(engine) {
   if (!engine.hasFleet()) return;
   let progressed = true;
@@ -139,8 +150,11 @@ function resolveExploration(engine) {
       for (const planet of system.planets) {
         if (planet.conquered) continue;
         if (planet.type !== 'invaded' && planet.type !== 'hostile') continue;
-        if (engine.fleetPower < planet.defenseRating) continue;
-        if (engine.resolvePlanetCombat(planet.id)) progressed = true;
+        const enemy = enemyFleetForPlanet(system, planet);
+        const { allocation, sufficient } = safeAllocation(engine.state, enemy);
+        if (!sufficient) continue;
+        if (engine.resolvePlanetCombat(planet.id, allocation, { seed: ++battleSeed }))
+          progressed = true;
       }
       if (progressed) break; // l'état a changé (niveau, systèmes visibles…)
     }

@@ -4,12 +4,25 @@
 //
 // Coût du n-ième vaisseau : chaque ressource du coût est multipliée par
 // CONFIG.shipCostGrowth ** count.
+//
+// Combat vivant (voir game/battle.js) :
+//  - `hp` : points de structure d'UN vaisseau, = attaque × (3,2 + 0,12 × taille)
+//    (règle testée, voir CONFIG.combat) : un petit vaisseau est peu cher et
+//    fragile, un gros est cher et solide — mais à puissance égale, la même
+//    quantité de PV « effectifs » (l'esquive des petits compense).
+//  - `armorTier` (0-7) : taille du vaisseau. Il sert de calibre au tireur, de
+//    blindage à la cible et fixe l'esquive : un petit calibre touche mal un
+//    gros blindage, un gros tir gaspille une partie de sa puissance sur une
+//    petite cible. Exprimé en palier (pas en valeur absolue) pour rester
+//    insensible aux multiplicateurs de flotte.
 
 export const SHIPS = [
   {
     id: 'fighters',
     cost: { energy: 200, metal: 100 },
     attack: 2,
+    armorTier: 0,
+    hp: 6,
     maintenance: 1,
     tier: 1,
   },
@@ -17,6 +30,8 @@ export const SHIPS = [
     id: 'cruisers',
     cost: { energy: 1000, metal: 500, crystals: 60 },
     attack: 6,
+    armorTier: 1,
+    hp: 20,
     maintenance: 3,
     tier: 1,
     unlock: { resource: 'crystals', total: 40 },
@@ -25,6 +40,8 @@ export const SHIPS = [
     id: 'dreadnoughts',
     cost: { energy: 4000, metal: 2000, crystals: 250, antimatter: 12 },
     attack: 25,
+    armorTier: 2,
+    hp: 86,
     maintenance: 10,
     tier: 2,
     unlock: { resource: 'antimatter', total: 10 },
@@ -33,6 +50,8 @@ export const SHIPS = [
     id: 'titans',
     cost: { energy: 15000, metal: 7500, crystals: 1200, antimatter: 60 },
     attack: 110,
+    armorTier: 3,
+    hp: 392,
     maintenance: 25,
     tier: 2,
     unlock: { resource: 'antimatter', total: 80 },
@@ -47,6 +66,8 @@ export const SHIPS = [
       influence: 12,
     },
     attack: 550,
+    armorTier: 4,
+    hp: 2024,
     maintenance: 55,
     tier: 3,
     unlock: { resource: 'influence', total: 20 },
@@ -61,6 +82,8 @@ export const SHIPS = [
       darkMatter: 6,
     },
     attack: 2800,
+    armorTier: 5,
+    hp: 10_640,
     maintenance: 110,
     tier: 4,
     unlock: { resource: 'darkMatter', total: 3 },
@@ -76,6 +99,8 @@ export const SHIPS = [
       quantumEnergy: 2,
     },
     attack: 11_000,
+    armorTier: 6,
+    hp: 43_120,
     maintenance: 220,
     tier: 4,
     unlock: { resource: 'quantumEnergy', total: 5 },
@@ -91,6 +116,8 @@ export const SHIPS = [
       quantumEnergy: 12,
     },
     attack: 55_000,
+    armorTier: 7,
+    hp: 222_200,
     maintenance: 550,
     tier: 4,
     unlock: { resource: 'quantumEnergy', total: 30 },

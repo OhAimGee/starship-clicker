@@ -4,12 +4,13 @@
 // tout le monde, y compris ceux ayant déjà vu la précédente.
 
 export const CURRENT_UPDATE = {
-  id: 'fifty',
-  titleKey: 'updateNotice.fifty.title',
-  introKey: 'updateNotice.fifty.intro',
+  id: 'enhancedCombat',
+  titleKey: 'updateNotice.enhancedCombat.title',
+  introKey: 'updateNotice.enhancedCombat.intro',
   bulletKeys: [
-    'updateNotice.fifty.bullet1',
-    'updateNotice.fifty.bullet2',
-    'updateNotice.fifty.bullet3',
+    'updateNotice.enhancedCombat.bullet1',
+    'updateNotice.enhancedCombat.bullet2',
+    'updateNotice.enhancedCombat.bullet3',
+    'updateNotice.enhancedCombat.bullet4',
   ],
 };

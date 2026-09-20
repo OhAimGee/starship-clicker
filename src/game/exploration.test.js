@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { createInitialState } from './initial-state.js';
 import { startRun } from './run.js';
 import { SHIP_BY_ID } from '../data/fleet.js';
+import { FACTION_IDS } from '../data/factions.js';
+import { enemyFleetForPlanet, enemyProfileId } from './enemy-fleet.js';
+import { allyFleetFromAllocation, estimateWinChance } from './battle.js';
 import {
   initExploration,
   ensureSystemsUpTo,
@@ -129,6 +132,66 @@ describe('système 0 (hypothèse du tutoriel guidé, voir ui/tutorial.js)', () =
     expect(system0.planets[1].phasesTotal).toBe(1);
     expect(system0.planets[1].defenseRating).toBeLessThanOrEqual(
       SHIP_BY_ID.fighters.attack * 2
+    );
+  });
+
+  // Combat vivant : la bataille est aléatoire, « puissance ≥ défense » ne
+  // suffit plus. Le premier combat du tutoriel (2 Chasseurs, seule flotte
+  // qu'il fait acheter) doit rester une victoire quasi certaine, pour toutes
+  // les factions. Estimation à graines fixes : le test est déterministe.
+  it('le combat du tutoriel se gagne (≥ 93 % de chances) avec 2 Chasseurs, quelle que soit la faction', () => {
+    for (const factionId of FACTION_IDS) {
+      const s = createInitialState();
+      startRun(s, factionId);
+      initExploration(s);
+      s.ships.fighters.count = 2;
+      const system0 = s.run.exploration.systems[0];
+      const chance = estimateWinChance(
+        allyFleetFromAllocation(s, { fighters: 2 }),
+        enemyFleetForPlanet(system0, system0.planets[1]),
+        { runs: 1000 }
+      );
+      expect(chance, factionId).toBeGreaterThanOrEqual(0.93);
+    }
+  });
+
+  it('le système 0 est tenu par l’Essaim (le tutoriel s’appuie sur ses lignes de journal)', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    initExploration(s);
+    const system0 = s.run.exploration.systems[0];
+    expect(enemyProfileId(system0, system0.planets[1])).toBe('swarm');
+  });
+});
+
+describe('planètes-boss (data/systems.js#BOSS_PLANETS)', () => {
+  it('la Nid-mère est ajoutée APRÈS les planètes procédurales du système 4', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    ensureSystemsUpTo(s, 6);
+    const system = s.run.exploration.systems[4];
+    const last = system.planets[system.planets.length - 1];
+    expect(last.boss).toBe('motherNest');
+    expect(last.type).toBe('invaded');
+    expect(last.phasesTotal).toBe(2);
+    expect(last.id).toBe('4-motherNest');
+    expect(last.defenseRating).toBeGreaterThan(0);
+    // aucun autre système n'a de boss
+    const bosses = s.run.exploration.systems.flatMap((sys) =>
+      sys.planets.filter((p) => p.boss)
+    );
+    expect(bosses).toHaveLength(1);
+  });
+
+  it('ne décale pas le tirage seedé : les autres planètes du système 4 sont inchangées', () => {
+    const s = createInitialState();
+    startRun(s, 'miningCollective');
+    ensureSystemsUpTo(s, 6);
+    const system = s.run.exploration.systems[4];
+    const procedural = system.planets.filter((p) => !p.boss);
+    // Les ids `4-0`, `4-1`… sont ceux du tirage seedé, sans trou.
+    expect(procedural.map((p) => p.id)).toEqual(
+      procedural.map((_, i) => `4-${i}`)
     );
   });
 });

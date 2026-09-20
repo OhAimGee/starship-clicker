@@ -35,7 +35,9 @@ import {
   gain,
 } from './economy.js';
 import { initExploration, ensureVisibleSystems } from './exploration.js';
-import { resolveBattle } from './combat.js';
+import { committedFleetPower } from './combat.js';
+import { simulateBattle, allyFleetFromAllocation } from './battle.js';
+import { enemyFleetForPlanet, enemyProfileId } from './enemy-fleet.js';
 import { planetLoot, planetBuff, systemBuff } from './systems-map.js';
 import { grantXp } from './leveling.js';
 import {
@@ -55,16 +57,34 @@ import {
 } from './run.js';
 import { tickEvents } from './events.js';
 import { computeOfflineGains } from './offline.js';
+import { STORY_ENTRIES } from '../data/story.js';
 
-/** Flotte entière possédée, sous la forme attendue par `resolveBattle` —
- * l'allocation par défaut quand l'appelant n'en fournit pas (comportement
- * historique : engager toute la flotte). */
+/** Flotte entière possédée, sous la forme d'une allocation `{ shipId:
+ * nombre }` — l'allocation par défaut quand l'appelant n'en fournit pas
+ * (comportement historique : engager toute la flotte). */
 function fullFleetAllocation(state) {
   const out = {};
   for (const [id, s] of Object.entries(state.ships)) {
     if (s.count > 0) out[id] = s.count;
   }
   return out;
+}
+
+/** Allocation bornée à ce qui est réellement possédé (entiers ≥ 1). */
+function clampAllocation(state, allocation) {
+  const out = {};
+  for (const [id, n] of Object.entries(allocation)) {
+    const owned = state.ships[id]?.count ?? 0;
+    const count = Math.min(owned, Math.floor(Number(n) || 0));
+    if (count > 0) out[id] = count;
+  }
+  return out;
+}
+
+/** Graine d'une bataille : une par engagement (le résultat est appliqué
+ * tout de suite ; la graine ne sert qu'à rejouer le journal à l'identique). */
+function newBattleSeed() {
+  return Math.floor(Math.random() * 0x100000000) >>> 0;
 }
 
 function applyLosses(state, losses) {
@@ -198,6 +218,7 @@ export class Engine {
 
     this._scanUnlocks();
     this._scanAchievements();
+    this._scanStory();
   }
 
   _applyAttrition(seconds) {
@@ -243,6 +264,16 @@ export class Engine {
    * imposer de grind ; jamais utilisé par le jeu normal). */
   grantResources(map) {
     gain(this.state, map);
+    this._afterChange();
+  }
+
+  /** Octroi direct de vaisseaux — réservé au tutoriel (remplace les
+   * chasseurs scriptés perdus lors d'un revers au premier combat, désormais
+   * possible : la bataille est aléatoire). Jamais utilisé par le jeu normal. */
+  grantShips(map) {
+    for (const [id, n] of Object.entries(map)) {
+      if (this.state.ships[id]) this.state.ships[id].count += n;
+    }
     this._afterChange();
   }
 
@@ -449,10 +480,13 @@ export class Engine {
   /** Résout une phase de combat sur la planète `planetId` (`invaded`/
    * `hostile`) du système actif. `allocation` (optionnelle, `{ shipId:
    * nombre engagé }`) — à défaut, toute la flotte possédée est engagée
-   * (voir `src/ui/fleet-allocation.js`). Chaque victoire donne de l'XP et
-   * un point de compétence de run ; toutes les phases gagnées conquièrent
-   * la planète et versent sa récompense. */
-  resolvePlanetCombat(planetId, allocation) {
+   * (voir `src/ui/fleet-allocation.js`). La bataille est simulée d'un coup
+   * (voir `battle.js`, graine `seed` ou tirée au hasard) et son résultat
+   * appliqué tout de suite ; l'événement `battle-resolved` porte le journal
+   * que l'interface rejoue. Chaque victoire donne de l'XP et un point de
+   * compétence de run ; toutes les phases gagnées conquièrent la planète et
+   * versent sa récompense. */
+  resolvePlanetCombat(planetId, allocation, { seed } = {}) {
     const system = this.activeSystem();
     if (!system) return false;
     const planet = system.planets.find((p) => p.id === planetId);
@@ -470,19 +504,44 @@ export class Engine {
       return false;
     }
 
-    const engaged = allocation ?? fullFleetAllocation(this.state);
-    const battle = resolveBattle(this.state, engaged, planet.defenseRating);
+    const engaged = clampAllocation(
+      this.state,
+      allocation ?? fullFleetAllocation(this.state)
+    );
+    const allyFleet = allyFleetFromAllocation(this.state, engaged);
+    if (allyFleet.length === 0) {
+      this._notify('notify.noFleetEngaged', {}, 'error');
+      return false;
+    }
+
+    const committedPower = committedFleetPower(this.state, engaged);
+    const battle = simulateBattle(
+      allyFleet,
+      enemyFleetForPlanet(system, planet),
+      {
+        seed: seed ?? newBattleSeed(),
+        profileId: enemyProfileId(system, planet),
+      }
+    );
     applyLosses(this.state, battle.losses);
+    this._recordBattle(battle);
 
     const entry = {
       planetId,
       systemName: system.name,
       planetType: planet.type,
       victory: battle.victory,
-      committedPower: battle.committedPower,
+      outcome: battle.outcome,
+      committedPower,
       defenseRating: planet.defenseRating,
       losses: battle.losses,
+      destroyed: battle.destroyed,
+      recovered: battle.recovered,
       rewards: null,
+      profileId: battle.profileId,
+      seed: battle.seed,
+      phase: planet.phasesWon + 1,
+      phasesTotal: planet.phasesTotal,
     };
 
     if (battle.victory) {
@@ -491,14 +550,13 @@ export class Engine {
       this.state.run.skillPoints += 1;
       if (planet.phasesWon >= planet.phasesTotal) {
         planet.conquered = true;
+        if (planet.boss) this.state.story.defeated[planet.boss] = true;
         this._grantXp(CONFIG.player.xpPerPlanet);
         if (planet.type === 'invaded') {
-          const loot = planetLoot(system);
+          const loot = planetLoot(system, planet);
           gain(this.state, loot);
           entry.rewards = loot;
-        } else if (
-          techMultipliers(this.state).unlockHostileColonization
-        ) {
+        } else if (techMultipliers(this.state).unlockHostileColonization) {
           const buff = planetBuff(system.topResource, 'hostile');
           if (buff) this.state.run.buffs.push(buff);
         }
@@ -506,11 +564,13 @@ export class Engine {
       }
     }
 
+    // Le journal complet (rounds) n'est PAS sauvegardé : `combatLog` ne garde
+    // que le résumé ; l'événement, lui, porte la bataille pour l'interface.
     this.state.run.combatLog = [entry, ...this.state.run.combatLog].slice(
       0,
       20
     );
-    this._emit('battle-resolved', entry);
+    this._emit('battle-resolved', { ...entry, battle });
 
     if (!battle.victory) {
       this._notify(
@@ -534,7 +594,8 @@ export class Engine {
   /** Ajoute de l'XP de joueur, notifie un passage de niveau. */
   _grantXp(amount) {
     const { leveledUp, newLevel } = grantXp(this.state, amount);
-    if (leveledUp) this._notify('notify.levelUp', { level: newLevel }, 'success');
+    if (leveledUp)
+      this._notify('notify.levelUp', { level: newLevel }, 'success');
   }
 
   /** Système entièrement Conquis (toutes ses planètes) : récompense
@@ -623,7 +684,11 @@ export class Engine {
    * (`run.objectiveAnnounced`, réinitialisé par `startRun()`). */
   _afterChange() {
     const s = this.state;
-    if (s.run.objective && !s.run.objectiveAnnounced && isObjectiveComplete(s)) {
+    if (
+      s.run.objective &&
+      !s.run.objectiveAnnounced &&
+      isObjectiveComplete(s)
+    ) {
       s.run.objectiveAnnounced = true;
       this._notify('notify.objectiveComplete', {}, 'success');
       this._emit('objective-complete', {});
@@ -668,6 +733,44 @@ export class Engine {
         this._emit('achievement', { id: def.id });
       }
     }
+  }
+
+  /** Compteurs à vie et bestiaire (voir `state.combatStats` / `state.story`). */
+  _recordBattle(battle) {
+    const stats = this.state.combatStats;
+    stats.battles += 1;
+    if (battle.victory) {
+      stats.victories += 1;
+      // « Aucune perte » du rapport : les épaves récupérées ne comptent pas.
+      if (Object.keys(battle.losses).length === 0) stats.flawless += 1;
+    }
+    for (const n of Object.values(battle.enemyLosses)) {
+      stats.enemiesDestroyed += n;
+    }
+    this.state.story.bestiary[battle.profileId] = true;
+  }
+
+  /** Journal de bord (voir data/story.js) : même principe que
+   * `_scanAchievements` — le verrou `state.story.entries[id]` est persistant,
+   * on ne revérifie que les entrées encore cachées. Plusieurs entrées d'un
+   * coup (ancienne sauvegarde qui rattrape son retard) : une seule
+   * notification, pour ne pas noyer l'écran. */
+  _scanStory() {
+    const revealed = [];
+    for (const def of STORY_ENTRIES) {
+      if (this.state.story.entries[def.id]) continue;
+      if (def.check(this.state)) {
+        this.state.story.entries[def.id] = true;
+        revealed.push(def.id);
+      }
+    }
+    if (revealed.length === 0) return;
+    if (revealed.length === 1) {
+      this._notify('notify.storyUnlocked', { id: revealed[0] }, 'info');
+    } else {
+      this._notify('notify.storyUnlockedMany', { n: revealed.length }, 'info');
+    }
+    this._emit('story', { ids: revealed });
   }
 }
 

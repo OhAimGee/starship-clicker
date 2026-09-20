@@ -1052,6 +1052,10 @@ h3 {
   display: flex;
   flex-direction: column;
 }
+/* Options : une dernière cellule seule occupe toute la ligne (pas de case vide). */
+.options-grid > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
 .stat-grid span,
 .stat-grid dt {
   font-family: var(--face-display);
@@ -1381,9 +1385,226 @@ h3 {
   color: var(--signal);
   font-family: var(--face-display);
 }
+.battle-report-list[data-tone='good'] li {
+  color: var(--go);
+}
+.battle-note {
+  margin: 0;
+  color: var(--ink-dim);
+}
 .foot-stats {
   padding: 0;
   margin: 0;
+}
+.battle-outcome {
+  margin: 0;
+  font-family: var(--face-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+.battle-outcome[data-outcome='victory'] {
+  color: var(--go);
+}
+.battle-outcome[data-outcome='defeat'],
+.battle-outcome[data-outcome='timeout'] {
+  color: var(--signal);
+}
+.battle-outcome[data-outcome='retreat'] {
+  color: var(--lamp);
+}
+
+/* ── Fenêtre de bataille (journal animé) ──────────────────────────────────── */
+
+/* L'attribut `hidden` doit primer sur les `display` posés ci-dessous. */
+.board-modal [hidden] {
+  display: none !important;
+}
+.battle-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.battle-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.battle-bar-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--face-display);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.battle-bar-head b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.battle-bar-track {
+  height: 0.7rem;
+  background: var(--face-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.battle-bar-fill {
+  height: 100%;
+  transition: width 0.45s ease-out;
+}
+.battle-bar[data-side='ally'] .battle-bar-fill {
+  background: var(--go);
+  box-shadow: var(--glow-go);
+}
+.battle-bar[data-side='enemy'] .battle-bar-fill {
+  background: var(--signal);
+  box-shadow: var(--glow-signal);
+}
+.battle-bar-comp {
+  margin: 0;
+  font-size: var(--fs-label);
+  color: var(--ink-faint);
+}
+.battle-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.battle-round {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--face-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+/* Cibles tactiles confortables au pouce (Vitesse / Passer). */
+.battle-controls .btn {
+  min-height: 2.75rem;
+  padding-inline: 0.9rem;
+}
+.battle-log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+  min-height: 6rem;
+  max-height: 15rem;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--rule);
+}
+.battle-line {
+  padding: 0.2rem 0 0.2rem 0.6rem;
+  border-left: 3px solid var(--tone, var(--rule-strong));
+  color: var(--ink);
+  line-height: 1.25;
+  animation: battle-line-in 0.28s ease-out;
+}
+.battle-line[data-tone='good'] {
+  --tone: var(--go);
+}
+.battle-line[data-tone='bad'] {
+  --tone: var(--signal);
+}
+.battle-line[data-tone='neutral'] {
+  --tone: var(--focus);
+  color: var(--ink-dim);
+}
+.battle-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+@keyframes battle-line-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Journal de bord ───────────────────────────────────────────────────────── */
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.6rem 0 0.2rem;
+  list-style: none;
+}
+.journal-entry[data-state='open'] {
+  padding: 0.1rem 0 0.1rem 0.75rem;
+  border-left: 3px solid var(--steel-1);
+}
+.journal-entry[data-state='locked'] {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink-faint);
+}
+.journal-entry-title {
+  margin: 0;
+  font-family: var(--face-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+.journal-entry-text {
+  margin: 0.25rem 0 0;
+  color: var(--ink-dim);
+  line-height: 1.4;
+}
+
+/* ── Allocation de flotte : ennemi, chance de victoire ────────────────────── */
+
+.allocation-enemy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.55rem var(--pad);
+  border: 1px solid var(--rule-strong);
+  background: rgba(0, 0, 0, 0.3);
+}
+.allocation-enemy-name {
+  margin: 0;
+  font-family: var(--face-display);
+  font-weight: 700;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+.allocation-enemy-comp {
+  margin: 0;
+  color: var(--ink-dim);
+}
+/* Annuler / Engager restent à portée de pouce quand la liste défile. */
+.allocation-actions {
+  position: sticky;
+  bottom: 0;
+  padding: 0.6rem 0;
+  background: var(--face);
+  border-top: 1px solid var(--rule);
+}
+.allocation-chance[data-band='high'] {
+  color: var(--go);
+}
+.allocation-chance[data-band='mid'] {
+  color: var(--focus);
+}
+.allocation-chance[data-band='low'] {
+  color: var(--signal);
 }
 
 /* ── Passerelle : coquille mobile ─────────────────────────────────────────
@@ -2228,6 +2449,9 @@ h3 {
     animation: none;
   }
   .tutorial-ring {
+    animation: none;
+  }
+  .battle-line {
     animation: none;
   }
   * {

@@ -152,6 +152,33 @@ export const EXPLORATION = {
     antimatter: Math.ceil((i + 1) / 2),
     influence: Math.ceil((i + 1) / 2),
   }),
-  baseDefense: (i) => (i + 1) * 12,
-  advancedBaseDefense: (i) => (i + 1) * 22,
+  // Défense de base d'un système (budget de puissance ennemie, voir
+  // game/enemy-fleet.js). Calibrée avec le combat vivant : pour battre une
+  // planète avec une bonne marge de victoire (`CONFIG.combat.winChanceTarget`)
+  // il faut ~30 % de puissance de plus que le budget ennemi — d'où un
+  // coefficient ~20 % plus bas qu'avant pour garder le même rythme de run
+  // (vérifié avec `npm run simulate`, ±10 % de l'ancien combat).
+  baseDefense: (i) => (i + 1) * 9.4,
+  advancedBaseDefense: (i) => (i + 1) * 17,
 };
+
+// Planètes-boss : une planète unique, écrite à la main, ajoutée à un système
+// précis APRÈS les planètes procédurales (le tirage seedé de
+// `game/systems-map.js#generatePlanets` n'est donc pas décalé). Elle fait
+// partie du système : il n'est conquis qu'une fois le boss vaincu.
+//  - `profile`        : profil de faction ennemie (data/enemies.js) ;
+//  - `defenseShare`   : budget de défense, en part de celui du système ;
+//  - `lootMultiplier` : butin, en multiple du butin d'une planète `invaded`.
+// Texte : i18n `boss.<id>.name`.
+export const BOSS_PLANETS = [
+  {
+    id: 'motherNest',
+    systemIndex: 4,
+    profile: 'nest',
+    phasesTotal: 2,
+    defenseShare: 0.35,
+    lootMultiplier: 3,
+  },
+];
+
+export const BOSS_BY_ID = Object.fromEntries(BOSS_PLANETS.map((b) => [b.id, b]));

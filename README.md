@@ -37,14 +37,14 @@ chapitre du fil rouge (une histoire par chapitres, débloqués par des jalons de
 jeu : systèmes conquis, runs terminées, Ascensions). Détail, règles de cadrage
 et chiffres indicatifs dans [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-| MAJ | Titre de travail | Axe principal                | Contenu clé                                                                                              | État        |
-| --- | ---------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
-| 1   | Combat vivant    | Exploration & combat         | PV et blindage des vaisseaux, flottes ennemies, combat simulé avec journal d'événements, Journal de bord | 🚧 en cours |
-| 2   | Grands Chantiers | Production & économie        | Mégastructures, décrets du Sénat, +6 générateurs, +4 technologies, Sentinelles                           | prévu       |
-| 3   | Frontières       | Exploration (monde) & combat | Nouveaux systèmes et planètes, raids et garnison, rôles de vaisseaux, événements à choix                 | prévu       |
-| 4   | Héritages        | Prestige & rejouabilité      | Mutateurs de run, 2 nouvelles factions, arbres structurés, succès à récompenses, statistiques            | prévu       |
-| 5   | Le Chant sombre  | Fin de partie                | Ressource « Singularités », générateurs T6, systèmes « Abysses », les Éveillés                           | prévu       |
-| 6   | L'Adversaire     | Narration & clôture          | Boss multi-phases, fins multiples, cycle infini                                                          | prévu       |
+| MAJ | Titre de travail                    | Axe principal                | Contenu clé                                                                                              | État     |
+| --- | ----------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------- | -------- |
+| 1   | Combat vivant (« Enhanced Combat ») | Exploration & combat         | PV et blindage des vaisseaux, flottes ennemies, combat simulé avec journal d'événements, Journal de bord | ✅ livrée |
+| 2   | Grands Chantiers                    | Production & économie        | Mégastructures, décrets du Sénat, +6 générateurs, +4 technologies, Sentinelles                           | prévu    |
+| 3   | Frontières                          | Exploration (monde) & combat | Nouveaux systèmes et planètes, raids et garnison, rôles de vaisseaux, événements à choix                 | prévu    |
+| 4   | Héritages                           | Prestige & rejouabilité      | Mutateurs de run, 2 nouvelles factions, arbres structurés, succès à récompenses, statistiques            | prévu    |
+| 5   | Le Chant sombre                     | Fin de partie                | Ressource « Singularités », générateurs T6, systèmes « Abysses », les Éveillés                           | prévu    |
+| 6   | L'Adversaire                        | Narration & clôture          | Boss multi-phases, fins multiples, cycle infini                                                          | prévu    |
 
 **Chantier phare — « Combat vivant »** : les combats cessent d'être instantanés.
 Chaque vaisseau a des PV et un blindage (petits vaisseaux : peu chers mais
@@ -75,12 +75,13 @@ index.html            coquille HTML (point d'entrée Vite)
 src/
   main.js             bootstrap : charge la sauvegarde, calcule le hors-ligne, monte l'UI
   data/               définitions du jeu (ressources, générateurs, flotte, technos, systèmes,
-                       événements, config, factions, objectifs, types de nœuds)
+                       événements, config, factions, objectifs, ennemis, événements de
+                       combat, Journal de bord)
   game/               moteur pur + orchestrateur (economy, engine, save, offline, prestige,
-                       run, exploration, nodemap, events)
+                       run, exploration, events, battle : simulation de combat seedée)
   i18n/               t(key), fr + en (parité de clés testée)
-  ui/                 interface data-driven (app, panels, flap, icons, board-row, node-map,
-                       faction-select, styles)
+  ui/                 interface data-driven (app, panels, flap, icons, board-row, battle-log,
+                       journal-screen, faction-select, styles)
 public/               favicon, manifeste PWA, service worker, icônes
 scripts/               outillage (simulate.mjs : simulation d'équilibrage headless)
 docs/ROADMAP.md      feuille de route de contenu (mises à jour prévues)
@@ -88,7 +89,7 @@ docs/archive/         anciens rapports de développement
 .github/workflows/    déploiement GitHub Pages
 ```
 
-107 tests (`npm test`), lint (`npm run lint`).
+Plus de 230 tests (`npm test`), lint (`npm run lint`).
 
 ## Sauvegarde
 

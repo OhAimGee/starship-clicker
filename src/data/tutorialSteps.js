@@ -42,6 +42,16 @@ function ensureFleetSurvives(engine) {
   if (have < need) engine.grantResources({ energy: need - have });
 }
 
+// Le combat est aléatoire : le premier assaut (2 chasseurs, ≈ 95 % de chances
+// de victoire) peut échouer et coûter les chasseurs. Le tutoriel les remplace
+// pour ne jamais laisser le joueur bloqué sans flotte.
+const TUTORIAL_FIGHTERS = 2;
+function ensureTutorialFleet(engine) {
+  ensureFleetSurvives(engine);
+  const missing = TUTORIAL_FIGHTERS - (engine.state.ships.fighters?.count ?? 0);
+  if (missing > 0) engine.grantShips({ fighters: missing });
+}
+
 export const TUTORIAL_STEPS = [
   {
     id: 'intro',
@@ -145,7 +155,7 @@ export const TUTORIAL_STEPS = [
     bodyKeys: ['tutorial.steps.engageCombat.body1'],
     retryTextKey: 'tutorial.steps.engageCombat.retry',
     advance: 'wait',
-    topUp: ensureFleetSurvives,
+    topUp: ensureTutorialFleet,
     waitFor: {
       engineEvent: 'battle-resolved',
       check: (engine, payload) => payload.victory === true,

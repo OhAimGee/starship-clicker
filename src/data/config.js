@@ -61,19 +61,51 @@ export const CONFIG = {
     resourceObjectivePerLevel: 200,
   },
 
-  // Combat réel (voir game/combat.js) : allocation de flotte par type de
-  // vaisseau avant un nœud invade/conquest, pertes déterministes (aucun
-  // hasard) selon le ratio marge/puissance. Une victoire de justesse coûte
-  // presque autant que `winLossMax` ; une victoire écrasante retombe au
-  // plancher `winLossMin`. Un échec suit la même logique mais avec des
-  // bornes plus punitives (`loseLossMin`/`loseLossMax`), et n'est jamais
-  // sans conséquence même à très faible engagement.
+  // Combat vivant (voir game/battle.js) : bataille simulée round par round,
+  // graine aléatoire par engagement. Chaque vaisseau (et chaque unité
+  // ennemie) a une taille `armorTier` (0-7) qui fixe son calibre, son
+  // blindage et son esquive.
   combat: {
-    winLossMin: 0.05, // pertes minimales même en écrasante victoire
-    winLossMax: 0.25, // pertes maximales pour une victoire de justesse
-    loseLossMin: 0.2, // pertes minimales d'un assaut raté
-    loseLossMax: 0.5, // pertes maximales d'un assaut très mal engagé
-    minLossThreshold: 0.03, // au-delà, au moins 1 perte par type engagé
+    maxRounds: 40, // au-delà, le camp le moins entamé l'emporte
+    // PV = attaque × (hpRatioBase + hpRatioPerTier × taille) : règle des
+    // vaisseaux de `data/fleet.js` (testée) ET des ennemis. Elle compense
+    // l'esquive : PV / (1 − esquive) est quasi constant d'une taille à l'autre,
+    // donc à puissance égale aucune taille n'est meilleure « en soi » — seuls
+    // les rapports de taille entre les deux camps comptent (voir docs/ROADMAP.md,
+    // loi de Lanchester).
+    hpRatioBase: 3.2,
+    hpRatioPerTier: 0.12,
+    // Esquive d'une cible = base − perTier × taille (plancher `evasionMin`).
+    evasionBase: 0.2,
+    evasionPerTier: 0.03,
+    evasionMin: 0.02,
+    // Efficacité d'un tir = 1 − penalty × (blindage cible − calibre tireur),
+    // bornée à [minEfficiency, 1] : un petit calibre touche mal un gros blindage.
+    armorPenaltyPerTier: 0.1,
+    minEfficiency: 0.5,
+    // Dégâts en trop d'un tir (au-delà des PV d'UN vaisseau) : cette fraction
+    // se répercute sur les vaisseaux voisins, le reste est gaspillé — un gros
+    // tir perd donc au plus la moitié de sa puissance sur une petite cible.
+    overkillSpill: 0.5,
+    // Multiplicateur global des dégâts : règle la durée des batailles.
+    damageScale: 0.7,
+    // Part des vaisseaux détruits que les chantiers récupèrent après la
+    // bataille (épaves réparées) : le journal montre la destruction, mais la
+    // facture réelle est plus douce. Réduite en cas de défaite (épaves aux
+    // mains de l'ennemi).
+    salvageRate: 0.5,
+    salvageRateDefeat: 0.25,
+    // Événements aléatoires : chance qu'un round en compte au moins un, puis
+    // un second (voir data/combatEvents.js).
+    eventChance: 0.6,
+    secondEventChance: 0.25,
+    // Repli automatique : sous cette fraction de PV restants (et plus entamée
+    // que l'ennemi), la flotte se replie — les survivants sont sauvés.
+    retreatThreshold: 0.2,
+    // Aide à l'allocation (voir game/battle.js#safeAllocation).
+    winChanceTarget: 0.8, // chance de victoire visée par le pré-remplissage
+    estimateRuns: 100, // simulations pour estimer une chance de victoire
+    searchRuns: 40, // simulations par pas de la recherche dichotomique
   },
 
   // Niveau de joueur (voir game/leveling.js) : persiste entre les runs

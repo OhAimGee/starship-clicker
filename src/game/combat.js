@@ -1,12 +1,8 @@
-// Résolution de combat — fonctions pures, aucun hasard (voir DÉCISIONS du
-// plan « combat réel ») : les pertes dépendent d'une formule déterministe
-// sur le ratio marge/puissance, pas d'un tirage. Un échec inflige aussi des
-// pertes (plus lourdes qu'une victoire à ratio comparable) mais ne bloque
-// jamais durablement la progression — c'est l'appelant (voir
-// `Engine#resolvePlanetCombat`) qui garde la planète non conquise
-// (retentable), pas cette fonction.
+// Aides de combat : puissance engagée, pré-remplissage de l'allocation et
+// multiplicateurs de flotte. La bataille elle-même (rounds, événements,
+// pertes) est simulée par `battle.js`, avec une graine aléatoire par
+// engagement — voir `Engine#resolvePlanetCombat`.
 
-import { CONFIG } from '../data/config.js';
 import { SHIP_BY_ID } from '../data/fleet.js';
 import {
   prestigeMultipliers,
@@ -16,7 +12,29 @@ import {
   ascensionRewardMultipliers,
 } from './economy.js';
 
-const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+/** Toutes les sources de bonus de flotte de la partie en cours. */
+function fleetSources(state) {
+  return [
+    prestigeMultipliers(state),
+    factionMultipliers(state),
+    runMultipliers(state),
+    runSkillTreeMultipliers(state),
+    ascensionRewardMultipliers(state),
+  ];
+}
+
+/** Multiplicateur de puissance de flotte : s'applique à l'attaque ET aux PV
+ * de chaque vaisseau (voir docs/ROADMAP.md — loi de Lanchester : c'est ce
+ * qui garde « puissance ≥ défense » vrai en moyenne). */
+export function fleetMultiplier(state) {
+  return fleetSources(state).reduce((acc, m) => acc * m.fleet, 1);
+}
+
+/** Multiplicateur de PV seuls (effet `fleetDurability`), en plus de
+ * `fleetMultiplier`. */
+export function fleetDurabilityMultiplier(state) {
+  return fleetSources(state).reduce((acc, m) => acc * m.fleetDurability, 1);
+}
 
 /**
  * Puissance de flotte engagée pour une allocation partielle — même formule
@@ -31,24 +49,14 @@ export function committedFleetPower(state, allocation) {
     if (!count) continue;
     total += count * SHIP_BY_ID[id].attack;
   }
-  const prestige = prestigeMultipliers(state);
-  const faction = factionMultipliers(state);
-  const run = runMultipliers(state);
-  const runSkill = runSkillTreeMultipliers(state);
-  const ascensionR = ascensionRewardMultipliers(state);
-  return Math.floor(
-    total *
-      prestige.fleet *
-      faction.fleet *
-      run.fleet *
-      runSkill.fleet *
-      ascensionR.fleet
-  );
+  return Math.floor(total * fleetMultiplier(state));
 }
 
 /**
- * Allocation minimale qui bat `defenseRating` — pré-remplissage de la popup
- * d'allocation (voir `src/ui/fleet-allocation.js`). On parcourt les types
+ * Allocation minimale qui bat `defenseRating` sur le papier (puissance
+ * engagée ≥ défense) — repli déterministe du pré-remplissage : la popup
+ * d'allocation (voir `src/ui/fleet-allocation.js`) vise une chance de victoire
+ * avec `battle.js#safeAllocation`. On parcourt les types
  * possédés du plus faible au plus fort : chacun est engagé en totalité tant
  * que la puissance cumulée n'atteint pas la défense, puis, pour le type qui
  * l'atteint, on ne prend que le plus petit nombre suffisant. Les gros
@@ -69,7 +77,9 @@ export function minimumAllocation(state, defenseRating) {
 
   const allocation = {};
   for (const [id, { count }] of owned) {
-    if (committedFleetPower(state, { ...allocation, [id]: count }) < defenseRating) {
+    if (
+      committedFleetPower(state, { ...allocation, [id]: count }) < defenseRating
+    ) {
       allocation[id] = count;
       continue;
     }
@@ -79,7 +89,10 @@ export function minimumAllocation(state, defenseRating) {
     let hi = count;
     while (lo < hi) {
       const mid = Math.floor((lo + hi) / 2);
-      if (committedFleetPower(state, { ...allocation, [id]: mid }) >= defenseRating) {
+      if (
+        committedFleetPower(state, { ...allocation, [id]: mid }) >=
+        defenseRating
+      ) {
         hi = mid;
       } else {
         lo = mid + 1;
@@ -89,39 +102,4 @@ export function minimumAllocation(state, defenseRating) {
     return { allocation, sufficient: true };
   }
   return { allocation, sufficient: false };
-}
-
-/**
- * Résout un combat (nœud `invade`/`conquest`) : `allocation` = la flotte
- * engagée sur ce nœud précis (`{ shipId: nombre }`), `defenseRating` = la
- * défense du nœud. Déterministe — mêmes entrées, mêmes pertes, toujours.
- * @returns {{ victory: boolean, committedPower: number, lossFraction: number,
- *   losses: Record<string, number> }}
- */
-export function resolveBattle(state, allocation, defenseRating) {
-  const committedPower = committedFleetPower(state, allocation);
-  const victory = committedPower >= defenseRating;
-  const c = CONFIG.combat;
-
-  // Victoire : plus la marge est courte (defenseRating proche de
-  // committedPower), plus la fraction perdue grimpe vers `winLossMax` ;
-  // écrasante, elle retombe vers le plancher `winLossMin`.
-  // Défaite : même logique sur le ratio inverse, mais avec des bornes plus
-  // punitives — à engagement comparable, un échec coûte structurellement
-  // plus cher qu'une victoire (voir DÉCISIONS du plan).
-  const lossFraction = victory
-    ? clamp((defenseRating / committedPower) * c.winLossMax, c.winLossMin, c.winLossMax)
-    : clamp((committedPower / defenseRating) * c.loseLossMax, c.loseLossMin, c.loseLossMax);
-
-  const losses = {};
-  for (const [id, count] of Object.entries(allocation)) {
-    if (!count) continue;
-    let lost = Math.round(count * lossFraction);
-    // Une petite flotte engagée doit risquer quelque chose de réel plutôt
-    // que de voir sa perte arrondie systématiquement à 0.
-    if (lost === 0 && lossFraction > c.minLossThreshold) lost = 1;
-    if (lost > 0) losses[id] = Math.min(lost, count);
-  }
-
-  return { victory, committedPower, lossFraction, losses };
 }

@@ -3,8 +3,9 @@ import { createInitialState } from './initial-state.js';
 import { startRun } from './run.js';
 import {
   committedFleetPower,
+  fleetMultiplier,
+  fleetDurabilityMultiplier,
   minimumAllocation,
-  resolveBattle,
 } from './combat.js';
 
 function makeState(factionId = 'miningCollective') {
@@ -106,7 +107,7 @@ describe('minimumAllocation', () => {
     expect(Object.keys(allocation)).toEqual(['fighters']);
   });
 
-  it('l’allocation minimale gagne toujours quand la flotte suffit', () => {
+  it('l’allocation minimale atteint toujours la défense quand la flotte suffit', () => {
     const s = makeState();
     s.ships.fighters.count = 37;
     s.ships.cruisers.count = 12;
@@ -114,67 +115,23 @@ describe('minimumAllocation', () => {
     for (const defense of [1, 7, 50, 111, 150, 221]) {
       const { allocation, sufficient } = minimumAllocation(s, defense);
       expect(sufficient, `défense ${defense}`).toBe(true);
-      expect(resolveBattle(s, allocation, defense).victory).toBe(true);
+      expect(committedFleetPower(s, allocation)).toBeGreaterThanOrEqual(defense);
     }
   });
 });
 
-describe('resolveBattle', () => {
-  it('est déterministe : mêmes entrées, mêmes pertes', () => {
-    const s = makeState();
-    s.ships.fighters.count = 100;
-    const a = resolveBattle(s, { fighters: 60 }, 100);
-    const b = resolveBattle(s, { fighters: 60 }, 100);
-    expect(a).toEqual(b);
+describe('multiplicateurs de flotte', () => {
+  it('fleetMultiplier vaut 1 sans bonus, et le bonus de faction s’y retrouve', () => {
+    expect(fleetMultiplier(makeState('miningCollective'))).toBe(1);
+    expect(fleetMultiplier(makeState('ironLegion'))).toBeCloseTo(1.2, 10);
   });
 
-  it('une victoire de justesse coûte plus cher qu’une victoire écrasante', () => {
+  it('fleetDurabilityMultiplier vaut 1 sans effet de durabilité, et suit la compétence de run', () => {
     const s = makeState();
-    s.ships.fighters.count = 100000;
-    // Puissance engagée tout juste suffisante (defenseRating == committedPower)
-    const narrow = resolveBattle(s, { fighters: 50 }, 100); // 50*2 = 100
-    // Puissance engagée très supérieure à la défense requise
-    const overwhelming = resolveBattle(s, { fighters: 100000 }, 100);
-    expect(narrow.victory).toBe(true);
-    expect(overwhelming.victory).toBe(true);
-    expect(narrow.lossFraction).toBeGreaterThan(overwhelming.lossFraction);
-  });
-
-  it('une défaite coûte plus cher qu’une victoire à ratio comparable', () => {
-    const s = makeState();
-    s.ships.fighters.count = 100000;
-    // Ratio de compétitivité ~identique des deux côtés du seuil de victoire.
-    const win = resolveBattle(s, { fighters: 51 }, 100); // 102 >= 100 : victoire
-    const lose = resolveBattle(s, { fighters: 49 }, 100); // 98 < 100 : défaite
-    expect(win.victory).toBe(true);
-    expect(lose.victory).toBe(false);
-    expect(lose.lossFraction).toBeGreaterThan(win.lossFraction);
-  });
-
-  it('répartit les pertes proportionnellement par type de vaisseau engagé', () => {
-    const s = makeState();
-    s.ships.fighters.count = 100000;
-    s.ships.cruisers.count = 100000;
-    // Défaite franche (engagement très faible) : lossFraction au plafond.
-    const battle = resolveBattle(
-      s,
-      { fighters: 1000, cruisers: 500 },
-      1_000_000
-    );
-    expect(battle.victory).toBe(false);
-    expect(battle.losses.fighters).toBeGreaterThan(0);
-    expect(battle.losses.cruisers).toBeGreaterThan(0);
-    // Même fraction appliquée aux deux types engagés (à l'arrondi près).
-    const ratio = battle.losses.fighters / 1000;
-    const ratioCruisers = battle.losses.cruisers / 500;
-    expect(Math.abs(ratio - ratioCruisers)).toBeLessThan(0.05);
-  });
-
-  it('un type de vaisseau non engagé (allocation 0) ne perd jamais rien', () => {
-    const s = makeState();
-    s.ships.fighters.count = 100000;
-    s.ships.cruisers.count = 100000;
-    const battle = resolveBattle(s, { fighters: 100, cruisers: 0 }, 1000);
-    expect(battle.losses.cruisers).toBeUndefined();
+    expect(fleetDurabilityMultiplier(s)).toBe(1);
+    s.run.skillTree.reinforcedHulls.level = 2;
+    expect(fleetDurabilityMultiplier(s)).toBeGreaterThan(1);
+    // La durabilité n'augmente PAS la puissance d'attaque.
+    expect(fleetMultiplier(s)).toBe(1);
   });
 });

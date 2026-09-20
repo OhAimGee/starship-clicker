@@ -8,6 +8,15 @@ import { RANDOM_EVENTS } from './events.js';
 import { FACTIONS } from './factions.js';
 import { ASCENSION_REWARDS } from './ascensionRewards.js';
 import { formatRateNumber } from '../game/format.js';
+import { CONFIG } from './config.js';
+import { ENEMY_CLASSES, ENEMY_PROFILES } from './enemies.js';
+import { COMBAT_EVENTS } from './combatEvents.js';
+import { RUN_SKILLS } from './runSkills.js';
+import { CHAPTERS, STORY_ENTRIES } from './story.js';
+import { ACHIEVEMENTS } from './achievements.js';
+import { BOSS_PLANETS } from './systems.js';
+import { ENEMY_PROFILE_IDS } from './enemies.js';
+import { t } from '../i18n/index.js';
 
 const isResource = (id) => RESOURCE_IDS.includes(id);
 const KNOWN_EFFECTS = new Set([
@@ -27,6 +36,7 @@ const KNOWN_LEVELED_EFFECTS = new Set([
   'productionMultiplier',
   'clickMultiplier',
   'fleetMultiplier',
+  'fleetDurability',
   'resourceProductionMultiplier',
   'shipCost',
   'fleetMaintenance',
@@ -166,6 +176,96 @@ describe('flotte', () => {
   });
 });
 
+describe('flotte — combat vivant', () => {
+  it('PV et taille valides ; tailles 0-7 croissantes ; PV = attaque × (base + pente × taille)', () => {
+    const { hpRatioBase, hpRatioPerTier } = CONFIG.combat;
+    for (let i = 0; i < SHIPS.length; i++) {
+      const s = SHIPS[i];
+      expect(Number.isInteger(s.armorTier), s.id).toBe(true);
+      expect(s.armorTier, s.id).toBeGreaterThanOrEqual(0);
+      expect(s.armorTier, s.id).toBeLessThanOrEqual(7);
+      if (i > 0) expect(s.armorTier, s.id).toBeGreaterThan(SHIPS[i - 1].armorTier);
+      // Même règle pour les vaisseaux et les ennemis (loi de Lanchester,
+      // voir docs/ROADMAP.md) : à l'arrondi près.
+      const expected = s.attack * (hpRatioBase + hpRatioPerTier * s.armorTier);
+      expect(Math.abs(s.hp - expected) / expected, s.id).toBeLessThan(0.07);
+    }
+  });
+
+  it('les PV absolus croissent avec la taille : gros = solide', () => {
+    for (let i = 1; i < SHIPS.length; i++) {
+      expect(SHIPS[i].hp).toBeGreaterThan(SHIPS[i - 1].hp);
+    }
+  });
+
+  it('chaque vaisseau a son nom, son nom au singulier et sa description (FR)', () => {
+    for (const s of SHIPS) {
+      for (const key of ['name', 'one', 'desc']) {
+        const full = `ship.${s.id}.${key}`;
+        expect(t(full), full).not.toBe(full);
+      }
+    }
+  });
+});
+
+describe('ennemis', () => {
+  it('classes et profils valides : parts de budget = 1, effectifs cohérents', () => {
+    const classIds = ENEMY_CLASSES.map((c) => c.id);
+    expect(new Set(classIds).size).toBe(classIds.length);
+    for (const profile of ENEMY_PROFILES) {
+      const total = profile.classes.reduce((sum, c) => sum + c.share, 0);
+      expect(total, profile.id).toBeCloseTo(1, 9);
+      for (const c of profile.classes) {
+        expect(classIds, `${profile.id}.${c.id}`).toContain(c.id);
+        expect(c.density, `${profile.id}.${c.id}`).toBeGreaterThan(0);
+        expect(c.min, `${profile.id}.${c.id}`).toBeGreaterThanOrEqual(1);
+        expect(c.max, `${profile.id}.${c.id}`).toBeGreaterThanOrEqual(c.min);
+      }
+    }
+  });
+
+  it('chaque profil et chaque classe ont leurs textes (FR)', () => {
+    for (const c of ENEMY_CLASSES) {
+      for (const ns of ['class', 'classPlural']) {
+        const key = `enemy.${ns}.${c.id}`;
+        expect(t(key), key).not.toBe(key);
+      }
+    }
+    for (const p of ENEMY_PROFILES) {
+      for (const key of ['name', 'hint', 'intro', 'victory', 'defeat', 'retreat']) {
+        const full = `enemy.profile.${p.id}.${key}`;
+        expect(t(full), full).not.toBe(full);
+      }
+    }
+  });
+});
+
+describe('événements de combat', () => {
+  it('ids uniques, poids positifs, textes pour chaque camp (FR)', () => {
+    const ids = COMBAT_EVENTS.map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const e of COMBAT_EVENTS) {
+      expect(e.weight, e.id).toBeGreaterThan(0);
+      expect(['boon', 'bane'], e.id).toContain(e.kind);
+      expect(typeof e.when, e.id).toBe('function');
+      expect(typeof e.apply, e.id).toBe('function');
+      for (const side of e.sides ?? ['ally', 'enemy']) {
+        const key = `battle.event.${e.id}.${side}`;
+        expect(t(key), key).not.toBe(key);
+      }
+    }
+  });
+});
+
+describe('compétences de run', () => {
+  it('chaque compétence a ses textes (FR)', () => {
+    for (const s of RUN_SKILLS) {
+      expect(t(`runSkill.${s.id}.name`), s.id).not.toBe(`runSkill.${s.id}.name`);
+      expect(t(`runSkill.${s.id}.desc`), s.id).not.toBe(`runSkill.${s.id}.desc`);
+    }
+  });
+});
+
 describe('technologies', () => {
   it('coûts et effets valides', () => {
     for (const t of TECHNOLOGIES) {
@@ -243,6 +343,60 @@ describe('événements', () => {
         expect(isResource(res), `${e.id} -> ${res}`).toBe(true);
         expect(amount).toBeGreaterThan(0);
       }
+    }
+  });
+});
+
+describe('Journal de bord', () => {
+  it('ids uniques, chapitres connus, prédicats et textes FR pour chaque entrée', () => {
+    const ids = STORY_ENTRIES.map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const e of STORY_ENTRIES) {
+      expect(CHAPTERS, e.id).toContain(e.chapter);
+      expect(typeof e.check, e.id).toBe('function');
+      for (const field of ['title', 'text']) {
+        const key = `story.entry.${e.id}.${field}`;
+        expect(t(key), key).not.toBe(key);
+      }
+    }
+  });
+
+  it('chaque chapitre a un titre et au moins une entrée', () => {
+    for (const c of CHAPTERS) {
+      const key = `story.chapter.${c}.title`;
+      expect(t(key), key).not.toBe(key);
+      expect(
+        STORY_ENTRIES.some((e) => e.chapter === c),
+        c
+      ).toBe(true);
+    }
+  });
+});
+
+describe('succès', () => {
+  it('ids uniques, prédicats purs et textes FR', () => {
+    const ids = ACHIEVEMENTS.map((a) => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const a of ACHIEVEMENTS) {
+      expect(typeof a.check, a.id).toBe('function');
+      for (const field of ['name', 'desc']) {
+        const key = `achievement.${a.id}.${field}`;
+        expect(t(key), key).not.toBe(key);
+      }
+    }
+  });
+});
+
+describe('planètes-boss', () => {
+  it('profil ennemi connu, budget et butin sensés, nom FR', () => {
+    for (const b of BOSS_PLANETS) {
+      expect(ENEMY_PROFILE_IDS, b.id).toContain(b.profile);
+      expect(Number.isInteger(b.systemIndex) && b.systemIndex >= 0, b.id).toBe(true);
+      expect(b.phasesTotal, b.id).toBeGreaterThanOrEqual(1);
+      expect(b.defenseShare, b.id).toBeGreaterThan(0);
+      expect(b.lootMultiplier, b.id).toBeGreaterThanOrEqual(1);
+      const key = `boss.${b.id}.name`;
+      expect(t(key), key).not.toBe(key);
     }
   });
 });

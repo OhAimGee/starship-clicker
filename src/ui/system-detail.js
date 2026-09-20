@@ -50,7 +50,7 @@ function planetStatusText(planet) {
  * resolvePlanetCombat`). */
 function rewardPreview(engine, system, planet) {
   if (planet.type === 'invaded') {
-    return rewardLine(planetLoot(system));
+    return rewardLine(planetLoot(system, planet));
   }
   if (planet.type === 'hostile') {
     return buffLine(planetBuff(system.topResource, 'hostile'));
@@ -69,7 +69,9 @@ function planetRow(engine, system, planet, rebuild) {
       el('span', { class: 'row-label' }, [
         el('span', {
           class: 'row-name',
-          text: t(`ui.planetType.${planet.type}`),
+          text: planet.boss
+            ? t(`boss.${planet.boss}.name`)
+            : t(`ui.planetType.${planet.type}`),
         }),
         el('span', { class: 'row-sub', text: planetStatusText(planet) }),
       ]),
@@ -110,7 +112,7 @@ function planetRow(engine, system, planet, rebuild) {
       text: t('ui.buttons.engage'),
     });
     engageBtn.addEventListener('click', () => {
-      showFleetAllocation(engine, planet.defenseRating, (allocation) => {
+      showFleetAllocation(engine, system, planet, (allocation) => {
         engine.resolvePlanetCombat(planet.id, allocation);
         rebuild();
       });

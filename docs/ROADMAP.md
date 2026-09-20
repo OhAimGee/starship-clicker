@@ -209,6 +209,37 @@ ensuite pour donner un débouché à l'influence ; le prestige une fois le socle
 - Extras : option « animés / résumé », 4 succès de combat (Premier sang, Victoire sans perte, Écraseur d'Essaim…),
   une bulle de tutoriel sur « petits vs gros ».
 
+#### Bilan d'implémentation de la MAJ 1
+
+**Livré** (nom de code « Enhanced Combat », id `enhancedCombat` ; thème « Combat vivant ») :
+
+- **Vaisseaux** : `hp` et `armorTier` (0-7) dans `data/fleet.js` ; règle `PV = attaque × (3,2 + 0,12 × palier)`,
+  donc le ratio PV/attaque croît avec le palier. Effet `fleetDurability` (PV seuls) + compétence de run
+  « Coques renforcées » ; les multiplicateurs de flotte s'appliquent à l'attaque **et** aux PV (invariant de Lanchester).
+- **Ennemis** (`data/enemies.js`, `game/enemy-fleet.js`) : 5 classes, profils **Essaim / Forces d'occupation / Faune
+  hostile / Nid-mère** ; le budget `defenseRating` est réparti entre les classes (Σ attaque = défense).
+- **Simulation** (`game/battle.js`, `game/rng.js`) : pure, seedée, **par piles de classes** (des millions de vaisseaux sans
+  surcoût) ; 1 tir par vaisseau et par round, esquive selon la taille, efficacité bornée par le blindage, surplus de dégâts
+  à moitié perdu, épaves récupérées à 50 % (25 % en cas de défaite) ; **10 événements** pondérés (`data/combatEvents.js`).
+- **Interface** : fenêtre de bataille animée (`ui/battle-log.js` — barres de structure, journal, Vitesse ×1/×2/×4, Passer,
+  Échap), option « Journal animé / Résumé seulement » (appareil, `ui/combat-prefs.js`), `prefers-reduced-motion` ⇒ affichage
+  immédiat ; fenêtre d'allocation enrichie (composition et indice de l'ennemi, **chance de victoire et pertes prévues**
+  estimées par Monte-Carlo, « Recommandé » / « Tout engager », boutons collés en bas) ; PV affichés dans la fiche des vaisseaux.
+- **Histoire** : `state.story` (entrées, bestiaire, boss vaincus) et `state.combatStats`, **schéma v9** (additif) ; Journal de
+  bord (tiroir) avec prologue + chapitre 1 « La Marée » (8 entrées, rattrapées à la charge d'une ancienne sauvegarde) et
+  bestiaire ; planète-boss **Nid-mère** (système 4, 2 phases, butin ×3, ajoutée après le tirage seedé) ; 4 succès de combat.
+- **Équilibrage** : la chance de victoire monte vite autour d'un ratio puissance/défense de 1,15-1,3 ; il faut ≈ 1,3-1,7 × la
+  défense pour 80 % de chances. `EXPLORATION.baseDefense` recalibré (12 → 9,4 ; avancé 22 → 17) : `npm run simulate` donne
+  **27 min 40 → 30 min 03** jusqu'à la 1ʳᵉ Ascension (+ 9 %, cible ±10 %). Garde du système 0 : ≥ 93 % de victoire avec les
+  2 chasseurs du tutoriel (≈ 95-97 % mesuré) ; parcours complet du tutoriel vérifié (`_tuto-run.mjs`).
+
+**Reporté** (à reprendre dans une prochaine MAJ) : préréglages de flotte (2 emplacements) ; bulle de tutoriel « petits vs
+gros » ; « Revoir » un combat depuis l'historique de la run (la graine est stockée, l'écran manque) ; icônes dédiées aux
+événements de combat.
+
+**À savoir** : la Nid-mère n'apparaît que dans les runs dont le système 4 est généré après la mise à jour (une run en cours
+qui l'a déjà généré ne l'a pas). Le journal complet d'une bataille n'est pas sauvegardé (seule la graine l'est, dans `combatLog`).
+
 ### MAJ 2 — « Grands Chantiers » _(schéma v10)_
 
 - **Mégastructures** (`src/data/megastructures.js`, propres à la run, 3-5 niveaux, coûts multi-ressources,
@@ -313,7 +344,7 @@ icône (`icons.js` + `icon-map.js`) → invariants dans `balance.test.js` → `n
 
 | MAJ                 | État                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------------- |
-| 1 « Combat vivant » | Feuille de route approuvée (2026-09-20) — implémentation en cours                     |
+| 1 « Combat vivant » | Livrée sous le nom de code « Enhanced Combat » (2026-09-20) ; bilan dans la section MAJ 1 |
 | 2 à 6               | Cadrées à gros grain : chiffres et jalons à confirmer après l'équilibrage de la MAJ 1 |
 
 Ce document est la source de vérité de la feuille de route : le mettre à jour à chaque MAJ livrée

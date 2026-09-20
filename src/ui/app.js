@@ -26,10 +26,11 @@ import { notifyText } from './notify-text.js';
 import { showOfflineReport, confirmDialog } from './modal.js';
 import { showFactionSelect } from './faction-select.js';
 import { showAscensionReward } from './ascension-reward.js';
-import { showBattleReport } from './battle-report.js';
+import { showBattle } from './battle-log.js';
 import { showRunSummary } from './run-summary.js';
 import { showSystemDetail } from './system-detail.js';
 import { showAchievements } from './achievements-screen.js';
+import { showJournal, journalProgress } from './journal-screen.js';
 import { showOptions } from './options-screen.js';
 import { createDrawer } from './drawer.js';
 import { createPanelSwiper } from './panel-swiper.js';
@@ -289,6 +290,13 @@ export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
         run: ({ back }) => showAchievements(engine.state, { onBack: back }),
       },
       {
+        id: 'journal',
+        iconId: 'exploration',
+        label: t('ui.drawer.journal'),
+        sub: t('ui.drawer.journalSub', journalProgress(state)),
+        run: ({ back }) => showJournal(engine.state, { onBack: back }),
+      },
+      {
         id: 'options',
         iconId: 'technology',
         label: t('ui.drawer.options'),
@@ -471,7 +479,7 @@ export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
     notifier.push(notifyText(msg, engine), msg.level)
   );
   engine.on('unlock', () => panels[activeKey].refresh());
-  engine.on('battle-resolved', (entry) => showBattleReport(entry));
+  engine.on('battle-resolved', (entry) => showBattle(entry));
   engine.on('run-ended', ({ points, summary }) => {
     renderStatic();
     showRunSummary({ points, summary }, { onContinue: maybeShowFactionSelect });

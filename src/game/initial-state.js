@@ -11,6 +11,9 @@ import { FACTION_IDS, FACTION_BY_ID } from '../data/factions.js';
 import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
 import { RUN_SKILLS } from '../data/runSkills.js';
 import { ACHIEVEMENT_IDS } from '../data/achievements.js';
+import { STORY_ENTRY_IDS } from '../data/story.js';
+import { ENEMY_PROFILE_IDS } from '../data/enemies.js';
+import { BOSS_PLANETS } from '../data/systems.js';
 
 // v1 = schéma monolithique d'avant la refonte (généré par l'ancien script.js).
 // v2 = schéma piloté par les données.
@@ -30,7 +33,15 @@ import { ACHIEVEMENT_IDS } from '../data/achievements.js';
 // succès à `unlocked: false`, puis `Engine#_scanAchievements` les débloque
 // dès le prochain tick si leur condition est déjà remplie (ex. une run déjà
 // terminée avant cette mise à jour débloque `firstEndRun` immédiatement).
-export const SCHEMA_VERSION = 8;
+//
+// v9 = combat vivant + Journal de bord — additif également. `combatStats`
+// (compteurs de combat à vie) et `story` (entrées révélées, bestiaire, boss
+// vaincus) arrivent à zéro sur une sauvegarde v8 ; `Engine#_scanStory`
+// révèle aussitôt les entrées que l'état déjà atteint permet de déduire (ex.
+// une run déjà terminée ouvre le chapitre 1). Les vaisseaux gagnent PV et
+// blindage dans `data/fleet.js` : rien à migrer, ce ne sont pas des données
+// de sauvegarde.
+export const SCHEMA_VERSION = 9;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -60,6 +71,21 @@ export function createInitialState() {
     achievements: Object.fromEntries(
       ACHIEVEMENT_IDS.map((id) => [id, { unlocked: false }])
     ),
+
+    // Compteurs de combat à vie (jamais remis à zéro par `endRun()`/`ascend()`,
+    // comme `achievements`) — voir Engine#resolvePlanetCombat. `flawless` =
+    // victoires sans aucune perte définitive.
+    combatStats: { battles: 0, victories: 0, flawless: 0, enemiesDestroyed: 0 },
+
+    // Journal de bord (data/story.js) : entrées révélées (jamais retirées),
+    // bestiaire (profils ennemis déjà affrontés) et boss vaincus. Les clés
+    // sont posées ici pour que `mergeIntoShape` les comble sur une ancienne
+    // sauvegarde (il ne retient que les clés du gabarit).
+    story: {
+      entries: Object.fromEntries(STORY_ENTRY_IDS.map((id) => [id, false])),
+      bestiary: Object.fromEntries(ENEMY_PROFILE_IDS.map((id) => [id, false])),
+      defeated: Object.fromEntries(BOSS_PLANETS.map((b) => [b.id, false])),
+    },
 
     resources: zeroMap(RESOURCE_IDS),
     totalProduced: zeroMap(RESOURCE_IDS), // cumul « à vie » (sert aux déblocages)
