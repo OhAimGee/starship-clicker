@@ -16,6 +16,8 @@ import {
 import { FACTION_BY_ID } from '../data/factions.js';
 import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
 import { RUN_SKILLS } from '../data/runSkills.js';
+import { MEGASTRUCTURES } from '../data/megastructures.js';
+import { DECREE_BY_ID } from '../data/decrees.js';
 
 const round = Math.round;
 
@@ -53,7 +55,8 @@ export function shipCost(state, id) {
     factionMultipliers(state).shipCost *
     runMultipliers(state).shipCost *
     runSkillTreeMultipliers(state).shipCost *
-    ascensionRewardMultipliers(state).shipCost;
+    ascensionRewardMultipliers(state).shipCost *
+    empireMultipliers(state).shipCost;
   const out = {};
   for (const [res, base] of Object.entries(def.cost)) {
     out[res] = round(base * factor);
@@ -98,9 +101,14 @@ export function techMultipliers(state) {
     fleetMaintenance: 1,
     explorationIncome: 1,
     clickPower: 1,
+    fleetDurability: 1,
+    lootMultiplier: 1,
+    decreeSlots: 0, // somme (et non produit) des emplacements de décret gagnés
     autoBuyGenerators: false,
     unlockAdvancedSystems: false,
     unlockHostileColonization: false,
+    unlockDecrees: false,
+    unlockMegastructures: false,
   };
   for (const tech of TECHNOLOGIES) {
     if (!state.technologies[tech.id]?.unlocked) continue;
@@ -125,6 +133,15 @@ export function techMultipliers(state) {
         case 'clickPower':
           m.clickPower *= e.mult;
           break;
+        case 'fleetDurability':
+          m.fleetDurability *= e.mult;
+          break;
+        case 'lootMultiplier':
+          m.lootMultiplier *= e.mult;
+          break;
+        case 'decreeSlots':
+          m.decreeSlots += e.count;
+          break;
         case 'autoBuyGenerators':
           m.autoBuyGenerators = true;
           break;
@@ -133,6 +150,12 @@ export function techMultipliers(state) {
           break;
         case 'unlockHostileColonization':
           m.unlockHostileColonization = true;
+          break;
+        case 'unlockDecrees':
+          m.unlockDecrees = true;
+          break;
+        case 'unlockMegastructures':
+          m.unlockMegastructures = true;
           break;
       }
     }
@@ -149,6 +172,8 @@ function neutralMultipliers() {
     fleetDurability: 1, // PV seuls (l'attaque reste sur `fleet`), voir combat.js
     shipCost: 1,
     fleetMaintenance: 1,
+    explorationIncome: 1, // revenu passif des systèmes conquis
+    loot: 1, // butin des planètes conquises
     resourceProduction: {}, // { resourceId: mult }
   };
 }
@@ -180,6 +205,12 @@ export function applyLeveledEffect(out, effect, level) {
       break;
     case 'fleetMaintenance':
       out.fleetMaintenance *= Math.max(0.05, 1 - effect.perLevel * level);
+      break;
+    case 'explorationIncome':
+      out.explorationIncome *= 1 + effect.perLevel * level;
+      break;
+    case 'lootMultiplier':
+      out.loot *= 1 + effect.perLevel * level;
       break;
     case 'resourceProductionMultiplier':
       for (const res of effect.resources) {
@@ -256,6 +287,39 @@ export function ascensionRewardMultipliers(state) {
   return out;
 }
 
+/** Bonus de l'empire pour la run en cours : mégastructures bâties (voir
+ * data/megastructures.js) et décrets du Sénat adoptés (voir data/decrees.js).
+ * Comme `runMultipliers`, temporaire — remis à zéro par `startRun()`/`endRun()`.
+ * Tolère un état sans ces blocs (sauvegarde d'avant la mise à jour) et un
+ * décret inconnu (retiré d'une version ultérieure). */
+export function empireMultipliers(state) {
+  const out = neutralMultipliers();
+  for (const def of MEGASTRUCTURES) {
+    const level = state.run.megastructures?.[def.id]?.level ?? 0;
+    applyLeveledEffect(out, def.effect, level);
+  }
+  for (const id of state.run.decrees ?? []) {
+    for (const effect of DECREE_BY_ID[id]?.effects ?? []) {
+      applyLeveledEffect(out, effect, 1);
+    }
+  }
+  return out;
+}
+
+/** Multiplicateur du butin d'une planète conquise (tech + toutes les sources
+ * à niveaux — seuls l'empire et les bonus de run en apportent aujourd'hui). */
+export function lootMultiplier(state) {
+  return (
+    techMultipliers(state).lootMultiplier *
+    prestigeMultipliers(state).loot *
+    factionMultipliers(state).loot *
+    runMultipliers(state).loot *
+    runSkillTreeMultipliers(state).loot *
+    ascensionRewardMultipliers(state).loot *
+    empireMultipliers(state).loot
+  );
+}
+
 // ─── Pouvoir de clic ─────────────────────────────────────────────────────────
 
 export function clickPower(state) {
@@ -265,6 +329,7 @@ export function clickPower(state) {
   const run = runMultipliers(state);
   const runSkill = runSkillTreeMultipliers(state);
   const ascensionR = ascensionRewardMultipliers(state);
+  const empire = empireMultipliers(state);
   return Math.max(
     1,
     Math.floor(
@@ -274,7 +339,8 @@ export function clickPower(state) {
         faction.click *
         run.click *
         runSkill.click *
-        ascensionR.click
+        ascensionR.click *
+        empire.click
     )
   );
 }
@@ -291,13 +357,15 @@ export function fleetPower(state) {
   const run = runMultipliers(state);
   const runSkill = runSkillTreeMultipliers(state);
   const ascensionR = ascensionRewardMultipliers(state);
+  const empire = empireMultipliers(state);
   return Math.floor(
     total *
       prestige.fleet *
       faction.fleet *
       run.fleet *
       runSkill.fleet *
-      ascensionR.fleet
+      ascensionR.fleet *
+      empire.fleet
   );
 }
 
@@ -311,6 +379,7 @@ export function fleetMaintenance(state) {
   const run = runMultipliers(state);
   const runSkill = runSkillTreeMultipliers(state);
   const ascensionR = ascensionRewardMultipliers(state);
+  const empire = empireMultipliers(state);
   return (
     total *
     techMultipliers(state).fleetMaintenance *
@@ -318,7 +387,8 @@ export function fleetMaintenance(state) {
     faction.fleetMaintenance *
     run.fleetMaintenance *
     runSkill.fleetMaintenance *
-    ascensionR.fleetMaintenance
+    ascensionR.fleetMaintenance *
+    empire.fleetMaintenance
   );
 }
 
@@ -335,6 +405,7 @@ export function grossProduction(state) {
   const run = runMultipliers(state);
   const runSkill = runSkillTreeMultipliers(state);
   const ascensionR = ascensionRewardMultipliers(state);
+  const empire = empireMultipliers(state);
   const out = Object.fromEntries(RESOURCE_IDS.map((r) => [r, 0]));
 
   const resourceMult = (res) =>
@@ -343,13 +414,15 @@ export function grossProduction(state) {
     run.production *
     runSkill.production *
     ascensionR.production *
+    empire.production *
     tech.generatorProduction *
     (tech.resourceProduction[res] ?? 1) *
     (prestige.resourceProduction[res] ?? 1) *
     (faction.resourceProduction[res] ?? 1) *
     (run.resourceProduction[res] ?? 1) *
     (runSkill.resourceProduction[res] ?? 1) *
-    (ascensionR.resourceProduction[res] ?? 1);
+    (ascensionR.resourceProduction[res] ?? 1) *
+    (empire.resourceProduction[res] ?? 1);
 
   for (const def of GENERATORS) {
     const count = state.generators[def.id]?.count ?? 0;
@@ -360,7 +433,7 @@ export function grossProduction(state) {
   const autoClickers = state.clickUpgrades.autoClicker?.count ?? 0;
   if (autoClickers > 0) out.energy += autoClickers * clickPower(state);
 
-  const explo = tech.explorationIncome;
+  const explo = tech.explorationIncome * empire.explorationIncome;
   for (const system of state.run.exploration.conquered) {
     for (const [res, amount] of Object.entries(system.rewards)) {
       out[res] += amount * CONFIG.conqueredIncomeFraction * explo;

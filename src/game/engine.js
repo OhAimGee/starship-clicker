@@ -15,6 +15,8 @@ import {
 } from '../data/upgrades.js';
 import { FACTION_BY_ID } from '../data/factions.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
+import { MEGASTRUCTURE_BY_ID } from '../data/megastructures.js';
+import { DECREE_BY_ID } from '../data/decrees.js';
 import { createInitialState } from './initial-state.js';
 import {
   isUnlocked,
@@ -24,6 +26,7 @@ import {
   prestigeUpgradeCost,
   factionSkillCost,
   techMultipliers,
+  lootMultiplier,
   clickPower,
   fleetPower,
   fleetMaintenance,
@@ -39,6 +42,14 @@ import { committedFleetPower } from './combat.js';
 import { simulateBattle, allyFleetFromAllocation } from './battle.js';
 import { enemyFleetForPlanet, enemyProfileId } from './enemy-fleet.js';
 import { planetLoot, planetBuff, systemBuff } from './systems-map.js';
+import {
+  megastructuresUnlocked,
+  megastructureCost,
+  decreesUnlocked,
+  decreeSlots,
+  decreeCost,
+} from './empire.js';
+import { canNegotiate, negotiationCost } from './diplomacy.js';
 import { grantXp } from './leveling.js';
 import {
   canEndRun,
@@ -57,7 +68,7 @@ import {
 } from './run.js';
 import { tickEvents } from './events.js';
 import { computeOfflineGains } from './offline.js';
-import { STORY_ENTRIES } from '../data/story.js';
+import { STORY_ENTRIES, STORY_CHOICES } from '../data/story.js';
 
 /** Flotte entière possédée, sous la forme d'une allocation `{ shipId:
  * nombre }` — l'allocation par défaut quand l'appelant n'en fournit pas
@@ -142,6 +153,18 @@ export class Engine {
   }
   factionSkillCost(skillId) {
     return factionSkillCost(this.state, this.state.run.factionId, skillId);
+  }
+  megastructureCost(id) {
+    return megastructureCost(this.state, id);
+  }
+  decreeSlots() {
+    return decreeSlots(this.state);
+  }
+  negotiationCost(planet) {
+    return negotiationCost(planet);
+  }
+  canNegotiate(system, planet) {
+    return canNegotiate(this.state, system, planet);
   }
   runSkillCost(skillId) {
     return runSkillCost(this.state, skillId);
@@ -375,6 +398,69 @@ export class Engine {
     return true;
   }
 
+  /** Bâtit le prochain niveau d'une mégastructure (Chantiers, voir
+   * `data/megastructures.js`) : payé en plusieurs ressources, effet immédiat,
+   * temporaire (la run en cours). */
+  buildMegastructure(id) {
+    const def = MEGASTRUCTURE_BY_ID[id];
+    if (!def || !megastructuresUnlocked(this.state)) return false;
+    if (!isUnlocked(this.state, def.unlock)) return false;
+    const cost = megastructureCost(this.state, id);
+    if (!cost) return false; // niveau maximal
+    if (!canAfford(this.state, cost)) {
+      this._notify(
+        'notify.missingResources',
+        { missing: missingResources(this.state, cost) },
+        'error'
+      );
+      return false;
+    }
+    spend(this.state, cost);
+    this.state.run.megastructures[id].level += 1;
+    this._notify('notify.megastructureBuilt', { id }, 'success');
+    this._afterChange();
+    return true;
+  }
+
+  /** Adopte un décret du Sénat (voir `data/decrees.js`) : occupe un
+   * emplacement, payé en influence. */
+  adoptDecree(id) {
+    const def = DECREE_BY_ID[id];
+    if (!def || !decreesUnlocked(this.state)) return false;
+    const adopted = this.state.run.decrees;
+    if (adopted.includes(id)) return false;
+    if (adopted.length >= decreeSlots(this.state)) {
+      this._notify('notify.decreeSlotsFull', {}, 'error');
+      return false;
+    }
+    const cost = decreeCost(id);
+    if (!canAfford(this.state, cost)) {
+      this._notify(
+        'notify.missingResources',
+        { missing: missingResources(this.state, cost) },
+        'error'
+      );
+      return false;
+    }
+    spend(this.state, cost);
+    adopted.push(id);
+    this._notify('notify.decreeAdopted', { id }, 'success');
+    this._afterChange();
+    return true;
+  }
+
+  /** Abroge un décret : gratuit, libère l'emplacement (le ré-adopter se paie
+   * de nouveau). */
+  abrogateDecree(id) {
+    const adopted = this.state.run.decrees;
+    const i = adopted.indexOf(id);
+    if (i < 0) return false;
+    adopted.splice(i, 1);
+    this._notify('notify.decreeAbrogated', { id }, 'info');
+    this._afterChange();
+    return true;
+  }
+
   buyFactionSkill(skillId) {
     const factionId = this.state.run.factionId;
     if (!factionId) return false;
@@ -550,10 +636,10 @@ export class Engine {
       this.state.run.skillPoints += 1;
       if (planet.phasesWon >= planet.phasesTotal) {
         planet.conquered = true;
-        if (planet.boss) this.state.story.defeated[planet.boss] = true;
+        if (planet.boss) this._defeatBoss(planet, 'force');
         this._grantXp(CONFIG.player.xpPerPlanet);
         if (planet.type === 'invaded') {
-          const loot = planetLoot(system, planet);
+          const loot = this.planetRewards(system, planet);
           gain(this.state, loot);
           entry.rewards = loot;
         } else if (techMultipliers(this.state).unlockHostileColonization) {
@@ -591,6 +677,74 @@ export class Engine {
     return true;
   }
 
+  /** Butin d'une planète `invaded` conquise, multiplicateurs de butin
+   * compris (technologies, décrets, buffs de run). Une planète obtenue par la
+   * négociation rapporte une fraction seulement : on commerce, on ne pille
+   * pas. Sert aussi à l'aperçu de l'interface. */
+  planetRewards(system, planet, { negotiated = false } = {}) {
+    const factor =
+      lootMultiplier(this.state) *
+      (negotiated ? CONFIG.negotiation.lootFraction : 1);
+    const out = {};
+    for (const [res, amount] of Object.entries(planetLoot(system, planet))) {
+      out[res] = Math.max(1, Math.floor(amount * factor));
+    }
+    return out;
+  }
+
+  /** Négocie la reddition d'une planète tenue par les Sentinelles (voir
+   * `game/diplomacy.js`) : payée en influence, elle conquiert d'un coup ce qui
+   * reste de la planète, sans combat ni perte. */
+  negotiatePlanet(planetId) {
+    const system = this.activeSystem();
+    if (!system) return false;
+    const planet = system.planets.find((p) => p.id === planetId);
+    if (!planet || !canNegotiate(this.state, system, planet)) return false;
+
+    const cost = { influence: negotiationCost(planet) };
+    if (!canAfford(this.state, cost)) {
+      this._notify(
+        'notify.missingResources',
+        { missing: missingResources(this.state, cost) },
+        'error'
+      );
+      return false;
+    }
+    spend(this.state, cost);
+
+    planet.phasesWon = planet.phasesTotal;
+    planet.conquered = true;
+    this.state.combatStats.negotiations += 1;
+    this.state.story.bestiary.sentinels = true;
+    if (planet.boss) this._defeatBoss(planet, 'negotiation');
+    this._grantXp(CONFIG.player.xpPerPlanet);
+    this.state.run.skillPoints += 1;
+    const rewards = this.planetRewards(system, planet, { negotiated: true });
+    gain(this.state, rewards);
+    this._checkSystemComplete(system);
+
+    this._notify('notify.planetNegotiated', { rewards }, 'success');
+    this._emit('negotiated', { planetId, cost, rewards });
+    this._seen = this._currentUnlockSet();
+    this._afterChange();
+    return true;
+  }
+
+  /** Planète-boss conquise : la note aux vainqueurs, et, quand le boss porte
+   * un choix d'histoire (Sentinelles : Détruire par la force / Allier par la
+   * négociation), enregistre la décision du Cycle et accorde le bonus de run
+   * qui l'accompagne (voir `STORY_CHOICES`). */
+  _defeatBoss(planet, how) {
+    this.state.story.defeated[planet.boss] = true;
+    const choice = STORY_CHOICES[planet.boss];
+    if (!choice) return;
+    const option = how === 'negotiation' ? choice.negotiation : choice.force;
+    this.state.story.choices[choice.key] = option;
+    const buff = choice.options[option]?.buff;
+    if (buff) this.state.run.buffs.push({ ...buff });
+    this._notify(`notify.choice.${choice.key}.${option}`, {}, 'success');
+  }
+
   /** Ajoute de l'XP de joueur, notifie un passage de niveau. */
   _grantXp(amount) {
     const { leveledUp, newLevel } = grantXp(this.state, amount);
@@ -607,6 +761,7 @@ export class Engine {
     if (system.conquered) return;
     if (!system.planets.every((p) => p.conquered)) return;
     system.conquered = true;
+    this.state.combatStats.systemsConquered += 1;
     this.state.run.exploration.conquered.push(system);
     this._grantXp(CONFIG.player.xpPerSystem);
     const buff = systemBuff(system.topResource);

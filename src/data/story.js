@@ -11,10 +11,15 @@
 // vérifie leur présence).
 
 /** Chapitres, dans l'ordre du récit. */
-export const CHAPTERS = ['prologue', 'tide'];
+export const CHAPTERS = ['prologue', 'tide', 'sentinels'];
 
 // Le chapitre 1 s'ouvre à la première run terminée.
 const tideBegun = (s) => s.prestige.ascensions >= 1;
+// Le chapitre 2 s'ouvre quand le joueur, déjà aguerri (5 systèmes conquis, toutes
+// runs confondues), a de quoi parler : la technologie Diplomatie spatiale.
+const sentinelsHeard = (s) =>
+  s.combatStats.systemsConquered >= 5 &&
+  s.technologies.spaceDiplomacy?.unlocked === true;
 
 export const STORY_ENTRIES = [
   // — Prologue « Réveil » —
@@ -60,6 +65,55 @@ export const STORY_ENTRIES = [
     chapter: 'tide',
     check: (s) => s.story.defeated.motherNest === true,
   },
+
+  // — Chapitre 2 « Les Sentinelles » —
+  { id: 'sentinelsSignal', chapter: 'sentinels', check: sentinelsHeard },
+  {
+    id: 'sentinelsWardens',
+    chapter: 'sentinels',
+    check: (s) => sentinelsHeard(s) && s.story.bestiary.sentinels,
+  },
+  {
+    id: 'bastionSighted',
+    chapter: 'sentinels',
+    check: (s) =>
+      sentinelsHeard(s) &&
+      s.run.exploration.systems.some(
+        (sys) =>
+          sys.opened && sys.planets.some((p) => p.boss === 'sentinelBastion')
+      ),
+  },
+  // Les deux issues du Bastion : la décision du Cycle (`story.choices`) les
+  // révèle. Une entrée révélée le reste, même si l'on prend l'autre voie au
+  // Cycle suivant.
+  {
+    id: 'bastionAllied',
+    chapter: 'sentinels',
+    check: (s) => s.story.choices.sentinels === 'ally',
+  },
+  {
+    id: 'bastionRazed',
+    chapter: 'sentinels',
+    check: (s) => s.story.choices.sentinels === 'destroy',
+  },
 ];
+
+// Choix d'histoire attachés à une planète-boss (voir `Engine#_defeatBoss`) :
+// conquérir le boss par la force ou par la négociation enregistre l'option
+// correspondante dans `state.story.choices[key]` (remis à zéro à
+// l'Ascension) et accorde son bonus de run (vocabulaire de `economy.js#
+// applyLeveledEffect`, empilé dans `run.buffs`). Aucun contenu ne dépend du
+// choix pour rester jouable — les deux voies sont récompensées.
+export const STORY_CHOICES = {
+  sentinelBastion: {
+    key: 'sentinels',
+    force: 'destroy',
+    negotiation: 'ally',
+    options: {
+      ally: { buff: { type: 'fleetDurability', perLevel: 0.25 } },
+      destroy: { buff: { type: 'lootMultiplier', perLevel: 0.25 } },
+    },
+  },
+};
 
 export const STORY_ENTRY_IDS = STORY_ENTRIES.map((e) => e.id);

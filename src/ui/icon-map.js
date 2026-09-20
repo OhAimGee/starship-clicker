@@ -25,6 +25,8 @@ export const clickUpgradeIconId = (id) => CLICK_UPGRADE_ICON[id] ?? 'bolt';
 export const prestigeUpgradeIconId = () => 'ascension';
 export const eventIconId = (id) => EVENT_ICON[id] ?? 'ascensionPoints';
 export const systemIconId = () => 'exploration';
+export const megastructureIconId = () => 'megastructure';
+export const decreeIconId = () => 'decree';
 
 const FACTION_ICON = {
   miningCollective: 'metal',

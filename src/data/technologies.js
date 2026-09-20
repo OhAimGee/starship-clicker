@@ -12,8 +12,13 @@
 //   autoBuyGenerators     {}                         auto-achat des générateurs
 //   unlockAdvancedSystems {}                         débloque les systèmes avancés
 //   unlockHostileColonization {}                     débloque la récompense des planètes hostiles
+//   fleetDurability       { mult }                   PV des vaisseaux au combat (pas l'attaque)
+//   lootMultiplier        { mult }                   butin des planètes conquises
+//   unlockDecrees         {}                         débloque les Décrets du Sénat et la négociation
+//   unlockMegastructures  {}                         débloque les Chantiers (mégastructures)
+//   decreeSlots           { count }                  emplacements de décret supplémentaires
 //
-// Les multiplicateurs de même type se cumulent en produit.
+// Les multiplicateurs de même type se cumulent en produit (`decreeSlots` : somme).
 
 export const TECHNOLOGIES = [
   {
@@ -101,6 +106,41 @@ export const TECHNOLOGIES = [
       { type: 'clickPower', mult: 5 },
     ],
     unlock: { resource: 'ascensionPoints', total: 1 },
+  },
+
+  // — Grands Chantiers —
+  {
+    id: 'compositeArmor',
+    cost: { crystals: 8000, antimatter: 250 },
+    effects: [{ type: 'fleetDurability', mult: 1.25 }],
+    unlock: { resource: 'antimatter', total: 100 },
+  },
+  {
+    id: 'orbitalLogistics',
+    cost: { crystals: 12_000, influence: 60 },
+    effects: [
+      { type: 'lootMultiplier', mult: 1.4 },
+      { type: 'fleetMaintenance', mult: 0.9 },
+    ],
+    unlock: { resource: 'influence', total: 40 },
+  },
+  {
+    id: 'spaceDiplomacy',
+    cost: { influence: 120, antimatter: 300 },
+    effects: [{ type: 'unlockDecrees' }],
+    unlock: { resource: 'influence', total: 80 },
+  },
+  {
+    id: 'megastructureEngineering',
+    cost: { crystals: 40_000, antimatter: 800, influence: 150 },
+    effects: [{ type: 'unlockMegastructures' }],
+    unlock: { resource: 'antimatter', total: 400 },
+  },
+  {
+    id: 'galacticConstitution',
+    cost: { influence: 400, darkMatter: 30 },
+    effects: [{ type: 'decreeSlots', count: 1 }],
+    unlock: { tech: 'spaceDiplomacy' },
   },
 ];
 

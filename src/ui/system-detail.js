@@ -15,8 +15,8 @@ import { resourceCode } from '../data/resources.js';
 import { openPanel } from './modal.js';
 import { planetArt } from './planet-art.js';
 import { showFleetAllocation } from './fleet-allocation.js';
-import { planetLoot, planetBuff } from '../game/systems-map.js';
-import { techMultipliers } from '../game/economy.js';
+import { planetBuff } from '../game/systems-map.js';
+import { techMultipliers, canAfford } from '../game/economy.js';
 
 function rewardLine(rewards) {
   return Object.entries(rewards)
@@ -50,7 +50,7 @@ function planetStatusText(planet) {
  * resolvePlanetCombat`). */
 function rewardPreview(engine, system, planet) {
   if (planet.type === 'invaded') {
-    return rewardLine(planetLoot(system, planet));
+    return rewardLine(engine.planetRewards(system, planet));
   }
   if (planet.type === 'hostile') {
     return buffLine(planetBuff(system.topResource, 'hostile'));
@@ -117,13 +117,38 @@ function planetRow(engine, system, planet, rebuild) {
         rebuild();
       });
     });
-    actions = el('div', { class: 'board-modal-actions' }, [engageBtn]);
+    const buttons = [engageBtn];
+    let negotiateNote = null;
+    // Sentinelles : on peut aussi acheter la planète avec de l'influence.
+    if (engine.canNegotiate(system, planet)) {
+      const cost = engine.negotiationCost(planet);
+      const price = { influence: cost };
+      const negotiateBtn = el('button', {
+        class: 'btn',
+        type: 'button',
+        text: `${t('ui.buttons.negotiate')} · ${formatNumber(cost)} ${resourceCode('influence')}`,
+      });
+      negotiateBtn.disabled = !canAfford(engine.state, price);
+      negotiateBtn.addEventListener('click', () => {
+        engine.negotiatePlanet(planet.id);
+        rebuild();
+      });
+      buttons.push(negotiateBtn);
+      negotiateNote = el('p', {
+        class: 'panel-note',
+        text: t('ui.planet.negotiateNote', {
+          cost: `${formatNumber(cost)} ${resourceCode('influence')}`,
+        }),
+      });
+    }
+    actions = el('div', { class: 'board-modal-actions' }, buttons);
+    if (negotiateNote) actions = [negotiateNote, actions];
   }
 
   return el(
     'li',
     { class: 'board-row', dataset: { state: planet.conquered ? 'done' : 'afford' } },
-    [infoRow, rewardNote, actions]
+    [infoRow, rewardNote, ...[actions].flat()]
   );
 }
 

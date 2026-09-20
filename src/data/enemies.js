@@ -27,6 +27,8 @@ export const ENEMY_CLASSES = [
   { id: 'cruiser', armorBonus: 0 },
   { id: 'bastion', armorBonus: 2 },
   { id: 'leviathan', armorBonus: 1 },
+  // Gardien du Sénat : bien plus blindé qu'un bastion de même puissance.
+  { id: 'sentinel', armorBonus: 3 },
 ];
 
 export const ENEMY_CLASS_BY_ID = Object.fromEntries(
@@ -59,6 +61,18 @@ export const ENEMY_PROFILES = [
     classes: [
       { id: 'cruiser', share: 0.35, density: 0.8, min: 1, max: 10 },
       { id: 'leviathan', share: 0.65, density: 0.2, min: 1, max: 4 },
+    ],
+  },
+  {
+    // Les Sentinelles (chapitre 2) : les gardiens que le Sénat a laissés en
+    // faction. Des unités peu nombreuses et lourdement blindées, escortées de
+    // croiseurs — plus dures que les forces d'occupation pour les flottes
+    // de petits et moyens vaisseaux, à égalité pour les très gros. Elles ne
+    // poursuivent pas et se laissent NÉGOCIER (voir game/diplomacy.js).
+    id: 'sentinels',
+    classes: [
+      { id: 'sentinel', share: 0.5, density: 0.6, min: 2, max: 9 },
+      { id: 'cruiser', share: 0.5, density: 1, min: 2, max: 12 },
     ],
   },
   {

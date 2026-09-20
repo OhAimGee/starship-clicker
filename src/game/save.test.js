@@ -74,10 +74,52 @@ describe('loadState', () => {
       victories: 0,
       flawless: 0,
       enemiesDestroyed: 0,
+      systemsConquered: 0,
+      negotiations: 0,
     });
     expect(state.story.entries.awakening).toBe(false);
     expect(Object.keys(state.story.bestiary)).toContain('swarm');
     expect(state.story.defeated.motherNest).toBe(false);
+  });
+
+  it('charge une sauvegarde v9 (avant les Grands Chantiers) sans rien perdre : ' +
+    'chantiers et décrets vides, choix nul, compteurs de combat conservés', () => {
+    const fresh = createInitialState();
+    const v9 = JSON.parse(JSON.stringify(fresh));
+    delete v9.run.megastructures;
+    delete v9.run.decrees;
+    delete v9.story.choices;
+    v9.combatStats = { battles: 12, victories: 9, flawless: 3, enemiesDestroyed: 240 };
+    v9.schemaVersion = 9;
+    v9.resources.energy = 4321;
+    v9.story.entries.awakening = true;
+    v9.story.defeated.motherNest = true;
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(v9) });
+    const { state, status } = loadState(storage);
+    expect(status).toBe('loaded');
+    expect(state.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(state.resources.energy).toBe(4321);
+    expect(state.story.entries.awakening).toBe(true);
+    expect(state.story.defeated.motherNest).toBe(true);
+    expect(state.combatStats.battles).toBe(12);
+    expect(state.combatStats.enemiesDestroyed).toBe(240);
+    expect(state.combatStats.systemsConquered).toBe(0);
+    expect(state.run.decrees).toEqual([]);
+    expect(state.run.megastructures.dysonSphere).toEqual({ level: 0 });
+    expect(state.story.choices).toEqual({ sentinels: null });
+    expect(state.story.defeated.sentinelBastion).toBe(false);
+  });
+
+  it('conserve les niveaux de mégastructure, les décrets et le choix des Sentinelles', () => {
+    const saved = createInitialState();
+    saved.run.megastructures.dysonSphere.level = 2;
+    saved.run.decrees = ['mobilization', 'austerity'];
+    saved.story.choices.sentinels = 'ally';
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(saved) });
+    const { state } = loadState(storage);
+    expect(state.run.megastructures.dysonSphere.level).toBe(2);
+    expect(state.run.decrees).toEqual(['mobilization', 'austerity']);
+    expect(state.story.choices.sentinels).toBe('ally');
   });
 
   it('conserve run.factionId au rechargement (un champ null par défaut ' +

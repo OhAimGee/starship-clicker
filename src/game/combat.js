@@ -10,6 +10,8 @@ import {
   runMultipliers,
   runSkillTreeMultipliers,
   ascensionRewardMultipliers,
+  empireMultipliers,
+  techMultipliers,
 } from './economy.js';
 
 /** Toutes les sources de bonus de flotte de la partie en cours. */
@@ -20,6 +22,7 @@ function fleetSources(state) {
     runMultipliers(state),
     runSkillTreeMultipliers(state),
     ascensionRewardMultipliers(state),
+    empireMultipliers(state),
   ];
 }
 
@@ -30,10 +33,13 @@ export function fleetMultiplier(state) {
   return fleetSources(state).reduce((acc, m) => acc * m.fleet, 1);
 }
 
-/** Multiplicateur de PV seuls (effet `fleetDurability`), en plus de
- * `fleetMultiplier`. */
+/** Multiplicateur de PV seuls (effet `fleetDurability`, des technologies
+ * comme des autres sources), en plus de `fleetMultiplier`. */
 export function fleetDurabilityMultiplier(state) {
-  return fleetSources(state).reduce((acc, m) => acc * m.fleetDurability, 1);
+  return fleetSources(state).reduce(
+    (acc, m) => acc * m.fleetDurability,
+    techMultipliers(state).fleetDurability
+  );
 }
 
 /**

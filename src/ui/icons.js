@@ -34,6 +34,14 @@ const PATHS = {
   ascension:
     '<path d="M4.5 12.5 12 5l7.5 7.5H15L12 9.5 9 12.5zM4.5 19 12 11.5 19.5 19H15L12 16l-3 3z"/>',
 
+  // — Grands Chantiers —
+  // mégastructure : anneau autour d'un noyau (sphère de Dyson, anneau-monde)
+  megastructure:
+    '<path d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zm0 2.3a7.2 7.2 0 1 1 0 14.4 7.2 7.2 0 0 1 0-14.4z" fill-rule="evenodd"/><circle cx="12" cy="12" r="3.6"/>',
+  // décret : parchemin à coin plié, deux lignes de texte évidées
+  decree:
+    '<path d="M6 3h9l4 4v14H6zm2.6 8v1.8h6.8V11zm0 3.6v1.8h6.8v-1.8z" fill-rule="evenodd"/>',
+
   // — Chrome —
   lock: '<path d="M7 10V8a5 5 0 0 1 10 0v2h1.5v10.5h-13V10zm2.2 0h5.6V8a2.8 2.8 0 0 0-5.6 0z" fill-rule="evenodd"/>',
   trendUp: '<path d="M4 16.5 12 8l8 8.5z"/>',

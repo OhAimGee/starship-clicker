@@ -14,6 +14,7 @@ import { ACHIEVEMENT_IDS } from '../data/achievements.js';
 import { STORY_ENTRY_IDS } from '../data/story.js';
 import { ENEMY_PROFILE_IDS } from '../data/enemies.js';
 import { BOSS_PLANETS } from '../data/systems.js';
+import { MEGASTRUCTURE_IDS } from '../data/megastructures.js';
 
 // v1 = schéma monolithique d'avant la refonte (généré par l'ancien script.js).
 // v2 = schéma piloté par les données.
@@ -41,7 +42,13 @@ import { BOSS_PLANETS } from '../data/systems.js';
 // une run déjà terminée ouvre le chapitre 1). Les vaisseaux gagnent PV et
 // blindage dans `data/fleet.js` : rien à migrer, ce ne sont pas des données
 // de sauvegarde.
-export const SCHEMA_VERSION = 9;
+//
+// v10 = Grands Chantiers — additif également. `run.megastructures` (niveaux
+// bâtis) et `run.decrees` (décrets adoptés) sont propres à la run ; `story.
+// choices` mémorise le choix du chapitre 2 (par Cycle, remis à zéro à
+// l'Ascension) ; `combatStats` gagne `systemsConquered` et `negotiations`.
+// Une sauvegarde v9 repart de zéro sur tous ces champs.
+export const SCHEMA_VERSION = 10;
 
 const zeroMap = (keys) => Object.fromEntries(keys.map((k) => [k, 0]));
 
@@ -74,8 +81,17 @@ export function createInitialState() {
 
     // Compteurs de combat à vie (jamais remis à zéro par `endRun()`/`ascend()`,
     // comme `achievements`) — voir Engine#resolvePlanetCombat. `flawless` =
-    // victoires sans aucune perte définitive.
-    combatStats: { battles: 0, victories: 0, flawless: 0, enemiesDestroyed: 0 },
+    // victoires sans aucune perte définitive ; `systemsConquered` = systèmes
+    // entièrement conquis (toutes runs confondues) ; `negotiations` = planètes
+    // obtenues par la diplomatie.
+    combatStats: {
+      battles: 0,
+      victories: 0,
+      flawless: 0,
+      enemiesDestroyed: 0,
+      systemsConquered: 0,
+      negotiations: 0,
+    },
 
     // Journal de bord (data/story.js) : entrées révélées (jamais retirées),
     // bestiaire (profils ennemis déjà affrontés) et boss vaincus. Les clés
@@ -85,6 +101,9 @@ export function createInitialState() {
       entries: Object.fromEntries(STORY_ENTRY_IDS.map((id) => [id, false])),
       bestiary: Object.fromEntries(ENEMY_PROFILE_IDS.map((id) => [id, false])),
       defeated: Object.fromEntries(BOSS_PLANETS.map((b) => [b.id, false])),
+      // Choix faits au fil des chapitres (`null` = pas encore fait) ; remis à
+      // zéro par `ascend()` : chaque Cycle peut prendre l'autre branche.
+      choices: { sentinels: null },
     },
 
     resources: zeroMap(RESOURCE_IDS),
@@ -152,6 +171,13 @@ export function createInitialState() {
       // Journal de combat de la run en cours — liste bornée (voir
       // Engine#resolvePlanetCombat), remise à zéro comme le reste de `run`.
       combatLog: [],
+      // Mégastructures bâties cette run (niveaux, voir data/megastructures.js)
+      // et décrets du Sénat adoptés (ids, voir data/decrees.js) — remis à zéro
+      // comme le reste de `run`.
+      megastructures: Object.fromEntries(
+        MEGASTRUCTURE_IDS.map((id) => [id, { level: 0 }])
+      ),
+      decrees: [],
       exploration: {
         // Systèmes explorables générés pour cette run (voir
         // game/exploration.js#ensureVisibleSystems) — le joueur choisit

@@ -692,6 +692,14 @@ h3 {
   font-size: 0.9rem;
   margin-bottom: 0.6rem;
 }
+/* Emplacements de décret : une ligne de compteur, calée sur la police d'étiquette. */
+.panel-note.decree-slots {
+  font-family: var(--face-display);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
 
 /* ── Portrait de système (exploration) ───────────────────────────────────── */
 .system-portrait {
@@ -828,6 +836,12 @@ h3 {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Décrets : le résumé bonus/malus reste lisible en entier (deux lignes au
+   besoin) — le malus, à droite, est justement l'info à ne pas rater. */
+.board-row.is-decree .row-sub {
+  white-space: normal;
+  line-height: 1.25;
+}
 .row-tail {
   display: flex;
   align-items: center;
@@ -941,6 +955,13 @@ h3 {
 .drawer-facts dd {
   margin: 0;
   color: var(--ink);
+}
+/* Décrets : bonus en `--go`, malus en `--signal` (couleur + signe +/−). */
+.drawer-facts dd[data-tone='good'] {
+  color: var(--go);
+}
+.drawer-facts dd[data-tone='bad'] {
+  color: var(--signal);
 }
 .drawer-facts:empty {
   display: none;

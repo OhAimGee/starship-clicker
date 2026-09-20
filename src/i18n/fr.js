@@ -57,6 +57,8 @@ export const fr = {
       endRun: 'Terminer la run',
       runSkillTree: 'Compétences de run',
       combatLog: 'Journal de combat',
+      megastructures: 'Chantiers',
+      decrees: 'Décrets du Sénat',
     },
     cols: {
       cost: 'Coût',
@@ -107,6 +109,7 @@ export const fr = {
       pending: 'À faire',
       phaseProgress: 'Phase {won}/{total}',
       noReward: 'Aucune récompense.',
+      negotiateNote: 'Les Sentinelles acceptent de discuter : {cost} d’influence pour obtenir la planète sans combat (butin réduit de moitié).',
       hostileLocked: 'Nécessite la recherche Xéno-colonisation avant d’attaquer — la conquête est définitive, mieux vaut chercher la techno d’abord.',
     },
     planetType: {
@@ -129,6 +132,9 @@ export const fr = {
       details: 'Détails',
       cancel: 'Annuler',
       engage: 'Engager',
+      negotiate: 'Négocier',
+      adopt: 'Décréter',
+      abrogate: 'Abroger',
       close: 'Fermer',
       continue: 'Continuer',
     },
@@ -151,6 +157,15 @@ export const fr = {
       maintenanceTotal: 'Maintenance totale',
       fleetPowerNeeded: 'Puissance requise : {n}',
       passiveIncome: 'Revenu passif',
+      levelOf: 'Niv. {n} / {max}',
+      maxed: 'Max',
+      slots: 'Emplacements : {used} / {total}',
+      adopted: 'Adopté',
+      slotsFull: 'Emplacements pleins',
+      effects: 'Effets',
+      nextLevel: 'Prochain niveau',
+      megastructuresLead: 'Ouvrages colossaux : chaque niveau bâti est perdu à la fin de la run.',
+      decreesLead: 'Une politique par emplacement, payée en influence. Abroger est gratuit, mais décréter de nouveau se paie.',
     },
     ascension: {
       marquee: 'Tous services terminés',
@@ -385,17 +400,17 @@ export const fr = {
   },
 
   updateNotice: {
-    enhancedCombat: {
-      title: 'Enhanced Combat Update',
+    civilEngineer: {
+      title: 'Civil Engineer Update',
       intro: 'Quoi de neuf dans cette mise à jour :',
       bullet1:
-        'Combats vivants : chaque bataille se joue round par round, avec un journal d’événements en direct (coups critiques, tirs esquivés, avaries…). Le hasard s’en mêle : les vaisseaux détruits sont perdus, leurs épaves en partie récupérées.',
+        'Chantiers : six mégastructures (sphère de Dyson, ascenseur orbital, forge-monde…) à bâtir niveau par niveau pendant la run. Une nouvelle section de la Boutique, débloquée par la recherche « Ingénierie des mégastructures ».',
       bullet2:
-        'Petits contre gros : chaque vaisseau a désormais une structure et un blindage. Les petits sont peu chers mais fragiles, les gros coûtent plus cher mais encaissent. Les ennemis ont leurs flottes (l’Essaim, la garnison, la faune…) : la fenêtre d’engagement affiche leur composition et votre chance de victoire.',
+        'Décrets du Sénat : l’influence sert enfin ! Adoptez des politiques à double tranchant (Mobilisation, Austérité, Économie de guerre…) et changez-en selon la situation.',
       bullet3:
-        'Journal de bord : un prologue, le chapitre 1 « La Marée », le bestiaire, la planète-boss Nid-mère et 4 nouveaux succès de combat.',
+        'Les Sentinelles : des gardiens très blindés que l’on peut affronter… ou négocier. Chapitre 2 du Journal de bord, planète-boss « Bastion des Sentinelles » et un choix : allier ou détruire.',
       bullet4:
-        'Nouvelle option « Combats » : journal animé ou résumé seulement.',
+        'Six nouveaux générateurs (dont trois d’influence), cinq technologies dont le Blindage composite, et cinq nouveaux succès.',
     },
   },
 
@@ -475,6 +490,26 @@ export const fr = {
       name: 'Tueur de reine',
       desc: 'Vainquez la Nid-mère.',
     },
+    firstMegastructure: {
+      name: 'Bâtisseur',
+      desc: 'Achevez un premier niveau de mégastructure.',
+    },
+    wonderBuilder: {
+      name: 'Architecte de l’impossible',
+      desc: 'Portez toutes les mégastructures à leur niveau maximal, dans la même run.',
+    },
+    firstDecree: {
+      name: 'Législateur',
+      desc: 'Adoptez un premier décret du Sénat.',
+    },
+    diplomat: {
+      name: 'Diplomate',
+      desc: 'Obtenez une planète par la négociation.',
+    },
+    bastionGates: {
+      name: 'Les portes du Bastion',
+      desc: 'Résolvez le Bastion des Sentinelles, par la force ou par la parole.',
+    },
   },
 
   resource: {
@@ -553,6 +588,30 @@ export const fr = {
       name: 'Métier du vide',
       desc: 'Tisse la matière noire à partir de l’énergie quantique.',
     },
+    embassy: {
+      name: 'Ambassade',
+      desc: 'Un corps diplomatique installé sur place : l’influence s’obtient en échange de métal.',
+    },
+    treatyBureau: {
+      name: 'Bureau des traités',
+      desc: 'Rédige, ratifie et fait appliquer des traités contre de l’antimatière : l’influence gagne en portée.',
+    },
+    particleCollider: {
+      name: 'Collisionneur de particules',
+      desc: 'Fracasse de l’antimatière contre elle-même jusqu’à en tirer de l’énergie quantique — sans passer par la matière noire.',
+    },
+    forbiddenArchive: {
+      name: 'Archive interdite',
+      desc: 'Des recherches que le Sénat avait scellées : elles se paient en influence et livrent de la matière noire.',
+    },
+    galacticTribunal: {
+      name: 'Tribunal galactique',
+      desc: 'Juge les différends de tout un secteur : l’énergie quantique rend ses verdicts incontestables.',
+    },
+    zeroPointExtractor: {
+      name: 'Extracteur de point zéro',
+      desc: 'Convertit de colossales quantités d’énergie ordinaire en énergie quantique.',
+    },
   },
 
   enemy: {
@@ -562,6 +621,7 @@ export const fr = {
       cruiser: 'Croiseur',
       bastion: 'Bastion',
       leviathan: 'Léviathan',
+      sentinel: 'Sentinelle',
     },
     classPlural: {
       drone: 'Drones',
@@ -569,6 +629,7 @@ export const fr = {
       cruiser: 'Croiseurs',
       bastion: 'Bastions',
       leviathan: 'Léviathans',
+      sentinel: 'Sentinelles',
     },
     profile: {
       swarm: {
@@ -603,17 +664,27 @@ export const fr = {
         defeat: 'Les créatures massacrent votre flotte.',
         retreat: 'Vos armes glissent sur leur carapace : repli en urgence.',
       },
+      sentinels: {
+        name: 'Les Sentinelles',
+        hint: 'Des gardiens peu nombreux mais lourdement blindés : engagez du gros calibre… ou ouvrez le dialogue (Diplomatie spatiale).',
+        intro: 'Les gardiens du Sénat se mettent en formation. Aucun mot : seulement leurs boucliers qui s’élèvent.',
+        victory: 'Les Sentinelles cessent le feu, leurs boucliers s’éteignent un à un.',
+        defeat: 'Les Sentinelles tiennent leur position : votre flotte est repoussée.',
+        retreat: 'Elles ne poursuivent pas : vos vaisseaux en profitent pour rompre le contact.',
+      },
     },
   },
 
   boss: {
     motherNest: { name: 'Nid-mère' },
+    sentinelBastion: { name: 'Bastion des Sentinelles' },
   },
 
   story: {
     chapter: {
       prologue: { title: 'Prologue — Réveil' },
       tide: { title: 'Chapitre 1 — La Marée' },
+      sentinels: { title: 'Chapitre 2 — Les Sentinelles' },
     },
     entry: {
       awakening: {
@@ -647,6 +718,26 @@ export const fr = {
       nestFallen: {
         title: 'La reine tombe',
         text: 'La Nid-mère s’effondre et, avec elle, toutes les nuées se figent d’un coup, comme privées d’un ordre. La marée se retire. Reste une question : qui a donné l’ordre à la reine ? Dans ses entrailles, un signal chiffré — des coordonnées.',
+      },
+      sentinelsSignal: {
+        title: 'Un signal sur toutes les fréquences',
+        text: 'Vos ingénieurs ont rétabli les canaux diplomatiques du Sénat, et quelque chose y répond : un signal répétitif, ordonné, très ancien. « Zone sous garde. Identifiez-vous. » Les Sentinelles n’ont jamais cessé de monter la garde.',
+      },
+      sentinelsWardens: {
+        title: 'Les gardiens du Sénat',
+        text: 'Elles ne chassent pas, elles ne poursuivent pas : elles tiennent. Leur blindage est colossal — les petits calibres y glissent — mais rien dans leurs protocoles n’interdit de discuter avec qui parle leur langue. Chaque planète qu’elles gardent peut se négocier.',
+      },
+      bastionSighted: {
+        title: 'Le Bastion',
+        text: 'Toutes les balises convergent vers un point unique : une forteresse-monde, dernier verrou du Sénat. Le Bastion des Sentinelles. On dit qu’il abrite le registre des serments — et l’arsenal pour les faire respecter.',
+      },
+      bastionAllied: {
+        title: 'Le serment renouvelé',
+        text: '« Le Sénat n’est plus. Sa garde demeure. » Le Bastion ouvre ses portes : les Sentinelles jurent fidélité à l’arche et au Commandant {name}. Leurs plans de blindage rejoignent vos chantiers. Reste à savoir ce que vaut la parole de machines qui ont attendu si longtemps.',
+      },
+      bastionRazed: {
+        title: 'Le verrou brisé',
+        text: 'Le Bastion s’effondre sous vos salves et son arsenal est à vous. Les Sentinelles n’ont pas supplié : elles ont tenu jusqu’au bout. Dans les décombres, vos équipes récupèrent d’immenses réserves — et le sentiment persistant d’avoir fait taire quelque chose qu’il aurait fallu écouter.',
       },
     },
   },
@@ -755,6 +846,82 @@ export const fr = {
     },
   },
 
+  // Libellés des effets (mégastructures, décrets) : « <libellé> <±pourcentage> ».
+  effect: {
+    percent: '{sign}{n}\u00a0%', // espace insécable : « % » ne passe pas seul à la ligne
+    productionMultiplier: 'Production',
+    resourceProductionMultiplier: 'Production ({res})',
+    clickMultiplier: 'Clic',
+    fleetMultiplier: 'Puissance de flotte',
+    fleetDurability: 'Structure des vaisseaux',
+    shipCost: 'Coût des vaisseaux',
+    fleetMaintenance: 'Maintenance',
+    explorationIncome: 'Revenu des systèmes',
+    lootMultiplier: 'Butin',
+  },
+
+  megastructure: {
+    dysonSphere: {
+      name: 'Sphère de Dyson',
+      desc: 'Une coquille de capteurs autour de l’étoile : la production d’énergie s’envole.',
+    },
+    orbitalElevator: {
+      name: 'Ascenseur orbital',
+      desc: 'Un câble jusqu’à l’orbite : mettre une coque en position coûte bien moins cher.',
+    },
+    worldForge: {
+      name: 'Forge-monde',
+      desc: 'Une planète entière convertie en aciérie et en cristallerie.',
+    },
+    archivesNetwork: {
+      name: 'Réseau des Archives',
+      desc: 'Relie les Archives du Sénat entre elles : l’influence circule bien plus vite.',
+    },
+    flagshipYard: {
+      name: 'Chantier amiral',
+      desc: 'Des cales géantes qui épaississent la coque de chaque vaisseau : davantage de structure au combat.',
+    },
+    ringWorld: {
+      name: 'Anneau-monde',
+      desc: 'Un anneau habitable autour de l’étoile : les systèmes conquis rapportent beaucoup plus.',
+    },
+  },
+
+  decree: {
+    mobilization: {
+      name: 'Mobilisation',
+      desc: 'Toute la nation à l’effort de guerre : une flotte plus puissante, mais une économie au ralenti.',
+    },
+    austerity: {
+      name: 'Austérité',
+      desc: 'La flotte coûte moins cher à bâtir et à entretenir, mais elle est moins bien armée.',
+    },
+    warEconomy: {
+      name: 'Économie de guerre',
+      desc: 'Les usines tournent à plein régime ; les vaisseaux, eux, coûtent cher en entretien.',
+    },
+    martialLaw: {
+      name: 'Loi martiale',
+      desc: 'Des coques renforcées à tout prix — au détriment des colonies.',
+    },
+    plunderRights: {
+      name: 'Droit de pillage',
+      desc: 'Le butin des planètes s’envole, mais les équipages prennent des risques.',
+    },
+    stateScience: {
+      name: 'Recherche d’État',
+      desc: 'On finance la haute science au détriment de l’industrie de base.',
+    },
+    propaganda: {
+      name: 'Propagande',
+      desc: 'Le peuple acclame : chaque clic compte davantage, la flotte s’en ressent.',
+    },
+    freeTrade: {
+      name: 'Libre-échange',
+      desc: 'Les systèmes conquis prospèrent, mais on ne pille plus.',
+    },
+  },
+
   tech: {
     advancedPropulsion: {
       name: 'Propulsion avancée',
@@ -807,6 +974,26 @@ export const fr = {
     realityManipulation: {
       name: 'Manipulation de la réalité',
       desc: 'x5 sur la production et le pouvoir de clic.',
+    },
+    compositeArmor: {
+      name: 'Blindage composite',
+      desc: 'Augmente la structure (PV) de tous les vaisseaux au combat.',
+    },
+    orbitalLogistics: {
+      name: 'Logistique orbitale',
+      desc: 'Le butin des planètes conquises est plus abondant et la maintenance de la flotte allégée.',
+    },
+    spaceDiplomacy: {
+      name: 'Diplomatie spatiale',
+      desc: 'Rouvre les canaux du Sénat : débloque les décrets et la négociation avec les Sentinelles.',
+    },
+    megastructureEngineering: {
+      name: 'Ingénierie des mégastructures',
+      desc: 'Débloque les Chantiers : des ouvrages colossaux, à rebâtir à chaque run.',
+    },
+    galacticConstitution: {
+      name: 'Constitution galactique',
+      desc: 'Un emplacement de décret supplémentaire.',
     },
   },
 
@@ -1055,5 +1242,16 @@ export const fr = {
     saveReset:
       'Le jeu a changé en profondeur (factions, exploration par nœuds). Ton ancienne sauvegarde est archivée, nouvelle partie !',
     eventGain: '{name} : {list}',
+    megastructureBuilt: '{name} — niveau {level}.',
+    decreeAdopted: 'Décret adopté : {name}.',
+    decreeAbrogated: 'Décret abrogé : {name}.',
+    decreeSlotsFull: 'Tous les emplacements de décret sont occupés — abrogez-en un.',
+    planetNegotiated: 'Les Sentinelles se retirent : planète obtenue sans combat. Butin : {list}',
+    choice: {
+      sentinels: {
+        ally: 'Les Sentinelles vous jurent fidélité : structure des vaisseaux +25 % pour cette run.',
+        destroy: 'Le Bastion est à terre : butin +25 % pour cette run.',
+      },
+    },
   },
 };

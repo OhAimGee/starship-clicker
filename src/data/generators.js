@@ -90,6 +90,18 @@ export const GENERATORS = [
     unlock: { resource: 'crystals', total: 400 },
   },
   {
+    // Deuxième source d'influence, payée en métal : une autre chaîne que les
+    // Archives du Sénat (cristaux).
+    id: 'embassy',
+    resource: 'influence',
+    costResource: 'metal',
+    baseCost: 9000,
+    costGrowth: 1.16,
+    rate: 0.12,
+    tier: 3,
+    unlock: { resource: 'influence', total: 8 },
+  },
+  {
     id: 'quantumHarvester',
     resource: 'antimatter',
     costResource: 'energy',
@@ -130,6 +142,41 @@ export const GENERATORS = [
     rate: 0.2,
     tier: 4,
     unlock: { resource: 'darkMatter', total: 5 },
+  },
+  {
+    // Influence payée en antimatière.
+    id: 'treatyBureau',
+    resource: 'influence',
+    costResource: 'antimatter',
+    baseCost: 15000,
+    costGrowth: 1.17,
+    rate: 0.5,
+    tier: 4,
+    unlock: { resource: 'influence', total: 120 },
+  },
+  {
+    // Énergie quantique sans passer par la matière noire (le goulot du
+    // Résonateur) : payée en antimatière.
+    id: 'particleCollider',
+    resource: 'quantumEnergy',
+    costResource: 'antimatter',
+    baseCost: 150000,
+    costGrowth: 1.17,
+    rate: 0.25,
+    tier: 4,
+    unlock: { resource: 'antimatter', total: 5000 },
+  },
+  {
+    // Première utilisation de l'influence comme monnaie de construction :
+    // des recherches interdites du Sénat produisent de la matière noire.
+    id: 'forbiddenArchive',
+    resource: 'darkMatter',
+    costResource: 'influence',
+    baseCost: 3000,
+    costGrowth: 1.2,
+    rate: 0.1,
+    tier: 4,
+    unlock: { resource: 'influence', total: 400 },
   },
   {
     id: 'voidHarvester',
@@ -182,6 +229,28 @@ export const GENERATORS = [
     rate: 40,
     tier: 5,
     unlock: { resource: 'quantumEnergy', total: 800 },
+  },
+  {
+    // Le Tribunal siège au sommet : il se paie en énergie quantique.
+    id: 'galacticTribunal',
+    resource: 'influence',
+    costResource: 'quantumEnergy',
+    baseCost: 10_000_000,
+    costGrowth: 1.15,
+    rate: 20,
+    tier: 5,
+    unlock: { resource: 'quantumEnergy', total: 1000 },
+  },
+  {
+    // Énergie ordinaire convertie en énergie quantique.
+    id: 'zeroPointExtractor',
+    resource: 'quantumEnergy',
+    costResource: 'energy',
+    baseCost: 5_000_000_000,
+    costGrowth: 1.16,
+    rate: 2,
+    tier: 5,
+    unlock: { resource: 'darkMatter', total: 400 },
   },
 ];
 

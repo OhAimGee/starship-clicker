@@ -250,9 +250,60 @@ qui l'a déjà généré ne l'a pas). Le journal complet d'une bataille n'est pa
   −production ; « Austérité » : −maintenance, −coût), 2 emplacements (3 avec une techno), payés en INF, changeables.
 - **+6 générateurs** (16 → 22) pour combler les trous : **influence ×3** (Ambassade, Bureau des traités,
   Tribunal galactique), **énergie quantique ×2**, **matière noire ×1**.
-- **+4 technologies** (Blindage composite → PV, Logistique orbitale, Diplomatie spatiale → Décrets,
-  Ingénierie des mégastructures).
+- **+5 technologies** (Blindage composite → PV, Logistique orbitale, Diplomatie spatiale → Décrets,
+  Ingénierie des mégastructures, Constitution galactique → +1 emplacement de décret).
 - **Sentinelles** (profil ennemi blindé) + Chapitre 2 et son choix.
+
+#### Bilan d'implémentation de la MAJ 2
+
+**Livré** (nom de code « Civil Engineer », id `civilEngineer` ; thème « Grands Chantiers ») :
+
+- **Mégastructures** (`data/megastructures.js`, `game/empire.js`) : 6 chantiers propres à la run, 3-4 niveaux, coût du niveau
+  n = base × croissance^n en plusieurs ressources. Débloqués par la technologie *Ingénierie des mégastructures*, puis chacun
+  par un seuil de production cumulée (la ligne est « teasée » avant). Effets dans le vocabulaire existant, agrégés par
+  `economy.js#empireMultipliers` — **exactement ×1 en leur absence**, aucun chiffre existant ne bouge. Deux effets nouveaux :
+  `explorationIncome` (revenu des systèmes conquis) et `lootMultiplier` (butin). Sphère de Dyson (énergie +50 %/niv.),
+  Ascenseur orbital (coût des vaisseaux −8 %/niv.), Forge-monde (métal et cristaux +40 %/niv.), Réseau des Archives
+  (influence +60 %/niv.), Chantier amiral (PV de flotte +15 %/niv.), Anneau-monde (revenu des systèmes +60 %/niv.).
+- **Décrets du Sénat** (`data/decrees.js`) : 8 politiques **à double tranchant** (chacune a au moins un bonus et un malus,
+  garanti par `balance.test.js`), payées en influence (30-50 INF), **2 emplacements** (+1 avec *Constitution galactique*),
+  abrogation gratuite, ré-adoption payante ; remis à zéro à la fin de la run. Débloqués par *Diplomatie spatiale*.
+- **+6 générateurs** (16 → 22) : influence ×3 (Ambassade payée en métal, Bureau des traités en antimatière, Tribunal galactique
+  en énergie quantique), énergie quantique ×2 (Collisionneur de particules en antimatière, Extracteur du point zéro en énergie),
+  matière noire ×1 (Archive interdite, payée en **influence** : première fois qu'elle sert de monnaie de construction).
+- **+5 technologies** (13 → 18) : Blindage composite (PV ×1,25), Logistique orbitale (butin ×1,4, maintenance −10 %),
+  Diplomatie spatiale, Ingénierie des mégastructures, Constitution galactique.
+- **Sentinelles** : classe `sentinel` (blindage +3) et profil `sentinels` (peu de sentinelles très blindées + croiseurs),
+  réglé au banc à quasi-parité avec les Forces d'occupation (un peu plus dur pour les petites flottes, parité vers un ratio de
+  1,7). Elles tiennent toutes les forteresses galactiques et environ la moitié des planètes envahies des systèmes avancés
+  (jamais le système 0, réservé à l'Essaim).
+- **Négociation** : « Négocier · N INF » sur toute planète tenue par les Sentinelles (technologie *Diplomatie spatiale*).
+  Coût = ⌈défense × phases restantes × 0,25⌉ INF, butin réduit de moitié, ni combat ni perte ; XP et point de compétence
+  comme une victoire (`game/diplomacy.js`, `CONFIG.negotiation`).
+- **Bastion des Sentinelles** (boss, système 9, 3 phases, butin ×3) et **choix du chapitre 2** : négocier = *Allier*
+  (PV de flotte +25 % pour la run), vaincre par la force = *Détruire* (butin +25 % pour la run). Le choix est mémorisé
+  **par Cycle** (`story.choices`, remis à zéro à l'Ascension) ; les entrées du Journal, elles, restent.
+- **Histoire** : chapitre 2 « Les Sentinelles » (5 entrées ; s'ouvre avec 5 systèmes conquis à vie et *Diplomatie spatiale*),
+  Sentinelles au bestiaire, 5 succès (Bâtisseur, Architecte de l'impossible, Législateur, Diplomate, Les portes du Bastion).
+- **Interface** : deux sections dans la Boutique (« Chantiers », « Décrets du Sénat » — pas d'onglet) ; dans le tiroir d'un
+  décret, bonus en vert et malus en rouge, et le résumé de la ligne passe à la ligne pour que le malus ne soit jamais tronqué
+  sur 390 px ; bouton Négocier dans le détail d'un système ; notifications ; icônes dessinées à la main ; FR/EN.
+- **Sauvegarde v10**, additive : `run.megastructures`, `run.decrees`, `story.choices`, `combatStats.systemsConquered` et
+  `negotiations`. Une sauvegarde v9 se charge sans perte (testé et vérifié dans le navigateur).
+- **Équilibrage** : `npm run simulate` donne **30 min 03 → 30 min 24** jusqu'à la 1ʳᵉ Ascension (+ 0,7 %, cible ±10 %) ;
+  le bot glouton n'achète ni chantier ni décret (il ne met jamais rien de côté), la mesure ne dépend donc que des nouveaux
+  générateurs et technologies. Mesuré à part : trois décrets bien choisis (Économie de guerre, Mobilisation, Propagande) dès
+  leur déblocage raccourcissent la longue run d'environ **9 %** ; la technologie des mégastructures (40 k cristaux à mettre de
+  côté) n'est atteignable qu'à ≈ 23 min de la longue run d'un bot optimisé, et les six chantiers au complet représentent
+  ≈ 10 min de revenu à ce moment-là. La Sphère de Dyson sert surtout à alimenter l'Extracteur du point zéro (l'énergie est
+  saturée à ce stade). Garde du système 0 et parcours du tutoriel (18 étapes) inchangés. 280 tests (dont `game/empire.test.js`).
+
+**Reporté / à surveiller** : les coûts des chantiers et des décrets sont des estimations — un bot glouton ne peut pas les
+évaluer, à recaler sur des retours de joueurs ; la faction *Gardiens du Sénat* (récompense de l'alliance) reste prévue pour la
+MAJ 4 ; le tutoriel n'a pas de bulle sur les décrets.
+
+**À savoir** : le Bastion n'apparaît que dans les runs dont le système 9 est généré après la mise à jour ; sur une ancienne
+sauvegarde, `systemsConquered` démarre à 0 : le chapitre 2 demande donc 5 systèmes conquis *depuis* la mise à jour.
 
 ### MAJ 3 — « Frontières » _(schéma v11)_
 
@@ -345,7 +396,8 @@ icône (`icons.js` + `icon-map.js`) → invariants dans `balance.test.js` → `n
 | MAJ                 | État                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------------- |
 | 1 « Combat vivant » | Livrée sous le nom de code « Enhanced Combat » (2026-09-20) ; bilan dans la section MAJ 1 |
-| 2 à 6               | Cadrées à gros grain : chiffres et jalons à confirmer après l'équilibrage de la MAJ 1 |
+| 2 « Grands Chantiers » | Livrée sous le nom de code « Civil Engineer » (2026-09-20) ; bilan dans la section MAJ 2 |
+| 3 à 6               | Cadrées à gros grain : chiffres et jalons à confirmer après l'équilibrage de la MAJ 2 |
 
 Ce document est la source de vérité de la feuille de route : le mettre à jour à chaque MAJ livrée
 (état, jalons réellement retenus, valeurs d'équilibrage finales).

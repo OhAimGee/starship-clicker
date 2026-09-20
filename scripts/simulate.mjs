@@ -23,6 +23,12 @@
 //    dizaines d'heures, voir Rapport 3 ; resserrable plus tard si souhaité).
 //    Combat vivant : 27 min 40 avant, 30 min 03 après recalibrage de
 //    `EXPLORATION.baseDefense` (data/systems.js) — à garder à ±10 %.
+//    Grands Chantiers : 30 min 24 (+0,7 %) avec les 6 nouveaux générateurs et
+//    les 5 nouvelles technologies. Ce bot n'achète ni mégastructure ni décret
+//    (il ne met jamais rien de côté : il y aura toujours moins cher) — la
+//    mesure ne dépend donc que des générateurs et des technologies. Un joueur
+//    qui adopterait Économie de guerre + Mobilisation + Propagande dès leur
+//    déblocage gagnerait ≈ 9 % sur la longue run (mesuré à part, hors script).
 
 import { Engine } from '../src/game/engine.js';
 import {

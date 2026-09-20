@@ -5,9 +5,15 @@
 import { FACTION_BY_ID } from '../data/factions.js';
 import { OBJECTIVES } from '../data/objectives.js';
 import { RUN_SKILLS, RUN_SKILL_BY_ID } from '../data/runSkills.js';
+import { MEGASTRUCTURE_IDS } from '../data/megastructures.js';
 import { factionSkillCost, fleetPower } from './economy.js';
 
 const round = Math.round;
+
+/** Mégastructures toutes au niveau 0 (début de run). */
+export function freshMegastructures() {
+  return Object.fromEntries(MEGASTRUCTURE_IDS.map((id) => [id, { level: 0 }]));
+}
 
 /**
  * Choisit le type d'objectif selon le niveau de faction — une rampe
@@ -48,6 +54,8 @@ export function startRun(state, factionId) {
     RUN_SKILLS.map((s) => [s.id, { level: 0 }])
   );
   state.run.combatLog = [];
+  state.run.megastructures = freshMegastructures();
+  state.run.decrees = [];
   state.run.objective = {
     type: objective.id,
     target: objective.target(level),

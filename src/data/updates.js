@@ -4,13 +4,13 @@
 // tout le monde, y compris ceux ayant déjà vu la précédente.
 
 export const CURRENT_UPDATE = {
-  id: 'enhancedCombat',
-  titleKey: 'updateNotice.enhancedCombat.title',
-  introKey: 'updateNotice.enhancedCombat.intro',
+  id: 'civilEngineer',
+  titleKey: 'updateNotice.civilEngineer.title',
+  introKey: 'updateNotice.civilEngineer.intro',
   bulletKeys: [
-    'updateNotice.enhancedCombat.bullet1',
-    'updateNotice.enhancedCombat.bullet2',
-    'updateNotice.enhancedCombat.bullet3',
-    'updateNotice.enhancedCombat.bullet4',
+    'updateNotice.civilEngineer.bullet1',
+    'updateNotice.civilEngineer.bullet2',
+    'updateNotice.civilEngineer.bullet3',
+    'updateNotice.civilEngineer.bullet4',
   ],
 };

@@ -15,7 +15,7 @@ import { RESOURCE_IDS } from '../data/resources.js';
 import { FACTION_IDS } from '../data/factions.js';
 import { ASCENSION_REWARDS } from '../data/ascensionRewards.js';
 import { RUN_SKILLS } from '../data/runSkills.js';
-import { isObjectiveComplete } from './run.js';
+import { isObjectiveComplete, freshMegastructures } from './run.js';
 
 // ─── Terminer la run (fréquent) ─────────────────────────────────────────────
 
@@ -110,6 +110,8 @@ export function endRun(state) {
     RUN_SKILLS.map((s) => [s.id, { level: 0 }])
   );
   state.run.combatLog = [];
+  state.run.megastructures = freshMegastructures();
+  state.run.decrees = [];
 
   state.events = { lastAt: 0, accumMs: 0 };
 
@@ -177,6 +179,11 @@ export function ascend(state) {
   // un vrai New Game+ pour l'accès aux systèmes lointains, pas seulement
   // pour les factions.
   state.prestige.player = { level: 0, xp: 0 };
+  // Les choix de l'histoire se refont à chaque Cycle (voir data/story.js) :
+  // les entrées déjà révélées, elles, restent acquises.
+  for (const key of Object.keys(state.story.choices)) {
+    state.story.choices[key] = null;
+  }
 
   state.ascension.count += 1;
   const options = pickRewardOptions(state, 3);

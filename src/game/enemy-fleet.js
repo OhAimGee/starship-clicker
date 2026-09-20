@@ -38,18 +38,30 @@ export function sizeForAttack(attack) {
   return SIZE_CURVE[SIZE_CURVE.length - 1][1];
 }
 
+// Part des planètes `invaded` des systèmes avancés tenues par les Sentinelles
+// (les forteresses galactiques le sont toutes).
+const SENTINEL_SHARE = 50;
+
 /**
  * Profil de faction ennemie d'une planète — fonction pure de son id et de
  * son type (rien n'est stocké dans la sauvegarde). Le système 0, sur lequel
- * s'appuie le tutoriel, est toujours tenu par l'Essaim.
- * @param {{ index: number }} system
+ * s'appuie le tutoriel, est toujours tenu par l'Essaim ; les Sentinelles
+ * occupent les systèmes avancés (les vestiges du Sénat).
+ * @param {{ index: number, advanced?: boolean, archetype?: string }} system
  * @param {{ id: string, type: string }} planet
  */
 export function enemyProfileId(system, planet) {
   if (planet.boss) return BOSS_BY_ID[planet.boss].profile;
   if (planet.type === 'hostile') return 'wilds';
   if (system.index === 0) return 'swarm';
-  return hashString(planet.id) % 100 < 60 ? 'swarm' : 'garrison';
+  const roll = hashString(planet.id) % 100;
+  if (
+    system.advanced &&
+    (system.archetype === 'galacticFortress' || roll < SENTINEL_SHARE)
+  ) {
+    return 'sentinels';
+  }
+  return roll < 60 ? 'swarm' : 'garrison';
 }
 
 /**

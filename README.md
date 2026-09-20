@@ -40,7 +40,7 @@ et chiffres indicatifs dans [`docs/ROADMAP.md`](docs/ROADMAP.md).
 | MAJ | Titre de travail                    | Axe principal                | Contenu clé                                                                                              | État     |
 | --- | ----------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------- | -------- |
 | 1   | Combat vivant (« Enhanced Combat ») | Exploration & combat         | PV et blindage des vaisseaux, flottes ennemies, combat simulé avec journal d'événements, Journal de bord | ✅ livrée |
-| 2   | Grands Chantiers                    | Production & économie        | Mégastructures, décrets du Sénat, +6 générateurs, +4 technologies, Sentinelles                           | prévu    |
+| 2   | Grands Chantiers (« Civil Engineer ») | Production & économie        | Mégastructures, décrets du Sénat, +6 générateurs, +5 technologies, Sentinelles négociables               | ✅ livrée |
 | 3   | Frontières                          | Exploration (monde) & combat | Nouveaux systèmes et planètes, raids et garnison, rôles de vaisseaux, événements à choix                 | prévu    |
 | 4   | Héritages                           | Prestige & rejouabilité      | Mutateurs de run, 2 nouvelles factions, arbres structurés, succès à récompenses, statistiques            | prévu    |
 | 5   | Le Chant sombre                     | Fin de partie                | Ressource « Singularités », générateurs T6, systèmes « Abysses », les Éveillés                           | prévu    |
@@ -89,7 +89,7 @@ docs/archive/         anciens rapports de développement
 .github/workflows/    déploiement GitHub Pages
 ```
 
-Plus de 230 tests (`npm test`), lint (`npm run lint`).
+Près de 280 tests (`npm test`), lint (`npm run lint`).
 
 ## Sauvegarde
 

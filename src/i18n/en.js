@@ -55,6 +55,8 @@ export const en = {
       endRun: 'End the run',
       runSkillTree: 'Run skills',
       combatLog: 'Combat log',
+      megastructures: 'Megaprojects',
+      decrees: 'Senate decrees',
     },
     cols: {
       cost: 'Fare',
@@ -105,6 +107,7 @@ export const en = {
       pending: 'Pending',
       phaseProgress: 'Phase {won}/{total}',
       noReward: 'No reward.',
+      negotiateNote: 'The Sentinels are willing to talk: {cost} influence to obtain the planet without a fight (loot halved).',
       hostileLocked: 'Requires the Xeno-colonization research before attacking — conquest is permanent, so research the tech first.',
     },
     planetType: {
@@ -127,6 +130,9 @@ export const en = {
       details: 'Details',
       cancel: 'Cancel',
       engage: 'Engage',
+      negotiate: 'Negotiate',
+      adopt: 'Enact',
+      abrogate: 'Repeal',
       close: 'Close',
       continue: 'Continue',
     },
@@ -149,6 +155,15 @@ export const en = {
       maintenanceTotal: 'Total upkeep',
       fleetPowerNeeded: 'Power required: {n}',
       passiveIncome: 'Passive income',
+      levelOf: 'Lv. {n} / {max}',
+      maxed: 'Max',
+      slots: 'Slots: {used} / {total}',
+      adopted: 'Enacted',
+      slotsFull: 'Slots full',
+      effects: 'Effects',
+      nextLevel: 'Next level',
+      megastructuresLead: 'Colossal works: every level built is lost when the run ends.',
+      decreesLead: 'One policy per slot, paid in influence. Repealing is free, but enacting again costs.',
     },
     ascension: {
       marquee: 'All services terminated',
@@ -376,17 +391,17 @@ export const en = {
   },
 
   updateNotice: {
-    enhancedCombat: {
-      title: 'Enhanced Combat Update',
+    civilEngineer: {
+      title: 'Civil Engineer Update',
       intro: 'What’s new in this update:',
       bullet1:
-        'Living combat: every battle plays out round by round, with a live event log (critical hits, evaded shots, hull breaches…). Chance has its say: destroyed ships are lost, their wrecks partly recovered.',
+        'Megaprojects: six megastructures (Dyson sphere, orbital elevator, world forge…) to build level by level during a run. A new Shop section, unlocked by the “Megastructure engineering” research.',
       bullet2:
-        'Small versus big: every ship now has hull points and armour. Small ships are cheap but fragile, big ones cost more but soak damage. Enemies field their own fleets (the Swarm, garrisons, wildlife…): the engage screen shows their composition and your estimated chance to win.',
+        'Senate decrees: influence finally has a use! Enact double-edged policies (Mobilization, Austerity, War economy…) and swap them to suit the situation.',
       bullet3:
-        'Logbook: a prologue, chapter 1 “The Tide”, the bestiary, the Mother Nest boss planet and 4 new combat achievements.',
+        'The Sentinels: heavily armoured guardians you can fight… or negotiate with. Logbook chapter 2, the “Sentinel Bastion” boss planet and a choice: ally or destroy.',
       bullet4:
-        'New “Battles” option: animated log or summary only.',
+        'Six new generators (three of them influence), five technologies including Composite armour, and five new achievements.',
     },
   },
 
@@ -466,6 +481,26 @@ export const en = {
       name: 'Queen slayer',
       desc: 'Defeat the Mother Nest.',
     },
+    firstMegastructure: {
+      name: 'Builder',
+      desc: 'Complete a first megastructure level.',
+    },
+    wonderBuilder: {
+      name: 'Architect of the impossible',
+      desc: 'Bring every megastructure to its maximum level in the same run.',
+    },
+    firstDecree: {
+      name: 'Lawmaker',
+      desc: 'Enact a first Senate decree.',
+    },
+    diplomat: {
+      name: 'Diplomat',
+      desc: 'Obtain a planet through negotiation.',
+    },
+    bastionGates: {
+      name: 'The gates of the Bastion',
+      desc: 'Resolve the Sentinel Bastion, by force or by words.',
+    },
   },
 
   resource: {
@@ -544,6 +579,30 @@ export const en = {
       name: 'Void loom',
       desc: 'Weaves dark matter out of quantum energy.',
     },
+    embassy: {
+      name: 'Embassy',
+      desc: 'A diplomatic corps on site: influence is bought with metal.',
+    },
+    treatyBureau: {
+      name: 'Treaty bureau',
+      desc: 'Drafts, ratifies and enforces treaties for antimatter: influence reaches further.',
+    },
+    particleCollider: {
+      name: 'Particle collider',
+      desc: 'Smashes antimatter against itself until quantum energy falls out — no dark matter needed.',
+    },
+    forbiddenArchive: {
+      name: 'Forbidden archive',
+      desc: 'Research the Senate had sealed: paid in influence, it yields dark matter.',
+    },
+    galacticTribunal: {
+      name: 'Galactic tribunal',
+      desc: 'Judges the disputes of a whole sector: quantum energy makes its verdicts unquestionable.',
+    },
+    zeroPointExtractor: {
+      name: 'Zero-point extractor',
+      desc: 'Converts colossal amounts of ordinary energy into quantum energy.',
+    },
   },
 
   enemy: {
@@ -553,6 +612,7 @@ export const en = {
       cruiser: 'Cruiser',
       bastion: 'Bastion',
       leviathan: 'Leviathan',
+      sentinel: 'Sentinel',
     },
     classPlural: {
       drone: 'Drones',
@@ -560,6 +620,7 @@ export const en = {
       cruiser: 'Cruisers',
       bastion: 'Bastions',
       leviathan: 'Leviathans',
+      sentinel: 'Sentinels',
     },
     profile: {
       swarm: {
@@ -594,17 +655,27 @@ export const en = {
         defeat: 'The creatures slaughter your fleet.',
         retreat: 'Your weapons glance off their carapace: emergency retreat.',
       },
+      sentinels: {
+        name: 'The Sentinels',
+        hint: 'Few but heavily armoured guardians: bring heavy calibres… or open a dialogue (Space diplomacy).',
+        intro: 'The Senate’s guardians fall into formation. Not a word: only their shields rising.',
+        victory: 'The Sentinels cease fire, their shields going dark one by one.',
+        defeat: 'The Sentinels hold their ground: your fleet is thrown back.',
+        retreat: 'They do not pursue: your ships take the chance to break contact.',
+      },
     },
   },
 
   boss: {
     motherNest: { name: 'Mother Nest' },
+    sentinelBastion: { name: 'Sentinel Bastion' },
   },
 
   story: {
     chapter: {
       prologue: { title: 'Prologue — Awakening' },
       tide: { title: 'Chapter 1 — The Tide' },
+      sentinels: { title: 'Chapter 2 — The Sentinels' },
     },
     entry: {
       awakening: {
@@ -638,6 +709,26 @@ export const en = {
       nestFallen: {
         title: 'The queen falls',
         text: 'The Mother Nest collapses and, with her, every swarm freezes at once, as if robbed of an order. The tide recedes. One question remains: who gave the queen her order? Deep inside her, an encrypted signal — coordinates.',
+      },
+      sentinelsSignal: {
+        title: 'A signal on every frequency',
+        text: 'Your engineers have restored the Senate’s diplomatic channels, and something is answering: a repetitive, orderly, very old signal. “Area under guard. Identify yourself.” The Sentinels never stopped keeping watch.',
+      },
+      sentinelsWardens: {
+        title: 'The Senate’s guardians',
+        text: 'They do not hunt, they do not pursue: they hold. Their armour is colossal — small calibres glance off — but nothing in their protocols forbids talking to whoever speaks their language. Every planet they guard can be negotiated.',
+      },
+      bastionSighted: {
+        title: 'The Bastion',
+        text: 'Every beacon converges on a single point: a fortress-world, the Senate’s last lock. The Sentinel Bastion. They say it holds the register of oaths — and the arsenal to enforce them.',
+      },
+      bastionAllied: {
+        title: 'The oath renewed',
+        text: '“The Senate is no more. Its guard remains.” The Bastion opens its gates: the Sentinels swear loyalty to the ark and to Commander {name}. Their armour plans join your yards. It remains to be seen what the word of machines that waited so long is worth.',
+      },
+      bastionRazed: {
+        title: 'The lock broken',
+        text: 'The Bastion collapses under your salvos and its arsenal is yours. The Sentinels did not beg: they held to the very end. In the rubble your crews recover vast reserves — and the lingering feeling of having silenced something that should have been heard.',
       },
     },
   },
@@ -746,6 +837,82 @@ export const en = {
     },
   },
 
+  // Effect labels (megaprojects, decrees): “<label> <±percentage>”.
+  effect: {
+    percent: '{sign}{n}%',
+    productionMultiplier: 'Production',
+    resourceProductionMultiplier: 'Production ({res})',
+    clickMultiplier: 'Click',
+    fleetMultiplier: 'Fleet power',
+    fleetDurability: 'Ship hull points',
+    shipCost: 'Ship cost',
+    fleetMaintenance: 'Upkeep',
+    explorationIncome: 'System income',
+    lootMultiplier: 'Loot',
+  },
+
+  megastructure: {
+    dysonSphere: {
+      name: 'Dyson sphere',
+      desc: 'A shell of collectors around the star: energy output soars.',
+    },
+    orbitalElevator: {
+      name: 'Orbital elevator',
+      desc: 'A cable to orbit: putting a hull in position costs far less.',
+    },
+    worldForge: {
+      name: 'World forge',
+      desc: 'An entire planet turned into a foundry and a crystal works.',
+    },
+    archivesNetwork: {
+      name: 'Archives network',
+      desc: 'Links the Senate Archives together: influence flows much faster.',
+    },
+    flagshipYard: {
+      name: 'Flagship yard',
+      desc: 'Giant slipways that thicken every ship’s hull: more hull points in battle.',
+    },
+    ringWorld: {
+      name: 'Ringworld',
+      desc: 'A habitable ring around the star: conquered systems pay out far more.',
+    },
+  },
+
+  decree: {
+    mobilization: {
+      name: 'Mobilization',
+      desc: 'The whole nation behind the war effort: a stronger fleet, but a sluggish economy.',
+    },
+    austerity: {
+      name: 'Austerity',
+      desc: 'The fleet is cheaper to build and maintain, but less well armed.',
+    },
+    warEconomy: {
+      name: 'War economy',
+      desc: 'Factories run flat out; the ships, meanwhile, are costly to keep up.',
+    },
+    martialLaw: {
+      name: 'Martial law',
+      desc: 'Reinforced hulls at any price — at the colonies’ expense.',
+    },
+    plunderRights: {
+      name: 'Right of plunder',
+      desc: 'Planetary loot soars, but crews take risks.',
+    },
+    stateScience: {
+      name: 'State science',
+      desc: 'High science is funded at the expense of basic industry.',
+    },
+    propaganda: {
+      name: 'Propaganda',
+      desc: 'The people cheer: every click counts for more, and the fleet feels it.',
+    },
+    freeTrade: {
+      name: 'Free trade',
+      desc: 'Conquered systems prosper, but no more looting.',
+    },
+  },
+
   tech: {
     advancedPropulsion: {
       name: 'Advanced propulsion',
@@ -795,6 +962,26 @@ export const en = {
     realityManipulation: {
       name: 'Reality manipulation',
       desc: '5x production and click power.',
+    },
+    compositeArmor: {
+      name: 'Composite armour',
+      desc: 'Raises the hull points of every ship in battle.',
+    },
+    orbitalLogistics: {
+      name: 'Orbital logistics',
+      desc: 'Conquered planets yield more loot and fleet upkeep is eased.',
+    },
+    spaceDiplomacy: {
+      name: 'Space diplomacy',
+      desc: 'Reopens the Senate’s channels: unlocks decrees and negotiation with the Sentinels.',
+    },
+    megastructureEngineering: {
+      name: 'Megastructure engineering',
+      desc: 'Unlocks Megaprojects: colossal works, to be rebuilt every run.',
+    },
+    galacticConstitution: {
+      name: 'Galactic constitution',
+      desc: 'One extra decree slot.',
     },
   },
 
@@ -1040,5 +1227,16 @@ export const en = {
     saveReset:
       'The game changed significantly (factions, node-based exploration). Your old save was archived — new game!',
     eventGain: '{name}: {list}',
+    megastructureBuilt: '{name} — level {level}.',
+    decreeAdopted: 'Decree enacted: {name}.',
+    decreeAbrogated: 'Decree repealed: {name}.',
+    decreeSlotsFull: 'All decree slots are taken — repeal one.',
+    planetNegotiated: 'The Sentinels stand down: planet obtained without a fight. Loot: {list}',
+    choice: {
+      sentinels: {
+        ally: 'The Sentinels swear loyalty to you: ship hull points +25% for this run.',
+        destroy: 'The Bastion is down: loot +25% for this run.',
+      },
+    },
   },
 };

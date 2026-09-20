@@ -451,6 +451,14 @@ export function mountApp(host, engine, { offlineReport, onReturnToMenu } = {}) {
       case 'research':
         engine.research(id);
         break;
+      case 'build-megastructure':
+        engine.buildMegastructure(id);
+        break;
+      case 'toggle-decree':
+        engine.state.run.decrees.includes(id)
+          ? engine.abrogateDecree(id)
+          : engine.adoptDecree(id);
+        break;
       case 'open-system':
         showSystemDetail(engine, Number(id));
         break;

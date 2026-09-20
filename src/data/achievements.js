@@ -13,6 +13,8 @@
 // (aucun nouveau compteur à inventer) : à étendre plus tard, c'est juste un
 // tableau de données.
 
+import { MEGASTRUCTURES } from './megastructures.js';
+
 export const ACHIEVEMENTS = [
   { id: 'firstClick', check: (s) => s.totalClicks >= 1 },
   { id: 'hundredClicks', check: (s) => s.totalClicks >= 100 },
@@ -50,6 +52,23 @@ export const ACHIEVEMENTS = [
   { id: 'flawlessVictory', check: (s) => s.combatStats.flawless >= 1 },
   { id: 'swarmCrusher', check: (s) => s.combatStats.enemiesDestroyed >= 100 },
   { id: 'nestSlayer', check: (s) => s.story.defeated.motherNest === true },
+  // Grands Chantiers : `run.megastructures` / `run.decrees` sont propres à la
+  // run, mais le verrou du succès, lui, est définitif.
+  {
+    id: 'firstMegastructure',
+    check: (s) =>
+      Object.values(s.run.megastructures).some((m) => m.level >= 1),
+  },
+  {
+    id: 'wonderBuilder',
+    check: (s) =>
+      MEGASTRUCTURES.every(
+        (m) => (s.run.megastructures[m.id]?.level ?? 0) >= m.maxLevel
+      ),
+  },
+  { id: 'firstDecree', check: (s) => s.run.decrees.length >= 1 },
+  { id: 'diplomat', check: (s) => s.combatStats.negotiations >= 1 },
+  { id: 'bastionGates', check: (s) => s.story.defeated.sentinelBastion === true },
 ];
 
 export const ACHIEVEMENT_IDS = ACHIEVEMENTS.map((a) => a.id);

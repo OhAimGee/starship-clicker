@@ -108,6 +108,21 @@ export const CONFIG = {
     searchRuns: 40, // simulations par pas de la recherche dichotomique
   },
 
+  // Décrets du Sénat (voir data/decrees.js) : emplacements de base ; une
+  // technologie (`decreeSlots`) en ajoute.
+  decrees: {
+    baseSlots: 2,
+  },
+
+  // Négociation avec les Sentinelles (voir Engine#negotiatePlanet) : conquérir
+  // une planète qu'elles tiennent en payant de l'influence plutôt qu'en
+  // combattant. Coût = défense × phases restantes × `influencePerDefense` ;
+  // le butin est réduit (on commerce, on ne pille pas).
+  negotiation: {
+    influencePerDefense: 0.25,
+    lootFraction: 0.5,
+  },
+
   // Niveau de joueur (voir game/leveling.js) : persiste entre les runs
   // (comme le niveau de faction), remis à zéro par ascend() seulement.
   // Alimenté uniquement par le combat — gagner des combats/planètes/

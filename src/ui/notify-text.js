@@ -68,6 +68,20 @@ export function notifyText({ key, params = {} }, engine) {
     return t(key, { name, level });
   }
 
+  if (key === 'notify.megastructureBuilt') {
+    const name = t(`megastructure.${params.id}.name`);
+    const level = engine?.state?.run?.megastructures?.[params.id]?.level;
+    return t(key, { name, level });
+  }
+
+  if (key === 'notify.decreeAdopted' || key === 'notify.decreeAbrogated') {
+    return t(key, { name: t(`decree.${params.id}.name`) });
+  }
+
+  if (key === 'notify.planetNegotiated') {
+    return t(key, { list: formatResourceList(params.rewards ?? {}) });
+  }
+
   if (key === 'notify.unlocked') {
     const ns = UNLOCK_NS[params.kind];
     return t('notify.unlocked', {

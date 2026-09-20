@@ -14,6 +14,8 @@ import { COMBAT_EVENTS } from './combatEvents.js';
 import { RUN_SKILLS } from './runSkills.js';
 import { CHAPTERS, STORY_ENTRIES } from './story.js';
 import { ACHIEVEMENTS } from './achievements.js';
+import { MEGASTRUCTURES } from './megastructures.js';
+import { DECREES } from './decrees.js';
 import { BOSS_PLANETS } from './systems.js';
 import { ENEMY_PROFILE_IDS } from './enemies.js';
 import { t } from '../i18n/index.js';
@@ -29,6 +31,11 @@ const KNOWN_EFFECTS = new Set([
   'autoBuyGenerators',
   'unlockAdvancedSystems',
   'unlockHostileColonization',
+  'fleetDurability',
+  'lootMultiplier',
+  'unlockDecrees',
+  'unlockMegastructures',
+  'decreeSlots',
 ]);
 // Types d'effet « à niveaux », gérés par economy.js#applyLeveledEffect —
 // partagés par PRESTIGE_UPGRADES (arbre commun) et les arbres de faction.
@@ -40,6 +47,8 @@ const KNOWN_LEVELED_EFFECTS = new Set([
   'resourceProductionMultiplier',
   'shipCost',
   'fleetMaintenance',
+  'explorationIncome',
+  'lootMultiplier',
 ]);
 
 function assertLeveledEffect(effect, label) {
@@ -76,6 +85,8 @@ describe('cohérence des identifiants', () => {
       RANDOM_EVENTS,
       FACTIONS,
       ASCENSION_REWARDS,
+      MEGASTRUCTURES,
+      DECREES,
     ]) {
       const ids = list.map((x) => x.id);
       expect(new Set(ids).size).toBe(ids.length);
@@ -397,6 +408,61 @@ describe('planètes-boss', () => {
       expect(b.lootMultiplier, b.id).toBeGreaterThanOrEqual(1);
       const key = `boss.${b.id}.name`;
       expect(t(key), key).not.toBe(key);
+    }
+  });
+});
+
+describe('mégastructures', () => {
+  it('niveaux, coûts multi-ressources, effet et déblocage valides ; textes FR', () => {
+    for (const m of MEGASTRUCTURES) {
+      expect(m.maxLevel, m.id).toBeGreaterThanOrEqual(3);
+      expect(m.maxLevel, m.id).toBeLessThanOrEqual(5);
+      expect(m.costGrowth, m.id).toBeGreaterThan(1);
+      expect(Object.keys(m.baseCost).length, m.id).toBeGreaterThanOrEqual(2);
+      for (const [res, amount] of Object.entries(m.baseCost)) {
+        expect(isResource(res), `${m.id}: ${res}`).toBe(true);
+        expect(amount, `${m.id}: ${res}`).toBeGreaterThan(0);
+      }
+      assertLeveledEffect(m.effect, m.id);
+      assertUnlock(m.unlock);
+      for (const field of ['name', 'desc']) {
+        const key = `megastructure.${m.id}.${field}`;
+        expect(t(key), key).not.toBe(key);
+      }
+    }
+  });
+});
+
+describe('décrets du Sénat', () => {
+  it('coût en influence, effets valides, à double tranchant ; textes FR', () => {
+    for (const d of DECREES) {
+      expect(Object.keys(d.cost), d.id).toEqual(['influence']);
+      expect(d.cost.influence, d.id).toBeGreaterThan(0);
+      expect(d.effects.length, d.id).toBeGreaterThanOrEqual(2);
+      for (const e of d.effects) {
+        expect(
+          KNOWN_LEVELED_EFFECTS.has(e.type),
+          `${d.id}: effet ${e.type}`
+        ).toBe(true);
+        // perLevel peut être négatif (le prix du décret), jamais nul ni ≤ −100 %.
+        expect(e.perLevel, d.id).not.toBe(0);
+        expect(e.perLevel, d.id).toBeGreaterThan(-1);
+        for (const res of e.resources ?? [])
+          expect(isResource(res), `${d.id}: ${res}`).toBe(true);
+      }
+      // Double tranchant : au moins un avantage ET un inconvénient.
+      expect(
+        d.effects.some((e) => e.perLevel > 0),
+        `${d.id} : aucun avantage`
+      ).toBe(true);
+      expect(
+        d.effects.some((e) => e.perLevel < 0),
+        `${d.id} : aucun inconvénient`
+      ).toBe(true);
+      for (const field of ['name', 'desc']) {
+        const key = `decree.${d.id}.${field}`;
+        expect(t(key), key).not.toBe(key);
+      }
     }
   });
 });

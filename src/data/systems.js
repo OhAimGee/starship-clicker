@@ -179,6 +179,16 @@ export const BOSS_PLANETS = [
     defenseShare: 0.35,
     lootMultiplier: 3,
   },
+  {
+    // Le Bastion des Sentinelles (chapitre 2) : à conquérir de force ou à
+    // négocier — le choix Allier / Détruire (voir Engine#_resolveSentinelChoice).
+    id: 'sentinelBastion',
+    systemIndex: 9,
+    profile: 'sentinels',
+    phasesTotal: 3,
+    defenseShare: 0.4,
+    lootMultiplier: 3,
+  },
 ];
 
 export const BOSS_BY_ID = Object.fromEntries(BOSS_PLANETS.map((b) => [b.id, b]));
