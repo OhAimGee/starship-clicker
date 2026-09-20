@@ -10,14 +10,14 @@ export const CLICK_UPGRADES = [
   {
     id: 'clickPower',
     baseCost: 50,
-    costGrowth: 2.4,
+    costGrowth: 1.8,
     // +flat au pouvoir de clic de base par niveau
     clickBonusPerLevel: 1,
   },
   {
     id: 'autoClicker',
     baseCost: 500,
-    costGrowth: 1.6,
+    costGrowth: 1.3,
     // chaque exemplaire clique une fois par seconde
   },
 ];
